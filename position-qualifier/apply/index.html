@@ -34,6 +34,7 @@
     margin: 0 0 6px;
   }
   .subtitle { color: var(--muted); font-size: 14.5px; margin: 0 0 12px; }
+  .from-line { color: var(--teal); font-size: 13.5px; font-weight: 500; margin: 0 0 10px; }
   .reassure { color: var(--muted); font-size: 13.5px; margin: 0 0 32px; }
 
   #loading { text-align: center; padding: 80px 20px; }
@@ -122,10 +123,19 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
-function renderForm(roleTitle, sections) {
+function renderForm(roleTitle, sections, recruiterName, company) {
   currentSections = sections;
+  const fromLine = recruiterName && company
+    ? `From ${escapeHtml(recruiterName)} at ${escapeHtml(company)}`
+    : recruiterName
+    ? `From ${escapeHtml(recruiterName)}`
+    : company
+    ? `From ${escapeHtml(company)}`
+    : null;
+
   return `
     <h1>Quick check-in before we chat</h1>
+    ${fromLine ? `<p class="from-line">${fromLine}</p>` : ''}
     <p class="subtitle">A short set of questions for the ${escapeHtml(roleTitle)} role.</p>
     <p class="reassure">Answer honestly — there's no pass mark, and it's fine to skip anything outside your experience.</p>
 
@@ -224,7 +234,7 @@ async function load() {
     if (!res.ok) throw new Error('Not found');
     const data = await res.json();
 
-    document.getElementById('content').innerHTML = renderForm(data.roleTitle, data.questions.sections);
+    document.getElementById('content').innerHTML = renderForm(data.roleTitle, data.questions.sections, data.recruiterName, data.company);
     document.getElementById('loading').style.display = 'none';
     document.getElementById('content').style.display = '';
   } catch (err) {

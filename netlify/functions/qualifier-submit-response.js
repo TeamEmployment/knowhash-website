@@ -37,7 +37,7 @@ exports.handler = async (event) => {
 
       const result = await dataverseRequest(
         "GET",
-        `cre5b_knowhashpositionqualifiers?$filter=cre5b_candidate_link_token eq '${token}'&$select=cre5b_knowhashpositionqualifierid,cre5b_role_title,cre5b_generated_questions`
+        `cre5b_knowhashpositionqualifiers?$filter=cre5b_candidate_link_token eq '${token}'&$select=cre5b_knowhashpositionqualifierid,cre5b_role_title,cre5b_generated_questions,_cre5b_owner_lead_value`
       );
 
       if (!result.value || result.value.length === 0) {
@@ -45,11 +45,27 @@ exports.handler = async (event) => {
       }
       const qualifier = result.value[0];
 
+      // Pull who this is actually from, so the candidate can reconcile it
+      // against whoever they connected with.
+      let recruiterName = null;
+      let company = null;
+      const leadId = qualifier._cre5b_owner_lead_value;
+      if (leadId) {
+        const leadResult = await dataverseRequest(
+          "GET",
+          `cre5b_knowhashleadses(${leadId})?$select=cre5b_name,cre5b_company`
+        );
+        recruiterName = leadResult.cre5b_name || null;
+        company = leadResult.cre5b_company || null;
+      }
+
       return {
         statusCode: 200,
         body: JSON.stringify({
           roleTitle: qualifier.cre5b_role_title,
           questions: JSON.parse(qualifier.cre5b_generated_questions),
+          recruiterName,
+          company,
         }),
       };
     }

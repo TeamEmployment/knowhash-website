@@ -1,18 +1,11 @@
 const { dataverseRequest } = require("./dataverse-client");
 const crypto = require("crypto");
 
-// NOTE ON NAVIGATION PROPERTY NAMES:
-// The lookup fields below were created with display names "Owner Lead" and
-// "Position Qualifier". Dataverse's auto-generated navigation property for a
-// custom lookup normally matches the column's Schema Name, which — going by
-// this org's existing pattern (e.g. cre5b_role_title, cre5b_candidate_link_token)
-// — is expected to be "cre5b_Owner_Lead" and "cre5b_Position_Qualifier".
-// This is the one piece of this file that hasn't been confirmed against a live
-// call yet — if the very first test throws a 400 mentioning an unrecognized
-// property, this is the first place to check (open the table in the maker
-// portal, look at the lookup column's "Schema name" field, and correct below).
-const OWNER_LEAD_BIND = "cre5b_Owner_Lead@odata.bind";
-const POSITION_QUALIFIER_BIND = "cre5b_Position_Qualifier@odata.bind";
+// NOTE ON NAVIGATION PROPERTY NAMES: confirmed directly against Dataverse's
+// own metadata (EntityDefinitions/ManyToOneRelationships) — the navigation
+// property is identical to the column's logical name, lowercase with
+// underscores. No PascalCase conversion happens for these custom lookups.
+const OWNER_LEAD_BIND = "cre5b_owner_lead@odata.bind";
 
 const CLAUDE_MODEL = "claude-sonnet-4-6";
 

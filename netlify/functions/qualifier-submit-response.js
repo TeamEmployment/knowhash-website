@@ -1,8 +1,8 @@
 const { dataverseRequest } = require("./dataverse-client");
 
-// Same navigation-property caveat as qualifier-generate-or-fetch.js — verify
-// this against the real Schema Name on first live test.
-const POSITION_QUALIFIER_BIND = "cre5b_Position_Qualifier@odata.bind";
+// Confirmed directly against Dataverse's own metadata — navigation property
+// matches the logical name exactly, lowercase with underscores.
+const POSITION_QUALIFIER_BIND = "cre5b_position_qualifier@odata.bind";
 
 exports.handler = async (event) => {
   try {

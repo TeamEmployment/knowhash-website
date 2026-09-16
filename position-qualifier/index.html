@@ -80,6 +80,19 @@
   table { width: 100%; border-collapse: collapse; font-size: 14px; }
   th { text-align: left; color: var(--muted); font-weight: 500; font-size: 12.5px; padding: 8px 0; border-bottom: 1px solid var(--line); }
   td { padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .response-row { cursor: pointer; }
+  .response-row:hover td { background: var(--teal-light); }
+  .chevron { width: 20px; color: var(--muted); font-size: 16px; text-align: center; }
+  .response-detail td { border-bottom: 1px solid var(--line); padding: 0 0 14px; }
+  .answer-item { padding: 10px 0; border-top: 1px solid var(--line); }
+  .answer-item:first-child { border-top: none; }
+  .answer-q { font-size: 13.5px; font-weight: 500; margin-bottom: 3px; }
+  .answer-a { font-size: 14px; color: var(--navy); white-space: pre-wrap; }
+  button.download {
+    margin-top: 12px; background: transparent; color: var(--teal); border: 1px solid var(--teal);
+    border-radius: 7px; padding: 7px 14px; font-size: 13px; cursor: pointer; font-family: 'Inter', sans-serif;
+  }
+  button.download:hover { background: var(--teal-light); }
   .empty-state { color: var(--muted); font-size: 14px; padding: 8px 0; }
 
   #error { text-align: center; padding: 60px 20px; color: var(--muted); }
@@ -151,7 +164,11 @@ function renderSections(sections) {
   `).join('');
 }
 
+let currentResponses = [];
+let currentRoleTitle = '';
+
 function renderResponses(responses) {
+  currentResponses = responses;
   if (!responses || responses.length === 0) {
     return `<div class="card"><h2>Responses</h2><p class="empty-state">No responses yet — share the link above with a candidate to get started.</p></div>`;
   }
@@ -159,17 +176,64 @@ function renderResponses(responses) {
     <div class="card">
       <h2>Responses (${responses.length})</h2>
       <table>
-        <tr><th>Candidate</th><th>Email</th><th>Received</th></tr>
-        ${responses.map(r => `
-          <tr>
+        <tr><th></th><th>Candidate</th><th>Email</th><th>Received</th></tr>
+        ${responses.map((r, idx) => `
+          <tr class="response-row" onclick="toggleResponse(${idx})">
+            <td class="chevron" id="chevron-${idx}">›</td>
             <td>${escapeHtml(r.cre5b_candidate_name || 'Not given')}</td>
             <td>${escapeHtml(r.cre5b_candidate_email || '—')}</td>
             <td>${new Date(r.createdon).toLocaleDateString()}</td>
+          </tr>
+          <tr class="response-detail" id="detail-${idx}" style="display:none">
+            <td colspan="4">
+              ${renderAnswers(r.cre5b_answers)}
+              <button class="download" onclick="event.stopPropagation(); downloadResponse(${idx})">Download copy</button>
+            </td>
           </tr>
         `).join('')}
       </table>
     </div>
   `;
+}
+
+function downloadResponse(idx) {
+  const r = currentResponses[idx];
+  let answers;
+  try { answers = JSON.parse(r.cre5b_answers); } catch (e) { answers = []; }
+  const lines = [
+    `Position Qualifier — ${currentRoleTitle}`,
+    `Candidate: ${r.cre5b_candidate_name || 'Not given'}`,
+    `Email: ${r.cre5b_candidate_email || '—'}`,
+    `Received: ${new Date(r.createdon).toLocaleString()}`,
+    '',
+    ...answers.flatMap(a => [a.question, a.answer || '(skipped)', ''])
+  ];
+  const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${(r.cre5b_candidate_name || 'candidate').replace(/\s+/g, '-')}-response.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function renderAnswers(answersJson) {
+  let answers;
+  try { answers = JSON.parse(answersJson); } catch (e) { return '<p class="empty-state">Could not read this response.</p>'; }
+  return answers.map(a => `
+    <div class="answer-item">
+      <div class="answer-q">${escapeHtml(a.question)}</div>
+      <div class="answer-a">${escapeHtml(a.answer || '(skipped)')}</div>
+    </div>
+  `).join('');
+}
+
+function toggleResponse(idx) {
+  const detail = document.getElementById(`detail-${idx}`);
+  const chevron = document.getElementById(`chevron-${idx}`);
+  const open = detail.style.display !== 'none';
+  detail.style.display = open ? 'none' : '';
+  chevron.textContent = open ? '›' : '⌄';
 }
 
 async function load(retry) {
@@ -192,6 +256,7 @@ async function load(retry) {
 
     clearInterval(msgTimer);
     const candidateUrl = `${window.location.origin}/position-qualifier/apply/?token=${data.candidateLinkToken}`;
+    currentRoleTitle = data.roleTitle;
 
     document.getElementById('content').innerHTML = `
       <div class="card">

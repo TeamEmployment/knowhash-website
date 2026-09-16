@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>knowhash — Reviewer test code</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; max-width: 640px; margin: 60px auto; padding: 0 24px; color: #2b2b2b; line-height: 1.6; }
+  h1 { color: #22355C; font-size: 26px; margin-bottom: 4px; }
+  .tag { color: #58595b; font-size: 14px; margin-bottom: 40px; }
+  .code-box {
+    background: #22355C;
+    color: #fff;
+    font-size: 40px;
+    font-weight: bold;
+    letter-spacing: 6px;
+    text-align: center;
+    padding: 28px;
+    border-radius: 8px;
+    margin: 24px 0;
+  }
+  .code-box.empty { background: #9aa1ab; font-size: 18px; letter-spacing: normal; font-weight: normal; }
+  .updated { color: #58595b; font-size: 13px; margin-top: 24px; border-top: 1px solid #e6e6e6; padding-top: 16px; }
+  .message { font-size: 15px; }
+</style>
+</head>
+<body>
+
+  <h1>knowhash — Test verification code</h1>
+  <div class="tag">This page shows the current code sent to reviewer@knowhash.com, for Chrome Web Store review purposes only.</div>
+
+  <div id="code-box" class="code-box empty">Loading…</div>
+  <p id="message" class="message"></p>
+  <div id="updated" class="updated"></div>
+
+  <script>
+    async function loadCode() {
+      const codeBox = document.getElementById('code-box');
+      const message = document.getElementById('message');
+      const updated = document.getElementById('updated');
+
+      try {
+        const res = await fetch('/.netlify/functions/get-reviewer-code');
+        const data = await res.json();
+
+        if (data.code) {
+          codeBox.textContent = data.code;
+          codeBox.classList.remove('empty');
+        } else {
+          codeBox.textContent = 'No active code';
+          codeBox.classList.add('empty');
+        }
+
+        message.textContent = data.message || '';
+
+        if (data.updated) {
+          const d = new Date(data.updated);
+          updated.textContent = 'Last updated: ' + d.toLocaleString();
+        }
+      } catch (err) {
+        codeBox.textContent = 'Unable to load code';
+        codeBox.classList.add('empty');
+      }
+    }
+
+    loadCode();
+    // Refresh automatically in case the reviewer requests a new code
+    // partway through testing.
+    setInterval(loadCode, 15000);
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "name": "knowhash-site-functions",
+  "private": true,
+  "dependencies": {
+    "busboy": "^1.6.0",
+    "@netlify/blobs": "^7.0.0"
+  }
+}

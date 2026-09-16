@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" sizes="16x16" href="/icons/icon16.png">
+<link rel="icon" type="image/png" sizes="48x48" href="/icons/icon48.png">
+<link rel="apple-touch-icon" sizes="128x128" href="/icons/icon128.png">
+<title>Pricing — knowhash</title>
+<meta name="description" content="knowhash Message is free, forever, no signup. knowhash Recruit is $24/month with a full free month to try it. knowhash Prospect is coming.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #22355C;
+    --charcoal: #3a3a3a;
+    --pink: #0D5C63;
+    --green: #39B54A;
+    --blue: #00AEEF;
+    --paper: #FFFFFF;
+    --line: #E5E8EE;
+
+    /* Same three tier washes as Demo and Features — the colour is the
+       wayfinding across the whole site, not just this page. */
+    --band-messaging: #EAF7FD;
+    --band-messaging-line: #CFEAF6;
+    --band-messaging-deep: #0A9BCB;
+
+    --band-recruit: #EAF7ED;
+    --band-recruit-line: #CFEAD6;
+    --band-recruit-deep: #1F8F3B;
+
+    --band-prospect: #F3EAF5;
+    --band-prospect-line: #E3D2E8;
+    --band-prospect-deep: #5B2A6B;
+
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --display: "Comfortaa", var(--sans);
+    --mono: ui-monospace, "SF Mono", Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--charcoal);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 28px; }
+
+  header.top {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--line);
+  }
+  header.top .wrap { display: flex; align-items: center; gap: 32px; padding-top: 16px; padding-bottom: 16px; }
+  .brand { display: flex; align-items: center; gap: 9px; margin-right: auto; }
+  .brand .mark { width: 20px; height: 20px; color: var(--ink); flex: none; }
+  .brand .wordmark { font-family: var(--display); font-weight: 700; font-size: 16px; color: var(--ink); }
+  nav.primary { display: flex; gap: 26px; }
+  nav.primary a { color: #55606f; text-decoration: none; font-size: 14.5px; font-weight: 600; margin-right: 26px; }
+  nav.primary a:last-child { margin-right: 0; }
+  nav.primary a:hover { color: var(--ink); }
+  nav.primary a.current { color: var(--pink); }
+  .nav-cta {
+    background: var(--pink); color: #fff; font-family: var(--display); font-weight: 700;
+    font-size: 13.5px; padding: 9px 18px; border-radius: 7px; text-decoration: none;
+  }
+  .nav-toggle {
+    display: none; background: none; border: none; cursor: pointer; padding: 4px;
+    color: var(--ink); margin-left: 14px;
+  }
+  .nav-toggle svg { width: 24px; height: 24px; display: block; }
+  .nav-toggle .icon-close { display: none; }
+  body.menu-open .nav-toggle .icon-menu { display: none; }
+  body.menu-open .nav-toggle .icon-close { display: block; }
+
+  @media (max-width: 760px) {
+    .nav-toggle { display: flex; align-items: center; }
+    body.menu-open header.top { backdrop-filter: none; }
+    body.menu-open nav.primary {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 30px; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9;
+      background: var(--paper); opacity: 1; margin: 0; padding: 90px 28px 40px;
+    }
+    body.menu-open nav.primary a { margin-right: 0; font-size: 22px; }
+    body.menu-open { overflow: hidden; }
+  }
+  @media (max-width: 760px) { nav.primary { display: none; } }
+
+  /* ── hero ── */
+  .hero { padding: 64px 0 12px; text-align: center; }
+  h1 {
+    font-family: var(--display); font-weight: 700; font-size: clamp(28px, 4vw, 38px);
+    color: var(--ink); margin: 0 0 14px; letter-spacing: -0.2px;
+  }
+  .hero .lede {
+    font-size: 16.5px; color: #55606f; max-width: 52ch; margin: 0 auto;
+  }
+
+  /* ── the three cards ── */
+  .plans {
+    display: flex; gap: 22px; padding: 48px 0 20px; align-items: stretch;
+  }
+  @media (max-width: 860px) { .plans { flex-direction: column; max-width: 440px; margin: 0 auto; } }
+
+  .plan {
+    flex: 1; min-width: 0;
+    border-radius: 14px; padding: 30px 26px; display: flex; flex-direction: column;
+    position: relative; overflow: hidden;
+  }
+  .plan-message { background: var(--band-messaging); border: 1px solid var(--band-messaging-line); }
+  .plan-recruit {
+    background: var(--band-recruit); border: 2px solid var(--band-recruit-deep);
+    box-shadow: 0 14px 34px rgba(31,143,59,0.16); transform: translateY(-6px);
+  }
+  .plan-prospect { background: var(--band-prospect); border: 1px solid var(--band-prospect-line); }
+  @media (max-width: 860px) { .plan-recruit { transform: none; } }
+
+  .plan-eyebrow {
+    font-family: var(--display); font-weight: 700; font-size: 15px; margin-bottom: 4px;
+  }
+  .plan-message .plan-eyebrow { color: var(--band-messaging-deep); }
+  .plan-recruit .plan-eyebrow { color: var(--band-recruit-deep); }
+  .plan-prospect .plan-eyebrow { color: var(--band-prospect-deep); }
+
+  .plan-tagline { font-size: 13px; color: #667; margin-bottom: 20px; }
+
+  .plan-price { font-family: var(--display); font-weight: 700; font-size: 34px; color: var(--ink); line-height: 1; }
+  .plan-price .unit { font-family: var(--sans); font-weight: 600; font-size: 14px; color: #8a94a3; }
+  .plan-price-sub { font-size: 12.5px; color: #667; margin-top: 8px; min-height: 34px; }
+  .plan-price-fx { font-size: 12px; color: #78849a; margin-top: 3px; }
+
+  .plan-cta {
+    display: block; text-align: center; text-decoration: none; font-family: var(--display);
+    font-weight: 700; font-size: 14px; padding: 12px 0; border-radius: 8px;
+    margin: 20px 0 22px;
+  }
+  .plan-message .plan-cta { background: #fff; color: var(--band-messaging-deep); border: 1.5px solid var(--band-messaging-deep); }
+  .plan-recruit .plan-cta { background: var(--band-recruit-deep); color: #fff; border: none; }
+  .plan-prospect .plan-cta { background: #fff; color: var(--band-prospect-deep); border: 1.5px solid var(--band-prospect-deep); cursor: pointer; }
+
+  .plan-features { list-style: none; padding: 0; margin: 0; font-size: 13.5px; color: #3d4653; flex: 1; }
+  .plan-features li { position: relative; padding-left: 20px; margin-bottom: 10px; }
+  .plan-features li::before {
+    content: "\2713"; position: absolute; left: 0; top: 0; font-weight: 700; font-size: 12px;
+  }
+  .plan-message .plan-features li::before { color: var(--band-messaging-deep); }
+  .plan-recruit .plan-features li::before { color: var(--band-recruit-deep); }
+  .plan-prospect .plan-features li::before { color: var(--band-prospect-deep); }
+
+  .popular-tag {
+    position: absolute; top: 0; right: 0; background: var(--band-recruit-deep); color: #fff;
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase;
+    padding: 5px 14px; border-radius: 0 0 0 10px;
+  }
+
+  /* ── Prospect: same stamp language as the Demo page's Section 3 —
+     genuinely obstructive, not a badge, because the job here is
+     "preview only, not real yet," same as it was there. ── */
+  .plan-prospect { padding-top: 68px; }
+  .prospect-stamp {
+    position: absolute; top: 16px; left: 50%; transform: translateX(-50%) rotate(-6deg);
+    font-family: var(--display); font-weight: 700; font-size: 12.5px; letter-spacing: 1px;
+    text-transform: uppercase; white-space: nowrap; color: var(--band-prospect-deep);
+    background: rgba(255,255,255,0.9); border: 2px solid var(--band-prospect-deep);
+    border-radius: 6px; padding: 4px 14px;
+  }
+  .notify-row { display: flex; gap: 6px; margin: 20px 0 22px; }
+  .notify-row input {
+    flex: 1; min-width: 0; border: 1px solid var(--band-prospect-line); border-radius: 8px;
+    padding: 0 12px; font-size: 13px; font-family: var(--sans); color: var(--charcoal);
+  }
+  .notify-row button {
+    flex: none; background: var(--band-prospect-deep); color: #fff; border: none;
+    border-radius: 8px; padding: 0 16px; font-family: var(--display); font-weight: 700;
+    font-size: 13px; cursor: pointer;
+  }
+  .notify-success {
+    margin: 20px 0 22px; font-size: 13px; font-weight: 700; color: var(--band-prospect-deep);
+  }
+
+  /* ── shared note under the cards ── */
+  .plans-note { text-align: center; font-size: 13px; color: #8a94a3; padding-bottom: 60px; }
+
+  /* ── FAQ ── */
+  .faq { border-top: 1px solid var(--line); padding: 56px 0 72px; }
+  .faq h2 { font-family: var(--display); font-weight: 700; font-size: 22px; color: var(--ink); margin: 0 0 28px; }
+  .faq-grid { display: flex; flex-wrap: wrap; gap: 28px 40px; }
+  .faq-item { flex: 1 1 calc(50% - 20px); min-width: 260px; }
+  @media (max-width: 760px) { .faq-item { flex: 1 1 100%; } }
+  .faq-item dt { font-weight: 700; color: var(--ink); margin-bottom: 6px; font-size: 14.5px; }
+  .faq-item dd { margin: 0; color: #55606f; font-size: 13.5px; line-height: 1.6; }
+
+  footer.site {
+    border-top: 1px solid var(--line); padding: 28px 0; text-align: center;
+    font-size: 12.5px; color: #9aa3b0;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+  }
+  footer.site .foot-links a { color: #9aa3b0; text-decoration: none; margin-left: 16px; }
+  footer.site .foot-links a:hover { color: var(--ink); }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="index.html" style="text-decoration:none;">
+      <svg class="mark" viewBox="-154.8 -180 309.6 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <line x1="-27.0" y1="-83.2" x2="-27.0" y2="83.2" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+        <line x1="27.0" y1="-83.2" x2="27.0" y2="83.2" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+        <line x1="-74.9" y1="-36.6" x2="74.9" y2="-36.6" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+        <line x1="-74.9" y1="36.6" x2="74.9" y2="36.6" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+        <ellipse cx="0" cy="0" rx="124.8" ry="160.0" fill="none" stroke="currentColor" stroke-width="40"/>
+        <line x1="-76.8" y1="126.1" x2="76.8" y2="-126.1" stroke="currentColor" stroke-width="36" stroke-linecap="round"/>
+      </svg>
+      <span class="wordmark">knowhash</span>
+    </a>
+    <nav class="primary">
+      <a href="demo.html">Demo</a>
+      <a href="features.html">Features</a>
+      <a href="pricing.html" class="current">Pricing</a>
+      <a href="blog.html">Blog</a>
+    </nav>
+    <a class="nav-cta" href="#plans">Get knowhash</a>
+    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false" onclick="var o=document.body.classList.toggle('menu-open'); this.setAttribute('aria-expanded', o);">
+      <svg class="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+      <svg class="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+    </button>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <h1>Pick the level you need.</h1>
+    <p class="lede">
+      No signup for Message. A real, full month to try Recruit before you're charged anything.
+      Prospect's on its way.
+    </p>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="plans" id="plans">
+
+    <div class="plan plan-message">
+      <div class="plan-eyebrow">knowhash &middot; Message</div>
+      <div class="plan-tagline">LinkedIn messaging, templated</div>
+      <div class="plan-price">Free<span class="unit"> forever</span></div>
+      <div class="plan-price-sub">No signup. No card. Not a trial of anything.</div>
+      <a class="plan-cta" href="https://chromewebstore.google.com/detail/knowhash/pljcfaejoghhgddbmaokgjfbghnkbmab" target="_blank" rel="noopener">Get knowhash</a>
+      <ul class="plan-features">
+        <li>Reusable message templates</li>
+        <li>Fields merge from any LinkedIn profile</li>
+        <li>Works right inside LinkedIn — no new tab</li>
+        <li>No account, no server, nothing stored but locally</li>
+      </ul>
+    </div>
+
+    <div class="plan plan-recruit">
+      <div class="popular-tag">The paid one</div>
+      <div class="plan-eyebrow">knowhash &middot; Recruit</div>
+      <div class="plan-tagline">Track candidates, share shortlists</div>
+      <div class="plan-price">$24<span class="unit">/month</span></div>
+      <div class="plan-price-fx" id="recruit-fx-hint" style="display:none;"></div>
+      <div class="plan-price-sub">or $19/month billed annually (~$228/year)<br>First month free — card required, cancel before it ends and you're not charged.</div>
+      <a class="plan-cta" href="https://chromewebstore.google.com/detail/knowhash-recruitment/koffemphpjlpepmiclepapeohkdefmop" target="_blank" rel="noopener">Start your free month</a>
+      <ul class="plan-features">
+        <li>Everything in Message</li>
+        <li>Track candidates — status, rating, notes</li>
+        <li>Tag candidates to Opportunities</li>
+        <li>Branded, shareable candidate Briefs</li>
+        <li>Shortlists your client can click straight through</li>
+        <li>Encrypted local backup &amp; restore</li>
+        <li>Your logo, your colours, throughout</li>
+      </ul>
+    </div>
+
+    <div class="plan plan-prospect">
+      <div class="prospect-stamp">Coming soon</div>
+      <div class="plan-eyebrow">knowhash &middot; Prospect</div>
+      <div class="plan-tagline">Find and track sales leads</div>
+      <div class="plan-price">TBA</div>
+      <div class="plan-price-sub">Same local-first approach as Recruit. We'll email you the day it's ready.</div>
+      <form class="notify-row" id="prospect-notify-form" name="prospect-notify" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+        <input type="hidden" name="form-name" value="prospect-notify">
+        <input type="text" name="bot-field" style="position:absolute;left:-9999px;" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <input type="email" name="email" placeholder="you@company.com" aria-label="Email address" required>
+        <button type="submit">Notify me</button>
+      </form>
+      <p class="notify-success" id="prospect-notify-success" style="display:none;">Thanks — we'll email you the day Prospect is ready.</p>
+      <ul class="plan-features">
+        <li>Find and track sales leads on LinkedIn</li>
+        <li>No CRM, no server — same as Recruit</li>
+        <li>Built the same way, aimed at your next customer</li>
+      </ul>
+    </div>
+
+  </div>
+  <div class="plans-note">Prices in USD. Cancel Recruit any time — your data stays in your browser, untouched, whether you're subscribed or not.</div>
+</div>
+
+<section class="faq">
+  <div class="wrap">
+    <h2>Common questions</h2>
+    <dl class="faq-grid">
+      <div class="faq-item">
+        <dt>Do I need a card for Message?</dt>
+        <dd>No — never, for anyone. It's free with nothing attached, not a trial of something else.</dd>
+      </div>
+      <div class="faq-item">
+        <dt>What happens after my Recruit trial?</dt>
+        <dd>You're charged automatically once the month ends, unless you've cancelled before then. No surprise renewal terms — same month you signed up for, same price.</dd>
+      </div>
+      <div class="faq-item">
+        <dt>Can I start with Recruit, without ever using Message?</dt>
+        <dd>Yes. They're separate installs — start wherever fits what you need right now.</dd>
+      </div>
+      <div class="faq-item">
+        <dt>What happens to my data if I cancel Recruit?</dt>
+        <dd>Nothing. Your candidates, documents, and settings live in your own browser, not on a server — cancelling a subscription never touches them.</dd>
+      </div>
+    </dl>
+  </div>
+</section>
+
+<footer class="site">
+  <div class="wrap">
+    <span>knowhash — nothing hashed together</span>
+    <span class="foot-links"><a href="privacy.html">Privacy</a><a href="security.html">Security</a></span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var form = document.getElementById('prospect-notify-form');
+  if (!form) return;
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var data = new FormData(form);
+    fetch('/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(data).toString()
+    }).then(function () {
+      form.style.display = 'none';
+      document.getElementById('prospect-notify-success').style.display = 'block';
+    }).catch(function () {
+      form.querySelector('button').textContent = 'Try again';
+    });
+  });
+})();
+
+// Approx local-currency hint on the Recruit price, for visitors whose browser
+// locale suggests a non-US region. Billing itself stays USD via Stripe.
+(function () {
+  var el = document.getElementById('recruit-fx-hint');
+  if (!el) return;
+
+  var CURRENCY_BY_REGION = {
+    AU: 'AUD', NZ: 'NZD', GB: 'GBP', IE: 'EUR', DE: 'EUR', FR: 'EUR', ES: 'EUR',
+    IT: 'EUR', NL: 'EUR', PT: 'EUR', BE: 'EUR', AT: 'EUR', FI: 'EUR', GR: 'EUR',
+    CA: 'CAD', SG: 'SGD', ZA: 'ZAR', IN: 'INR', JP: 'JPY', CH: 'CHF'
+  };
+  // Fallback rates (USD -> currency) used only if the live rate lookup fails.
+  var FALLBACK_RATES = {
+    AUD: 1.54, NZD: 1.68, GBP: 0.79, EUR: 0.92, CAD: 1.38,
+    SGD: 1.34, ZAR: 18.4, INR: 87, JPY: 149, CHF: 0.88
+  };
+  // Timezone is a much more reliable "where is this person" signal than
+  // navigator.language, which very often reports "en-US" even for browsers
+  // whose OS Region is correctly set to somewhere else entirely.
+  var TIMEZONE_TO_REGION = {
+    'Australia/Sydney': 'AU', 'Australia/Melbourne': 'AU', 'Australia/Brisbane': 'AU',
+    'Australia/Perth': 'AU', 'Australia/Adelaide': 'AU', 'Australia/Hobart': 'AU',
+    'Australia/Darwin': 'AU', 'Australia/Broken_Hill': 'AU', 'Australia/Lord_Howe': 'AU',
+    'Pacific/Auckland': 'NZ', 'Pacific/Chatham': 'NZ',
+    'Europe/London': 'GB',
+    'America/Toronto': 'CA', 'America/Vancouver': 'CA', 'America/Edmonton': 'CA',
+    'America/Winnipeg': 'CA', 'America/Halifax': 'CA', 'America/St_Johns': 'CA',
+    'Asia/Singapore': 'SG',
+    'Europe/Dublin': 'IE', 'Europe/Berlin': 'DE', 'Europe/Paris': 'FR',
+    'Europe/Madrid': 'ES', 'Europe/Rome': 'IT', 'Europe/Amsterdam': 'NL',
+    'Europe/Lisbon': 'PT', 'Europe/Brussels': 'BE', 'Europe/Vienna': 'AT',
+    'Europe/Helsinki': 'FI', 'Europe/Athens': 'GR',
+    'Africa/Johannesburg': 'ZA', 'Asia/Kolkata': 'IN', 'Asia/Tokyo': 'JP',
+    'Europe/Zurich': 'CH'
+  };
+
+  function guessRegion() {
+    // 1. Prefer an explicit region subtag from any of the browser's reported locales.
+    var langs = (navigator.languages && navigator.languages.length)
+      ? navigator.languages
+      : [navigator.language || navigator.userLanguage || ''];
+    for (var i = 0; i < langs.length; i++) {
+      var region = (langs[i].split('-')[1] || '').toUpperCase();
+      if (CURRENCY_BY_REGION[region]) return region;
+    }
+    // 2. Fall back to timezone, which survives an OS language left on English (US).
+    try {
+      var tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+      if (TIMEZONE_TO_REGION[tz]) return TIMEZONE_TO_REGION[tz];
+    } catch (e) { /* Intl not available: give up gracefully */ }
+    return null;
+  }
+
+  var region = guessRegion();
+  var currency = region && CURRENCY_BY_REGION[region];
+  if (!currency) return; // US or unrecognized region: leave the USD price as-is
+
+  function show(rate) {
+    var converted = Math.round(24 * rate);
+    el.textContent = '\u2248 $' + converted + ' ' + currency + ' \u00b7 billed in USD';
+    el.style.display = 'block';
+  }
+
+  fetch('https://api.frankfurter.dev/v1/latest?base=USD&symbols=' + currency)
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      var rate = data && data.rates && data.rates[currency];
+      if (rate) show(rate);
+      else if (FALLBACK_RATES[currency]) show(FALLBACK_RATES[currency]);
+    })
+    .catch(function () {
+      if (FALLBACK_RATES[currency]) show(FALLBACK_RATES[currency]);
+    });
+})();
+</script>
+
+<script>
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') document.body.classList.remove('menu-open');
+});
+</script>
+</body>
+</html>

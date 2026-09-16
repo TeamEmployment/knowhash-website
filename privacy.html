@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>knowhash — Privacy</title>
+<link rel="icon" type="image/png" sizes="16x16" href="/icons/icon16.png">
+<link rel="icon" type="image/png" sizes="48x48" href="/icons/icon48.png">
+<link rel="apple-touch-icon" sizes="128x128" href="/icons/icon128.png">
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; max-width: 640px; margin: 60px auto; padding: 0 24px; color: #2b2b2b; line-height: 1.6; }
+  h1 { color: #22355C; font-size: 26px; margin-bottom: 4px; }
+  .tag { color: #58595b; font-size: 14px; margin-bottom: 40px; }
+  h2 { color: #22355C; font-size: 17px; margin-top: 36px; }
+  h3 { color: #22355C; font-size: 15px; margin-top: 24px; margin-bottom: 6px; }
+  ul { padding-left: 20px; }
+  li { margin-bottom: 8px; }
+  .updated { color: #58595b; font-size: 13px; margin-top: 48px; border-top: 1px solid #e6e6e6; padding-top: 16px; }
+  code { background: #f2f2f2; padding: 1px 5px; border-radius: 3px; font-size: 13px; }
+  .scope { background: #f2f2f2; padding: 10px 14px; border-radius: 6px; font-size: 14px; margin-top: 12px; }
+</style>
+</head>
+<body>
+  <h1>knowhash — Privacy</h1>
+  <div class="tag">Covers knowhash (free), knowhash Recruit, and the kSIP candidate-detail portal.</div>
+
+  <h2>What every knowhash product reads</h2>
+  <p>When you're on a LinkedIn profile page, the extension reads that page — the name, headline, company and city visible on screen — to fill in the template you choose. It reads nothing else: no other tabs, no other sites, no LinkedIn pages other than the profile you're currently viewing.</p>
+
+  <h2>What stays on your device only</h2>
+  <ul>
+    <li><strong>Your templates</strong> — the messages you write, saved in your browser's local storage.</li>
+    <li><strong>Your own details</strong> — the name/company/position you enter under "Your details," used to fill your own identity into templates.</li>
+  </ul>
+  <p>This is stored in Chrome's own <code>chrome.storage.local</code> and never leaves your browser, whether you're using free knowhash or knowhash Recruit.</p>
+  <p>knowhash (the free tier) does exactly this and nothing more — no backend, no server, no network requests of any kind. If you've only ever installed the free knowhash extension, the rest of this page doesn't apply to you.</p>
+
+  <div class="scope"><strong>Everything below applies only to knowhash Recruit</strong> (the paid extension) and its two supporting services — the licensing/billing system and kSIP, the candidate-detail collection portal.</div>
+
+  <h2>knowhash Recruit — account &amp; licence data</h2>
+  <p>Recruit is licensed per browser install, not per person. When you verify your email inside the extension, we create a record identified by a randomly generated install ID (not tied to your identity by itself), containing:</p>
+  <ul>
+    <li>Your email address (used to verify you and for account communication — not shown to anyone else, not unique across installs)</li>
+    <li>The name and agency you provide</li>
+    <li>Your approximate country, detected automatically from your network location at the moment you verify — not precise location, not tracked afterwards</li>
+    <li>Your LinkedIn member ID, only if the extension happened to be open on your own LinkedIn profile during setup — entirely optional, used only to link your installs together in our own records</li>
+    <li>Your subscription status (active/past due/cancelled), kept in sync with Stripe</li>
+  </ul>
+  <p>This data is used solely to run licensing, feature access, and basic support/marketing visibility (e.g. which countries our customers are in). It's never sold, shared with advertisers or data brokers, or used to build advertising profiles.</p>
+
+  <h3>Payment details</h3>
+  <p>Billing is handled entirely by Stripe. We never see or store your card number — Stripe's own checkout and customer portal manage that directly. We store only a Stripe customer/subscription reference so we know your account is active.</p>
+
+  <h2>kSIP — collecting candidate details on your behalf</h2>
+  <p>Recruit lets you send a candidate a secure link requesting specific details (e.g. availability, salary expectations, or custom questions you choose). Here's what happens to that information:</p>
+  <ul>
+    <li>The candidate's answers are submitted to our server and held briefly in encrypted storage, identified by a one-time link credential only you and the candidate have.</li>
+    <li>Your extension retrieves the answers the next time you're on LinkedIn, after which they're deleted from our server.</li>
+    <li>If a link is never opened or completed, any partial data is automatically deleted after 14 days.</li>
+    <li>We do not read, use, or share candidate answers ourselves — the sole purpose is relaying them from the candidate back to the recruiter who requested them.</li>
+  </ul>
+
+  <h2>Branded briefs &amp; shortlists</h2>
+  <p>If you choose to send a candidate brief or shortlist as a branded link, we store the logo and colour choices you upload against your account, so links you send are styled consistently with your own agency's branding rather than knowhash's. The brief/shortlist content itself is held on a time-limited, secure link and automatically deleted after 14 days.</p>
+
+  <h2>What knowhash Recruit does <em>not</em> do</h2>
+  <ul>
+    <li>Does not send messages or invites on your behalf — it only fills the compose box or generates a link. You review and click Send yourself, every time.</li>
+    <li>Does not use your data, or a candidate's data, for advertising or profiling of any kind.</li>
+    <li>Does not sell or share data with third parties, except the minimum needed to operate the service itself (Stripe for payment, SendGrid for verification emails).</li>
+    <li>Does not let anyone at knowhash read your messages, templates, or candidate submissions as a matter of course — access is limited to what's needed to fix a specific issue you've raised.</li>
+  </ul>
+
+  <h2>Uninstalling &amp; account deletion</h2>
+  <p>Uninstalling either extension deletes everything stored locally in your browser — templates and your details — immediately. Your server-side Recruit account record (email, licence status, etc.) is kept so that reinstalling doesn't lose your paid status; if you'd like that deleted entirely, email us and we'll remove it.</p>
+
+  <h2>Questions</h2>
+  <p>Contact <a href="mailto:feedback@knowhash.com">feedback@knowhash.com</a>. knowhash and knowhash Recruit are products of Optimum Internet Pty Ltd (ACN 117 538 173).</p>
+
+  <div class="updated">Last updated 10 September 2026.</div>
+</body>
+</html>

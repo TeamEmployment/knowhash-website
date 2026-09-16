@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Position Qualifier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #22355c;
+    --teal: #0d5c63;
+    --teal-light: #e6f0ef;
+    --ink: #2a2f36;
+    --muted: #6b7480;
+    --bg: #f7f8fa;
+    --line: #e3e6ea;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.55;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 48px 24px 80px; }
+  h1 {
+    font-family: 'Comfortaa', sans-serif;
+    font-weight: 700;
+    color: var(--navy);
+    font-size: 24px;
+    margin: 0 0 6px;
+  }
+  .subtitle { color: var(--muted); font-size: 14.5px; margin: 0 0 12px; }
+  .reassure { color: var(--muted); font-size: 13.5px; margin: 0 0 32px; }
+
+  #loading { text-align: center; padding: 80px 20px; }
+  .spinner {
+    width: 34px; height: 34px; margin: 0 auto 22px;
+    border: 3px solid var(--line); border-top-color: var(--teal);
+    border-radius: 50%; animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .card {
+    background: #fff; border: 1px solid var(--line); border-radius: 12px;
+    padding: 24px 26px; margin-bottom: 20px;
+  }
+  .card h2 {
+    font-family: 'Comfortaa', sans-serif; font-size: 16px; color: var(--navy);
+    margin: 0 0 4px;
+  }
+  .card .tagline { color: var(--muted); font-size: 13px; margin: 0 0 18px; }
+
+  .item { padding: 16px 0; border-top: 1px solid var(--line); }
+  .item:first-of-type { border-top: none; }
+  .item .q { font-size: 14.5px; font-weight: 500; margin-bottom: 3px; }
+  .item .sub { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+
+  .yesno { display: flex; gap: 10px; }
+  .yesno label {
+    flex: 1; text-align: center; border: 1px solid var(--line); border-radius: 8px;
+    padding: 9px; font-size: 14px; cursor: pointer; user-select: none;
+  }
+  .yesno input { display: none; }
+  .yesno input:checked + span { color: #fff; }
+  .yesno label:has(input:checked) { background: var(--teal); border-color: var(--teal); color: #fff; }
+
+  textarea, input[type=text], input[type=email] {
+    width: 100%; border: 1px solid var(--line); border-radius: 8px;
+    padding: 10px 12px; font-size: 14px; font-family: 'Inter', sans-serif;
+    resize: vertical;
+  }
+  label.field-label { font-size: 13px; color: var(--muted); display: block; margin-bottom: 5px; }
+
+  button.submit {
+    width: 100%; background: var(--navy); color: #fff; border: none;
+    border-radius: 8px; padding: 13px; font-size: 15px; font-weight: 500;
+    cursor: pointer; font-family: 'Inter', sans-serif;
+  }
+  button.submit:hover { background: #1a2947; }
+  button.submit:disabled { opacity: 0.6; cursor: default; }
+
+  #thankyou { text-align: center; padding: 60px 20px; }
+  #thankyou h2 { font-family: 'Comfortaa', sans-serif; color: var(--navy); }
+
+  #error { text-align: center; padding: 60px 20px; color: var(--muted); }
+
+  footer { text-align: center; margin-top: 32px; }
+  footer span { font-size: 12px; color: var(--muted); }
+  footer strong { color: var(--navy); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="loading">
+    <div class="spinner"></div>
+  </div>
+
+  <div id="error" style="display:none"><p>This link isn't recognised — check it was copied in full.</p></div>
+
+  <div id="content" style="display:none"></div>
+
+  <div id="thankyou" style="display:none">
+    <h2>Thanks — you're all set.</h2>
+    <p style="color:var(--muted)">Your answers have been sent through. No need to do anything else.</p>
+  </div>
+
+  <footer><span>Powered by <strong>knowhash</strong></span></footer>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const token = params.get('token');
+let currentSections = [];
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function renderForm(roleTitle, sections) {
+  currentSections = sections;
+  return `
+    <h1>Quick check-in before we chat</h1>
+    <p class="subtitle">A short set of questions for the ${escapeHtml(roleTitle)} role.</p>
+    <p class="reassure">Answer honestly — there's no pass mark, and it's fine to skip anything outside your experience.</p>
+
+    <div class="card">
+      <h2>About you</h2>
+      <label class="field-label">Name</label>
+      <input type="text" id="candidate-name" style="margin-bottom:12px">
+      <label class="field-label">Email (optional)</label>
+      <input type="email" id="candidate-email">
+    </div>
+
+    ${sections.map((section, sIdx) => `
+      <div class="card">
+        <h2>${escapeHtml(section.title)}</h2>
+        <p class="tagline">${escapeHtml(section.tagline)}</p>
+        ${section.items.map((item, iIdx) => {
+          const id = `q-${sIdx}-${iIdx}`;
+          if (item.type === 'open') {
+            return `
+              <div class="item">
+                <div class="q">${escapeHtml(item.question)}</div>
+                <div class="sub">${escapeHtml(item.subtext || '')}</div>
+                <textarea id="${id}" rows="4"></textarea>
+              </div>`;
+          }
+          return `
+            <div class="item">
+              <div class="q">${escapeHtml(item.question)}</div>
+              <div class="sub">${escapeHtml(item.subtext || '')}</div>
+              <div class="yesno">
+                <label><input type="radio" name="${id}" value="Yes"><span>Yes</span></label>
+                <label><input type="radio" name="${id}" value="No"><span>No</span></label>
+              </div>
+            </div>`;
+        }).join('')}
+      </div>
+    `).join('')}
+
+    <button class="submit" onclick="submitForm()">Submit answers</button>
+  `;
+}
+
+function collectAnswers() {
+  const answers = [];
+  currentSections.forEach((section, sIdx) => {
+    section.items.forEach((item, iIdx) => {
+      const id = `q-${sIdx}-${iIdx}`;
+      let value;
+      if (item.type === 'open') {
+        value = document.getElementById(id).value.trim();
+      } else {
+        const checked = document.querySelector(`input[name="${id}"]:checked`);
+        value = checked ? checked.value : null;
+      }
+      answers.push({ question: item.question, answer: value });
+    });
+  });
+  return answers;
+}
+
+async function submitForm() {
+  const btn = document.querySelector('button.submit');
+  btn.disabled = true;
+  btn.textContent = 'Submitting…';
+
+  try {
+    const res = await fetch('/.netlify/functions/qualifier-submit-response', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        token,
+        candidateName: document.getElementById('candidate-name').value.trim(),
+        candidateEmail: document.getElementById('candidate-email').value.trim(),
+        answers: collectAnswers()
+      })
+    });
+    if (!res.ok) throw new Error('Submit failed');
+
+    document.getElementById('content').style.display = 'none';
+    document.getElementById('thankyou').style.display = '';
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = 'Submit answers';
+    alert("That didn't go through — please try again.");
+  }
+}
+
+async function load() {
+  if (!token) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error').style.display = '';
+    return;
+  }
+  try {
+    const res = await fetch(`/.netlify/functions/qualifier-submit-response?token=${encodeURIComponent(token)}`);
+    if (!res.ok) throw new Error('Not found');
+    const data = await res.json();
+
+    document.getElementById('content').innerHTML = renderForm(data.roleTitle, data.questions.sections);
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('content').style.display = '';
+  } catch (err) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error').style.display = '';
+  }
+}
+
+load();
+</script>
+</body>
+</html>

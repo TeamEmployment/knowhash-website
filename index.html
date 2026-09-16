@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" sizes="16x16" href="/icons/icon16.png">
+<link rel="icon" type="image/png" sizes="48x48" href="/icons/icon48.png">
+<link rel="apple-touch-icon" sizes="128x128" href="/icons/icon128.png">
+<title>See knowhash in action — Demo</title>
+<meta name="description" content="Watch knowhash turn a template into a message, right where you're already working — inside LinkedIn.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #22355C;
+    --charcoal: #3a3a3a;
+    --pink: #0D5C63;
+    --green: #39B54A;
+    --blue: #00AEEF;
+    --paper: #FFFFFF;
+    --line: #E5E8EE;
+
+    /* Tier washes — reused, in this same order, across Demo, Features,
+       and Pricing. The colour is the wayfinding: pale blue always means
+       Messaging, pale green always means Recruitment, pale plum always
+       means Prospect, no matter which page you're on. */
+    --band-messaging: #EAF7FD;
+    --band-messaging-line: #CFEAF6;
+    --band-messaging-deep: #0A9BCB;
+
+    --band-recruit: #EAF7ED;
+    --band-recruit-line: #CFEAD6;
+    --band-recruit-deep: #1F8F3B;
+
+    --band-prospect: #F3EAF5;
+    --band-prospect-line: #E3D2E8;
+    --band-prospect-deep: #5B2A6B;
+
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --display: "Comfortaa", var(--sans);
+    --mono: ui-monospace, "SF Mono", Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--charcoal);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 28px; }
+
+  /* ── nav — stays neutral regardless of which band is behind it,
+     so it's a stable anchor while the page's colour identity shifts
+     underneath it ── */
+  header.top {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--line);
+  }
+  header.top .wrap { display: flex; align-items: center; gap: 32px; padding-top: 16px; padding-bottom: 16px; }
+  .brand { display: flex; align-items: center; gap: 9px; margin-right: auto; }
+  .brand .mark { width: 20px; height: 20px; color: var(--ink); flex: none; }
+  .brand .wordmark { font-family: var(--display); font-weight: 700; font-size: 16px; color: var(--ink); }
+  nav.primary { display: flex; gap: 26px; }
+  nav.primary a { color: #55606f; text-decoration: none; font-size: 14.5px; font-weight: 600; margin-right: 26px; }
+  nav.primary a:last-child { margin-right: 0; }
+  nav.primary a:hover { color: var(--ink); }
+  nav.primary a.current { color: var(--pink); }
+  .nav-cta {
+    background: var(--pink); color: #fff; font-family: var(--display); font-weight: 700;
+    font-size: 13.5px; padding: 9px 18px; border-radius: 7px; text-decoration: none;
+  }
+  .nav-toggle {
+    display: none; background: none; border: none; cursor: pointer; padding: 4px;
+    color: var(--ink); margin-left: 14px;
+  }
+  .nav-toggle svg { width: 24px; height: 24px; display: block; }
+  .nav-toggle .icon-close { display: none; }
+  body.menu-open .nav-toggle .icon-menu { display: none; }
+  body.menu-open .nav-toggle .icon-close { display: block; }
+
+  @media (max-width: 760px) {
+    .nav-toggle { display: flex; align-items: center; }
+    body.menu-open header.top { backdrop-filter: none; }
+    body.menu-open nav.primary {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 30px; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9;
+      background: var(--paper); opacity: 1; margin: 0; padding: 90px 28px 40px;
+    }
+    body.menu-open nav.primary a { margin-right: 0; font-size: 22px; }
+    body.menu-open { overflow: hidden; }
+  }
+
+  @media (max-width: 760px) {
+    nav.primary { display: none; }
+  }
+
+  /* ── band shell — reused per tier section ── */
+  section.band { padding: 72px 0 88px; }
+  .band-messaging { background: var(--band-messaging); }
+  .band-recruit { background: var(--band-recruit); }
+  .band-prospect { background: var(--band-prospect); }
+  .band-prospect .eyebrow { color: var(--band-prospect-deep); }
+  .band-recruit .eyebrow { color: var(--band-recruit-deep); }
+
+  .eyebrow {
+    font-size: 12.5px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .band-messaging .eyebrow { color: var(--band-messaging-deep); }
+
+  .eyebrow-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .eyebrow-row .eyebrow { margin-bottom: 0; }
+  .free-badge {
+    display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.1px;
+    text-transform: none; padding: 3px 11px; border-radius: 20px;
+    background: #fff; border: 1px solid var(--band-messaging-deep);
+    color: var(--band-messaging-deep);
+  }
+
+  h1 {
+    font-family: var(--display); font-weight: 700; font-size: clamp(30px, 4vw, 42px);
+    line-height: 1.2; color: var(--ink); margin: 0 0 18px; letter-spacing: -0.2px;
+    max-width: 14ch;
+  }
+  .lede { font-size: 17px; color: #445; max-width: 42ch; margin: 0 0 28px; }
+
+  .hero-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center;
+  }
+  @media (max-width: 860px) {
+    .hero-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     THE MOCKUP — a recreated (not filmed) miniature of the real
+     product: an abstracted LinkedIn-style backdrop card, with the
+     actual knowhash panel chrome floating on top, running a looping,
+     silent demonstration of a template resolving into a candidate
+     message. Every colour and shape here is drawn from the real
+     panel.css values, not invented for this page.
+     ══════════════════════════════════════════════════════════════════ */
+  .stage {
+    position: relative;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 12px 40px rgba(20,40,70,0.14);
+    padding: 28px 24px 24px;
+    min-height: 380px;
+  }
+
+  /* the abstracted "LinkedIn" backdrop — generic profile-card shapes,
+     never a literal reproduction of LinkedIn's own UI or marks */
+  .backdrop { opacity: 0.55; filter: saturate(0.7); }
+  .bd-cover { height: 54px; border-radius: 8px 8px 0 0; background: #cbd6e2; }
+  .bd-card { background: #f4f6f9; border-radius: 0 0 8px 8px; padding: 34px 18px 18px; position: relative; }
+  .bd-avatar {
+    width: 56px; height: 56px; border-radius: 50%; background: #b9c4d1;
+    border: 3px solid #f4f6f9; position: absolute; top: -28px; left: 18px;
+  }
+  .bd-name { width: 128px; height: 13px; border-radius: 3px; background: #b9c4d1; margin-bottom: 8px; }
+  .bd-line { height: 9px; border-radius: 3px; background: #ccd5e0; margin-bottom: 6px; }
+  .bd-line.w1 { width: 82%; } .bd-line.w2 { width: 60%; } .bd-line.w3 { width: 70%; margin-bottom: 0; }
+
+  /* the recreated knowhash panel */
+  .kh-mock {
+    position: absolute; right: -10px; bottom: 6px; width: 258px;
+    background: #fff; border-radius: 10px; overflow: hidden;
+    box-shadow: 0 10px 30px rgba(20,40,70,0.22);
+    font-family: var(--sans);
+  }
+  .kh-mock .kh-head {
+    background: var(--ink); color: #fff; padding: 9px 12px;
+    display: flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 700;
+  }
+  .kh-mock .kh-head svg { width: 13px; height: 13px; flex: none; }
+  .kh-mock .kh-tabs { display: flex; border-bottom: 1px solid #eee; }
+  .kh-mock .kh-tab { flex: 1; text-align: center; font-size: 10.5px; font-weight: 700; color: #9aa3b0; padding: 7px 0; }
+  .kh-mock .kh-tab.active { color: var(--ink); box-shadow: inset 0 -2px 0 var(--ink); }
+  .kh-mock .kh-body { padding: 10px 12px 12px; }
+  .kh-mock .kh-tpl {
+    display: block; width: 100%; text-align: left; font-size: 11px; font-weight: 700;
+    border: 1px solid var(--ink); color: var(--ink); border-radius: 8px;
+    padding: 5px 9px; margin-bottom: 6px; background: #fff;
+  }
+  .kh-mock .kh-tpl.selected { animation: tplPulse 8s infinite; }
+  @keyframes tplPulse {
+    0%, 6% { background: #fff; }
+    8%, 22% { background: var(--band-messaging); }
+    26%, 100% { background: #fff; }
+  }
+  .kh-mock .kh-msg {
+    border: 1px solid #e2e6ee; border-radius: 8px; padding: 9px 10px;
+    font-size: 11px; color: #333; min-height: 58px; line-height: 1.5;
+  }
+  .kh-mock .chip {
+    display: inline-block; background: var(--band-messaging); color: var(--band-messaging-deep);
+    border-radius: 5px; padding: 0 5px; font-weight: 700; font-size: 10.5px;
+  }
+  /* Deterministic collapse/expand, not overlap-based crossfade — each
+     span's own animated max-width defines exactly how much space it
+     takes at any instant, so there's no ambiguity about whether the two
+     line up (the bug in the first two passes: first position:absolute
+     with no offsets, then grid auto-sizing, both left the actual overlap
+     up to the browser's guess rather than something explicitly defined). */
+  /* Plain inline flow, deliberately NOT flex — flexbox has its own
+     sizing algorithm (hypothetical main size, flex-basis:auto, etc.)
+     that doesn't reliably let an animated max-width collapse a flex
+     item all the way to zero; that mismatch is what left the residual
+     gap between "Hi" and the resolved name. Two inline-block spans in
+     normal text flow don't have that problem — width is exactly what
+     max-width says it is, nothing else negotiating on top of it. */
+  /* width, not max-width — max-width on an overflow:hidden,
+     white-space:nowrap inline-block doesn't reliably override the
+     content's own preferred-minimum-width in every engine; that's what
+     left the residual gap even with the box nominally "collapsed" to
+     max-width:0. Explicit width is a direct instruction, not a cap the
+     engine can reinterpret against the content's own wishes. */
+  .kh-mock .chipwrap { display: inline; white-space: nowrap; }
+  .kh-mock .placeholder {
+    display: inline-block; overflow: hidden; white-space: nowrap; vertical-align: bottom;
+    background: var(--band-messaging); color: var(--band-messaging-deep);
+    border-radius: 5px; font-weight: 700; font-size: 10.5px;
+    animation: collapseOut 8s infinite;
+  }
+  .kh-mock .resolved {
+    display: inline-block; overflow: hidden; white-space: nowrap; vertical-align: bottom;
+    width: 0; opacity: 0;
+    animation: expandIn 8s infinite;
+  }
+  @keyframes collapseOut {
+    0%, 24% { width: 68px; padding: 0 5px; opacity: 1; }
+    30%, 100% { width: 0; padding: 0; opacity: 0; }
+  }
+  @keyframes expandIn {
+    0%, 26% { width: 0; opacity: 0; }
+    32% { width: 34px; opacity: 1; }
+    /* snap to auto right after the visual "grow" — auto always fits the
+       actual text exactly, so there's no fixed number to get slightly
+       wrong and leave a sliver of space before the comma */
+    32.5%, 100% { width: auto; opacity: 1; }
+  }
+
+  .kh-mock .word { opacity: 0; }
+  .kh-mock .word.w2 { animation: fadeWord2 8s infinite; }
+  .kh-mock .word.w3 { animation: fadeWord3 8s infinite; }
+  @keyframes fadeWord2 { 0%, 36% { opacity: 0; } 44%, 100% { opacity: 1; } }
+  @keyframes fadeWord3 { 0%, 42% { opacity: 0; } 50%, 100% { opacity: 1; } }
+  .kh-mock .inserted {
+    display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 700;
+    color: var(--green); opacity: 0; margin-top: 8px; animation: fadeInserted 8s infinite;
+  }
+  @keyframes fadeInserted { 0%, 62% { opacity: 0; } 70%, 92% { opacity: 1; } 100% { opacity: 0; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .kh-mock .kh-tpl.selected,
+    .kh-mock .word, .kh-mock .resolved, .kh-mock .placeholder, .kh-mock .inserted {
+      animation: none !important; opacity: 1 !important;
+    }
+    .kh-mock .placeholder { display: none; }
+  }
+
+  .caption { margin-top: 18px; font-size: 12.5px; color: #7a8494; text-align: center; }
+
+  /* ── Section 2 mockup: Add Candidate → tracked, with the header's
+     action slot crossfading between the two real states. Both crossfade
+     layers get EXPLICIT top/right offsets this time — Section 1's first
+     attempt at an overlap used bare position:absolute with no offsets,
+     which doesn't reliably overlay; providing exact offsets removes that
+     ambiguity entirely rather than relying on "static position" luck. ── */
+  .kh-mock2 {
+    position: absolute; right: -10px; bottom: 6px; width: 258px;
+    background: #fff; border-radius: 10px; overflow: hidden;
+    box-shadow: 0 10px 30px rgba(20,40,70,0.22);
+    font-family: var(--sans);
+  }
+  .kh-mock2 .kh-head2 {
+    background: var(--ink); color: #fff; padding: 9px 12px;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  }
+  .kh-mock2 .brand2 { display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700; flex: none; }
+  .kh-mock2 .brand2 svg { width: 13px; height: 13px; flex: none; }
+  .kh-mock2 .action-slot { position: relative; height: 16px; min-width: 92px; }
+  .kh-mock2 .add-btn {
+    position: absolute; top: 0; right: 0; margin: 0;
+    background: #fff; color: var(--ink); border: none; border-radius: 10px;
+    padding: 2px 9px; font-size: 10px; font-weight: 700; white-space: nowrap;
+    animation: btnFade 8s infinite;
+  }
+  .kh-mock2 .status-result {
+    position: absolute; top: 0; right: 0;
+    display: flex; align-items: center; gap: 5px; opacity: 0; white-space: nowrap;
+    animation: statusFade 8s infinite;
+  }
+  .kh-mock2 .status-pill-mock {
+    background: #9b9b9b; color: #fff; font-size: 9px; font-weight: 700;
+    letter-spacing: 0.3px; border-radius: 8px; padding: 2px 7px;
+  }
+  .kh-mock2 .stars-mock { color: #d9a300; font-size: 10px; letter-spacing: 0.5px; }
+  @keyframes btnFade {
+    0%, 20% { opacity: 1; transform: scale(1); box-shadow: none; }
+    24% { transform: scale(1.08); box-shadow: 0 0 0 3px var(--band-recruit-line); }
+    28% { opacity: 1; transform: scale(1); box-shadow: none; }
+    34%, 100% { opacity: 0; transform: scale(1); box-shadow: none; }
+  }
+  @keyframes statusFade { 0%, 30% { opacity: 0; } 36%, 100% { opacity: 1; } }
+
+  .kh-mock2 .kh-body2 { padding: 12px 12px 14px; }
+  .kh-mock2 .state-badge {
+    display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.3px;
+    background: var(--band-messaging); color: var(--band-messaging-deep);
+    border-radius: 10px; padding: 3px 9px; margin-bottom: 10px;
+  }
+  .kh-mock2 .row2 { display: flex; font-size: 11.5px; margin-bottom: 5px; color: #333; }
+  .kh-mock2 .row2 .label2 { color: #9aa3b0; width: 78px; flex: none; }
+  .kh-mock2 .toast {
+    font-size: 10.5px; font-weight: 700; color: var(--band-recruit-deep);
+    opacity: 0; margin-top: 10px; animation: toastFade 8s infinite;
+  }
+  @keyframes toastFade { 0%, 36% { opacity: 0; } 42%, 64% { opacity: 1; } 72%, 100% { opacity: 0; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .kh-mock2 .add-btn, .kh-mock2 .status-result, .kh-mock2 .toast {
+      animation: none !important;
+    }
+    .kh-mock2 .add-btn { display: none; }
+    .kh-mock2 .status-result { opacity: 1 !important; }
+    .kh-mock2 .toast { opacity: 1 !important; }
+  }
+
+  /* ── Section 2, second beat: Candidates list → Share Shortlist →
+     the actual branded output. A different technique from the first
+     two beats — not an inline crossfade, a full-screen crossfade,
+     since the "before" and "after" are two entirely different views,
+     not two states of the same small element. Both screens get
+     explicit top/left/right offsets (0/0/0) within a fixed-height
+     relative wrapper, same lesson as beat one: never leave an overlap
+     to the browser's guess. ── */
+  .hero-grid.sub-row { margin-top: 56px; padding-top: 40px; border-top: 1px solid rgba(31,143,59,0.14); }
+  .sub-h {
+    font-family: var(--display); font-weight: 700; font-size: 24px;
+    color: var(--ink); margin: 0 0 14px; max-width: 16ch;
+  }
+  .stage2 { padding-bottom: 8px; min-height: 0; }
+  /* Both screens are deliberately padded to land at a similar natural
+     height (see screenB's extra body padding below) rather than trying
+     to dynamically resize the wrapper around two different-height
+     screens — that path (tried: CSS Grid stacking with align-self)
+     turned out to render inconsistently in at least one engine, and
+     wasn't worth the risk when "make the two things the same size on
+     purpose" sidesteps the whole problem. Same overlay technique as
+     beat one's chip swap: explicit top/left/right offsets, not bare
+     position:absolute. */
+  .mock3-wrap { position: relative; height: 210px; }
+  .mock3-screen {
+    position: absolute; top: 0; left: 0; right: 0;
+    background: #fff; border-radius: 10px; overflow: hidden;
+    box-shadow: 0 10px 30px rgba(20,40,70,0.16);
+  }
+  .screenA { animation: screenAFade 8s infinite; }
+  .screenB { opacity: 0; animation: screenBFade 8s infinite; }
+  @keyframes screenAFade { 0%, 55% { opacity: 1; } 62%, 100% { opacity: 0; } }
+  @keyframes screenBFade { 0%, 58% { opacity: 0; } 65%, 100% { opacity: 1; } }
+
+  .m3-head {
+    display: flex; align-items: center; gap: 7px; padding: 10px 14px;
+    font-size: 12.5px; font-weight: 700; color: #fff;
+  }
+  .m3-head svg { width: 13px; height: 13px; flex: none; }
+  .m3-head.navy { background: var(--ink); }
+  .m3-head.accent2 { background: var(--band-recruit-deep); font-family: var(--display); }
+  .m3-body { padding: 10px 14px 14px; }
+
+  .m3-row {
+    display: flex; align-items: center; gap: 8px; font-size: 11.5px;
+    padding: 7px 0; border-bottom: 1px solid #f1f2f4;
+  }
+  .m3-row b { flex: 1; font-weight: 700; color: #23292f; }
+  .chk {
+    display: inline-block; width: 13px; height: 13px; border-radius: 3px;
+    border: 1.5px solid #cbd2db; flex: none; position: relative;
+  }
+  .chk.checked { background: var(--band-recruit-deep); border-color: var(--band-recruit-deep); }
+  .chk.checked::after {
+    content: ""; position: absolute; left: 3px; top: 1px; width: 3px; height: 6px;
+    border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);
+  }
+  .tag {
+    font-size: 8.5px; font-weight: 700; letter-spacing: 0.2px;
+    padding: 2px 7px; border-radius: 8px; flex: none;
+  }
+  .tag.suitable { background: #e2f0d9; color: #22355C; }
+  .tag.interview { background: #548235; color: #fff; }
+  .tag.new { background: #9b9b9b; color: #fff; }
+
+  .m3-sharebtn {
+    display: block; width: 100%; margin-top: 10px; border: none; border-radius: 8px;
+    background: var(--band-recruit-deep); color: #fff; font-family: var(--sans);
+    font-size: 11.5px; font-weight: 700; padding: 8px 0; cursor: default;
+    animation: shareBtnPulse 8s infinite;
+  }
+  @keyframes shareBtnPulse {
+    0%, 48% { box-shadow: none; transform: scale(1); }
+    52% { transform: scale(1.03); box-shadow: 0 0 0 3px var(--band-recruit-line); }
+    56%, 100% { transform: scale(1); box-shadow: none; }
+  }
+
+  .m3-card {
+    display: flex; align-items: center; justify-content: space-between;
+    border: 1px solid #e5e8ee; border-radius: 8px; padding: 11px 12px;
+    margin-bottom: 10px; font-size: 11.5px; font-weight: 700; color: #23292f;
+  }
+  .screenB .m3-body { padding-bottom: 46px; }
+  .m3-foot { font-size: 10px; color: #b5bbc4; text-align: center; margin-top: 6px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .screenA, .screenB, .m3-sharebtn { animation: none !important; }
+    .screenA { opacity: 0 !important; }
+    .screenB { opacity: 1 !important; }
+  }
+
+  /* ── Section 3: Prospect — deliberately static, deliberately less
+     detailed than Sections 1 and 2. Those two are faithful recreations
+     of a real, tested product; this isn't shipped yet, so a detailed
+     fake UI here would quietly overclaim in exactly the way the rest
+     of this site has been careful not to. The backdrop card stays (same
+     "this happens on LinkedIn too" signal), but the panel is replaced
+     with a soft, translucent mark rather than invented controls, and
+     nothing here animates — stillness is the honest signal, not an
+     oversight. ── */
+  .stage3 { position: relative; }
+  .prospect-mark {
+    position: absolute; right: 32px; bottom: 32px; width: 84px; height: 84px;
+    color: var(--band-prospect-deep); opacity: 0.3;
+  }
+  .prospect-mark svg { width: 100%; height: 100%; }
+  .soon-stamp {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-9deg);
+    font-family: var(--display); font-weight: 700; font-size: 22px;
+    letter-spacing: 1.5px; text-transform: uppercase; white-space: nowrap;
+    color: var(--band-prospect-deep); background: rgba(255,255,255,0.85);
+    border: 3px solid var(--band-prospect-deep); border-radius: 8px;
+    padding: 10px 26px;
+  }
+  .band-prospect .caption a { color: var(--band-prospect-deep); font-weight: 600; }
+  .band-messaging .caption a { color: var(--band-messaging-deep); font-weight: 600; text-decoration: none; }
+  .band-messaging .caption a:hover { text-decoration: underline; }
+  .band-recruit .caption a { color: var(--band-recruit-deep); font-weight: 600; text-decoration: none; }
+  .band-recruit .caption a:hover { text-decoration: underline; }
+  footer.site {
+    border-top: 1px solid var(--line); padding: 28px 0; text-align: center;
+    font-size: 12.5px; color: #9aa3b0;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+  }
+  footer.site .foot-links a { color: #9aa3b0; text-decoration: none; margin-left: 16px; }
+  footer.site .foot-links a:hover { color: var(--ink); }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="index.html" style="text-decoration:none;">
+      <svg class="mark" viewBox="-154.8 -180 309.6 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <line x1="-27.0" y1="-83.2" x2="-27.0" y2="83.2" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+        <line x1="27.0" y1="-83.2" x2="27.0" y2="83.2" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+        <line x1="-74.9" y1="-36.6" x2="74.9" y2="-36.6" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+        <line x1="-74.9" y1="36.6" x2="74.9" y2="36.6" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+        <ellipse cx="0" cy="0" rx="124.8" ry="160.0" fill="none" stroke="currentColor" stroke-width="40"/>
+        <line x1="-76.8" y1="126.1" x2="76.8" y2="-126.1" stroke="currentColor" stroke-width="36" stroke-linecap="round"/>
+      </svg>
+      <span class="wordmark">knowhash</span>
+    </a>
+    <nav class="primary">
+      <a href="demo.html" class="current">Demo</a>
+      <a href="features.html">Features</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="blog.html">Blog</a>
+    </nav>
+    <a class="nav-cta" href="pricing.html">Get knowhash</a>
+    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false" onclick="var o=document.body.classList.toggle('menu-open'); this.setAttribute('aria-expanded', o);">
+      <svg class="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+      <svg class="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+    </button>
+  </div>
+</header>
+
+<section class="band band-messaging">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow-row">
+          <div class="eyebrow">knowhash &middot; Message</div>
+          <span class="free-badge">Free forever</span>
+        </div>
+        <h1>Never write the same message twice.</h1>
+        <p class="lede">
+          Pick a template, and knowhash fills in the contact's details for you —
+          right there in LinkedIn, in the time it takes to read this sentence.
+        </p>
+      </div>
+      <div>
+        <div class="stage">
+          <div class="backdrop">
+            <div class="bd-cover"></div>
+            <div class="bd-card">
+              <div class="bd-avatar"></div>
+              <div class="bd-name"></div>
+              <div class="bd-line w1"></div>
+              <div class="bd-line w2"></div>
+              <div class="bd-line w3"></div>
+            </div>
+          </div>
+          <div class="kh-mock">
+            <div class="kh-head">
+              <svg viewBox="-154.8 -180 309.6 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <ellipse cx="0" cy="0" rx="124.8" ry="160.0" fill="none" stroke="currentColor" stroke-width="40"/>
+                <line x1="-76.8" y1="126.1" x2="76.8" y2="-126.1" stroke="currentColor" stroke-width="36" stroke-linecap="round"/>
+              </svg>
+              knowhash
+            </div>
+            <div class="kh-tabs">
+              <div class="kh-tab">Candidates</div>
+              <div class="kh-tab active">Templates</div>
+            </div>
+            <div class="kh-body">
+              <button class="kh-tpl selected">Compliment-Led</button>
+              <button class="kh-tpl" style="opacity:0.5">Direct Pitch</button>
+              <div class="kh-msg">
+                Hi <span class="chipwrap"><span class="placeholder">First name</span><span class="resolved">Sarah</span></span>,<span class="word w2"> really enjoyed your recent post</span><span class="word w3"> — I'm working on a role you'd be great for.</span>
+              </div>
+              <div class="inserted">&#10003; Inserted — review and hit Send</div>
+            </div>
+          </div>
+        </div>
+        <div class="caption">Working in sync with LinkedIn — no new tab, no copy-paste, nothing to learn. And nothing hashed together. <a href="messaging.html">The full story &rarr;</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band band-recruit">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow">knowhash &middot; Recruit</div>
+        <h1>One click turns a contact into a candidate.</h1>
+        <p class="lede">
+          Status, rating, notes — everything lives right where you found them.
+          No separate database to keep in sync, nothing to re-enter later.
+        </p>
+      </div>
+      <div>
+        <div class="stage">
+          <div class="backdrop">
+            <div class="bd-cover"></div>
+            <div class="bd-card">
+              <div class="bd-avatar"></div>
+              <div class="bd-name"></div>
+              <div class="bd-line w1"></div>
+              <div class="bd-line w2"></div>
+              <div class="bd-line w3"></div>
+            </div>
+          </div>
+          <div class="kh-mock2">
+            <div class="kh-head2">
+              <div class="brand2">
+                <svg viewBox="-154.8 -180 309.6 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <ellipse cx="0" cy="0" rx="124.8" ry="160.0" fill="none" stroke="currentColor" stroke-width="40"/>
+                  <line x1="-76.8" y1="126.1" x2="76.8" y2="-126.1" stroke="currentColor" stroke-width="36" stroke-linecap="round"/>
+                </svg>
+                knowhash
+              </div>
+              <div class="action-slot">
+                <button class="add-btn">&#10003; Add Candidate</button>
+                <div class="status-result">
+                  <span class="status-pill-mock">NEW</span>
+                  <span class="stars-mock">&#9734;&#9734;&#9734;&#9734;&#9734;</span>
+                </div>
+              </div>
+            </div>
+            <div class="kh-body2">
+              <div class="state-badge">CONNECTED</div>
+              <div class="row2"><span class="label2">Name</span><span>Marcus Webb</span></div>
+              <div class="row2"><span class="label2">Opportunity</span><span>IT Support Analyst</span></div>
+              <div class="toast">&#10003; Added to your candidates</div>
+            </div>
+          </div>
+        </div>
+        <div class="caption">Tracked the moment you decide they're worth tracking — not an hour later, from memory. <a href="blog.html">The full story &rarr;</a></div>
+      </div>
+    </div>
+
+    <div class="hero-grid sub-row">
+      <div>
+        <h2 class="sub-h">Select and share.</h2>
+        <p class="lede">
+          Pick who you want to put forward, and knowhash builds a branded, click-through
+          shortlist — your logo, your colours, their documents, ready to send.
+        </p>
+      </div>
+      <div>
+        <div class="stage stage2">
+          <div class="mock3-wrap">
+            <div class="mock3-screen screenA">
+              <div class="m3-head navy">
+                <svg viewBox="-154.8 -180 309.6 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <ellipse cx="0" cy="0" rx="124.8" ry="160.0" fill="none" stroke="currentColor" stroke-width="40"/>
+                  <line x1="-76.8" y1="126.1" x2="76.8" y2="-126.1" stroke="currentColor" stroke-width="36" stroke-linecap="round"/>
+                </svg>
+                Candidates
+              </div>
+              <div class="m3-body">
+                <div class="m3-row"><span class="chk checked"></span><b>Marcus Webb</b><span class="tag suitable">SUITABLE</span></div>
+                <div class="m3-row"><span class="chk checked"></span><b>Priya Nair</b><span class="tag interview">INTERVIEW</span></div>
+                <div class="m3-row"><span class="chk"></span><b>Owen Clarke</b><span class="tag new">NEW</span></div>
+                <button class="m3-sharebtn">&#8599; Share Shortlist (2)</button>
+              </div>
+            </div>
+            <div class="mock3-screen screenB">
+              <div class="m3-head accent2">Candidate Shortlist</div>
+              <div class="m3-body">
+                <div class="m3-card"><b>Marcus Webb</b><span class="tag suitable">SUITABLE</span></div>
+                <div class="m3-card"><b>Priya Nair</b><span class="tag interview">INTERVIEW</span></div>
+                <div class="m3-foot">Made with knowhash</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="caption">One branded page, not a spreadsheet or a folder of CVs.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band band-prospect">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow">knowhash &middot; Prospect</div>
+        <h1>The same idea — turned toward your next customer.</h1>
+        <p class="lede">
+          We've been using this ourselves for over a year to find and track sales leads.
+          Built the same way as Recruit — no CRM, no server, nothing to configure.
+          We're just not ready to put it in your hands yet.
+        </p>
+      </div>
+      <div>
+        <div class="stage stage3">
+          <div class="backdrop">
+            <div class="bd-cover"></div>
+            <div class="bd-card">
+              <div class="bd-avatar"></div>
+              <div class="bd-name"></div>
+              <div class="bd-line w1"></div>
+              <div class="bd-line w2"></div>
+              <div class="bd-line w3"></div>
+            </div>
+          </div>
+          <div class="prospect-mark">
+            <svg viewBox="-154.8 -180 309.6 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <line x1="-27.0" y1="-83.2" x2="-27.0" y2="83.2" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+              <line x1="27.0" y1="-83.2" x2="27.0" y2="83.2" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+              <line x1="-74.9" y1="-36.6" x2="74.9" y2="-36.6" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+              <line x1="-74.9" y1="36.6" x2="74.9" y2="36.6" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+              <ellipse cx="0" cy="0" rx="124.8" ry="160.0" fill="none" stroke="currentColor" stroke-width="40"/>
+              <line x1="-76.8" y1="126.1" x2="76.8" y2="-126.1" stroke="currentColor" stroke-width="36" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="soon-stamp">Coming soon</div>
+        </div>
+        <div class="caption">The full story — and how to get early access — lives on <a href="pricing.html">Pricing</a>.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site">
+  <div class="wrap">
+    <span>knowhash — nothing hashed together</span>
+    <span class="foot-links"><a href="privacy.html">Privacy</a><a href="security.html">Security</a></span>
+  </div>
+</footer>
+
+
+<script>
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') document.body.classList.remove('menu-open');
+});
+</script>
+</body>
+</html>

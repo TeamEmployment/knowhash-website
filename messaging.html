@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>knowhash — smart LinkedIn messaging, no complicated parameters</title>
+<link rel="icon" type="image/png" sizes="16x16" href="/icons/icon16.png">
+<link rel="icon" type="image/png" sizes="48x48" href="/icons/icon48.png">
+<link rel="apple-touch-icon" sizes="128x128" href="/icons/icon128.png">
+<meta name="description" content="Fields merge from the LinkedIn profile you're already on. No CRM, no account, nothing leaves your browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #22355C;
+    --bg: #FAF9F6;
+    --slate: #92A0B8;
+    --pink: #0D5C63;
+    --line: #E4E2DC;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --display: "Comfortaa", var(--sans);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  .wrap { max-width: 620px; margin: 0 auto; padding: 0 24px; }
+
+  /* ── nav header — shared with demo/pricing/features/blog/security ── */
+  header.top {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(250,249,246,0.92);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--line);
+  }
+  header.top .wrap { max-width: 1080px; display: flex; align-items: center; gap: 32px; padding-top: 16px; padding-bottom: 16px; }
+  .brand { display: flex; align-items: center; gap: 9px; margin-right: auto; text-decoration: none; }
+  .brand .brand-mark { width: 20px; height: 20px; color: var(--ink); flex: none; }
+  .brand .wordmark-sm { font-family: var(--display); font-weight: 700; font-size: 16px; color: var(--ink); }
+  nav.primary { display: flex; gap: 26px; }
+  nav.primary a { color: #55606f; text-decoration: none; font-size: 14.5px; font-weight: 600; margin-right: 26px; }
+  nav.primary a:last-child { margin-right: 0; }
+  nav.primary a:hover { color: var(--ink); }
+  nav.primary a.current { color: var(--pink); }
+  .nav-cta {
+    background: var(--pink); color: #fff; font-family: var(--display); font-weight: 700;
+    font-size: 13.5px; padding: 9px 18px; border-radius: 7px; text-decoration: none;
+  }
+  .nav-toggle {
+    display: none; background: none; border: none; cursor: pointer; padding: 4px;
+    color: var(--ink); margin-left: 14px;
+  }
+  .nav-toggle svg { width: 24px; height: 24px; display: block; }
+  .nav-toggle .icon-close { display: none; }
+  body.menu-open .nav-toggle .icon-menu { display: none; }
+  body.menu-open .nav-toggle .icon-close { display: block; }
+
+  @media (max-width: 760px) {
+    .nav-toggle { display: flex; align-items: center; }
+    body.menu-open header.top { backdrop-filter: none; }
+    body.menu-open nav.primary {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 30px; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9;
+      background: var(--paper); opacity: 1; margin: 0; padding: 90px 28px 40px;
+    }
+    body.menu-open nav.primary a { margin-right: 0; font-size: 22px; }
+    body.menu-open { overflow: hidden; }
+  }
+  @media (max-width: 760px) { nav.primary { display: none; } }
+
+  /* ── Hero ── */
+  .hero { padding: 90px 0 60px; text-align: center; }
+  .mark { width: 46px; height: 46px; color: var(--ink); margin-bottom: 18px; }
+  .wordmark {
+    font-family: var(--display);
+    font-size: 30px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin: 0 0 14px;
+  }
+  .pitch {
+    font-size: 19px;
+    font-weight: 400;
+    line-height: 1.5;
+    margin: 0 auto 6px;
+    max-width: 460px;
+  }
+  .subpitch {
+    font-size: 14.5px;
+    color: var(--slate);
+    margin: 0 auto 44px;
+    max-width: 420px;
+    line-height: 1.6;
+  }
+
+  /* ── Live demo — the signature element ── */
+  .demo {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 26px 28px;
+    text-align: left;
+    max-width: 480px;
+    margin: 0 auto 10px;
+    box-shadow: 0 1px 3px rgba(34, 53, 92, 0.05);
+  }
+  .demo-label {
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--slate);
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+  .demo-text {
+    font-family: var(--mono);
+    font-size: 14.5px;
+    line-height: 1.75;
+    color: var(--ink);
+  }
+  .demo-text .chip {
+    color: var(--pink);
+    transition: color 0.5s ease;
+  }
+  .demo-text .chip.resolved { color: #2f8f4e; }
+  .demo-caption {
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--slate);
+    margin: 12px 0 46px;
+  }
+
+  .cta-row { text-align: center; margin-bottom: 90px; }
+  .cta {
+    display: inline-block;
+    background: var(--pink);
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 14.5px;
+    font-weight: 600;
+    padding: 12px 26px;
+    border-radius: 7px;
+    transition: background 0.15s ease;
+  }
+  .cta:hover { background: #094a50; }
+  .cta-note { display: block; font-size: 12px; color: var(--slate); margin-top: 10px; }
+
+  /* ── Steps ── */
+  .steps { padding: 0 0 80px; border-top: 1px solid var(--line); padding-top: 60px; }
+  .steps-eyebrow {
+    text-align: center;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--slate);
+    font-weight: 600;
+    margin-bottom: 34px;
+  }
+  .step { display: flex; gap: 18px; margin-bottom: 26px; align-items: baseline; }
+  .step-num {
+    font-family: var(--display);
+    font-size: 20px;
+    color: var(--slate);
+    width: 30px;
+    flex: none;
+  }
+  .step-body h3 { margin: 0 0 3px; font-size: 15.5px; }
+  .step-body p { margin: 0; font-size: 14px; color: #5b6472; line-height: 1.55; }
+
+  /* ── Why ── */
+  .why { padding: 0 0 80px; }
+  .why p {
+    font-size: 15px;
+    line-height: 1.75;
+    color: #3a4457;
+    max-width: 500px;
+  }
+  .why strong { color: var(--ink); }
+
+  /* ── Footer ── */
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 26px 0 50px;
+    font-size: 12.5px;
+    color: var(--slate);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  footer a { text-decoration: none; border-bottom: 1px solid var(--line); }
+
+  @media (max-width: 480px) {
+    .hero { padding: 60px 0 40px; }
+    .step { gap: 12px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .demo-text .chip { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="index.html">
+      <svg class="brand-mark" viewBox="-154.8 -180 309.6 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <line x1="-27.0" y1="-83.2" x2="-27.0" y2="83.2" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+        <line x1="27.0" y1="-83.2" x2="27.0" y2="83.2" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+        <line x1="-74.9" y1="-36.6" x2="74.9" y2="-36.6" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+        <line x1="-74.9" y1="36.6" x2="74.9" y2="36.6" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+        <ellipse cx="0" cy="0" rx="124.8" ry="160.0" fill="none" stroke="currentColor" stroke-width="40"/>
+        <line x1="-76.8" y1="126.1" x2="76.8" y2="-126.1" stroke="currentColor" stroke-width="36" stroke-linecap="round"/>
+      </svg>
+      <span class="wordmark-sm">knowhash</span>
+    </a>
+    <nav class="primary">
+      <a href="demo.html">Demo</a>
+      <a href="features.html">Features</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="blog.html">Blog</a>
+    </nav>
+    <a class="nav-cta" href="pricing.html">Get knowhash</a>
+    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false" onclick="var o=document.body.classList.toggle('menu-open'); this.setAttribute('aria-expanded', o);">
+      <svg class="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+      <svg class="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+    </button>
+  </div>
+</header>
+
+  <div class="wrap">
+
+    <div class="hero">
+      <svg class="mark" viewBox="-154.8 -180 309.6 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <line x1="-27.0" y1="-83.2" x2="-27.0" y2="83.2" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+        <line x1="27.0" y1="-83.2" x2="27.0" y2="83.2" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+        <line x1="-74.9" y1="-36.6" x2="74.9" y2="-36.6" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+        <line x1="-74.9" y1="36.6" x2="74.9" y2="36.6" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+        <ellipse cx="0" cy="0" rx="124.8" ry="160.0" fill="none" stroke="currentColor" stroke-width="40"/>
+        <line x1="-76.8" y1="126.1" x2="76.8" y2="-126.1" stroke="currentColor" stroke-width="36" stroke-linecap="round"/>
+      </svg>
+      <h1 class="wordmark">knowhash</h1>
+      <p class="pitch">Smart LinkedIn messaging — no complicated parameters, just straightforward, reusable messages.</p>
+      <p class="subpitch">Fields merge from the profile you're already on. No CRM, no account, nothing leaves your browser.</p>
+
+      <div class="demo">
+        <div class="demo-label">Your template</div>
+        <div class="demo-text" id="demoText">
+          Hi <span class="chip" id="c1">{{first_name}}</span>, always keen to hear what's happening at <span class="chip" id="c2">{{company}}</span>.
+        </div>
+      </div>
+      <p class="demo-caption">typed once, filled in every time</p>
+
+      <div class="cta-row">
+        <a class="cta" href="https://chromewebstore.google.com/detail/knowhash/pljcfaejoghhgddbmaokgjfbghnkbmab" target="_blank" rel="noopener">Add to Chrome</a>
+        <span class="cta-note">Free while it's early. A handful of people are trying it first. Works on Edge too.</span>
+      </div>
+    </div>
+
+    <div class="steps">
+      <div class="steps-eyebrow">How it works</div>
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <h3>Open a LinkedIn profile</h3>
+          <p>knowhash reads what's already on the page — name, headline, company, city.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <h3>Type <code>/</code> in an empty message box</h3>
+          <p>Pick a template. The fields fill themselves in from the profile you're on.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <h3>Review it, then send</h3>
+          <p>Nothing goes out on its own. You send every message yourself, same as always.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="why">
+      <p><strong>Most template tools ask you to build fields by hand, or connect a CRM you don't have.</strong> knowhash doesn't — it reads the profile in front of you the same way you would, and keeps every template private to your own browser. Built by a specialist IT recruiter who sends these messages every day, not a horizontal automation platform bolted on later.</p>
+    </div>
+
+    <footer>
+      <span>knowhash — nothing hashed together</span>
+      <span>
+        <a href="privacy.html">Privacy</a>
+        <a href="security.html" style="margin-left:14px;">Security</a>
+      </span>
+    </footer>
+
+  </div>
+
+  <script>
+    (function () {
+      var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var c1 = document.getElementById("c1");
+      var c2 = document.getElementById("c2");
+      if (reduced || !c1 || !c2) return;
+
+      var resolved = false;
+      var tokens = { c1: "{{first_name}}", c2: "{{company}}" };
+      var values = { c1: "Shawn", c2: "Converge" };
+
+      function toggle() {
+        resolved = !resolved;
+        c1.textContent = resolved ? values.c1 : tokens.c1;
+        c2.textContent = resolved ? values.c2 : tokens.c2;
+        c1.classList.toggle("resolved", resolved);
+        c2.classList.toggle("resolved", resolved);
+      }
+      setInterval(toggle, 2600);
+    })();
+  </script>
+
+<script>
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') document.body.classList.remove('menu-open');
+});
+</script>
+</body>
+</html>

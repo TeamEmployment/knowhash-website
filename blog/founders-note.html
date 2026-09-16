@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How an Australian IT recruiter ended up building a LinkedIn app — knowhash Blog</title>
+<meta name="description" content="The founder's note — why knowhash exists, where the name comes from, and what's in knowhash Recruit today.">
+<link rel="icon" type="image/png" sizes="16x16" href="/icons/icon16.png">
+<link rel="icon" type="image/png" sizes="48x48" href="/icons/icon48.png">
+<link rel="apple-touch-icon" sizes="128x128" href="/icons/icon128.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #22355C;
+    --charcoal: #3a3a3a;
+    --pink: #0D5C63;
+    --green: #39B54A;
+    --blue: #00AEEF;
+    --paper: #FFFFFF;
+    --bg: #FAF9F6;
+    --line: #E5E8EE;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --display: "Comfortaa", var(--sans);
+    --mono: ui-monospace, "SF Mono", Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--charcoal);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 28px; }
+
+  header.top {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--line);
+  }
+  header.top .wrap { display: flex; align-items: center; gap: 32px; padding-top: 16px; padding-bottom: 16px; }
+  .brand { display: flex; align-items: center; gap: 9px; margin-right: auto; text-decoration: none; }
+  .brand .mark { width: 20px; height: 20px; color: var(--ink); flex: none; }
+  .brand .wordmark { font-family: var(--display); font-weight: 700; font-size: 16px; color: var(--ink); }
+  nav.primary { display: flex; gap: 26px; }
+  nav.primary a { color: #55606f; text-decoration: none; font-size: 14.5px; font-weight: 600; margin-right: 26px; }
+  nav.primary a:last-child { margin-right: 0; }
+  nav.primary a:hover { color: var(--ink); }
+  nav.primary a.current { color: var(--pink); }
+  .nav-cta {
+    background: var(--pink); color: #fff; font-family: var(--display); font-weight: 700;
+    font-size: 13.5px; padding: 9px 18px; border-radius: 7px; text-decoration: none;
+  }
+  .nav-toggle {
+    display: none; background: none; border: none; cursor: pointer; padding: 4px;
+    color: var(--ink); margin-left: 14px;
+  }
+  .nav-toggle svg { width: 24px; height: 24px; display: block; }
+  .nav-toggle .icon-close { display: none; }
+  body.menu-open .nav-toggle .icon-menu { display: none; }
+  body.menu-open .nav-toggle .icon-close { display: block; }
+
+  @media (max-width: 760px) {
+    .nav-toggle { display: flex; align-items: center; }
+    body.menu-open header.top { backdrop-filter: none; }
+    body.menu-open nav.primary {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 30px; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9;
+      background: var(--paper); opacity: 1; margin: 0; padding: 90px 28px 40px;
+    }
+    body.menu-open nav.primary a { margin-right: 0; font-size: 22px; }
+    body.menu-open { overflow: hidden; }
+  }
+  @media (max-width: 760px) { nav.primary { display: none; } }
+
+  /* -------- breadcrumb -------- */
+  .crumb { padding-top: 28px; }
+  .crumb a { color: #9aa3b0; text-decoration: none; font-size: 13.5px; font-weight: 600; }
+  .crumb a:hover { color: var(--pink); }
+
+  /* -------- post layout: sidebar TOC + post -------- */
+  .post-layout { display: flex; align-items: flex-start; gap: 48px; padding-top: 24px; padding-bottom: 20px; }
+
+  .post-toc { position: sticky; top: 90px; width: 200px; flex: none; }
+  .post-toc-label {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: #9aa3b0; margin-bottom: 14px;
+  }
+  .post-toc-list { display: flex; flex-direction: column; gap: 4px; }
+  .post-toc-list a {
+    display: flex; flex-direction: column; gap: 2px;
+    padding: 10px 12px; border-radius: 8px; text-decoration: none;
+    font-family: var(--display); font-weight: 700; font-size: 13.5px; color: var(--charcoal);
+    line-height: 1.35;
+  }
+  .post-toc-list a:hover { background: var(--bg); }
+  .post-toc-list a.current { background: var(--bg); color: var(--ink); }
+  .post-toc-list a.pinned::before {
+    content: "Pinned"; font-family: var(--mono); font-weight: 600; font-size: 9.5px;
+    letter-spacing: 0.06em; text-transform: uppercase; color: var(--pink);
+  }
+  .post-toc-sub { font-family: var(--sans); font-weight: 400; font-size: 12px; color: #9aa3b0; }
+  .post-toc-divider { border: none; border-top: 1px solid var(--line); margin: 10px 2px; }
+
+  .post-main { flex: 1; min-width: 0; max-width: 680px; }
+
+  .toc-toggle { display: none; }
+  @media (max-width: 900px) {
+    .post-layout { padding-top: 8px; }
+    .post-toc { display: none; }
+    body.toc-open .post-toc {
+      display: block; position: fixed; inset: 0; z-index: 20;
+      width: auto; background: var(--paper); padding: 90px 28px 40px; overflow-y: auto;
+    }
+    .toc-toggle {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+      padding: 9px 14px; font-family: var(--display); font-weight: 700; font-size: 13px; color: var(--ink);
+      cursor: pointer; margin-bottom: 24px;
+    }
+  }
+
+  /* -------- single post -------- */
+  .post { padding: 0 0 20px; }
+  .post .kicker { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--pink); margin-bottom: 12px; }
+  .post h2 {
+    font-family: var(--display); font-weight: 700; letter-spacing: -0.2px;
+    font-size: clamp(24px, 3.4vw, 32px); line-height: 1.25; color: var(--ink); margin: 0 0 8px;
+  }
+  .post .byline { font-size: 13px; color: #9aa3b0; margin: 0 0 36px; }
+  .post p { font-size: 16px; line-height: 1.75; color: #3a4457; margin: 0 0 22px; }
+  .post h3 {
+    font-family: var(--display); font-weight: 700; font-size: 18px;
+    color: var(--ink); margin: 40px 0 14px;
+  }
+  .post ul { margin: 0 0 22px; padding-left: 22px; }
+  .post ul li { font-size: 15.5px; line-height: 1.7; color: #3a4457; margin-bottom: 8px; }
+  .post ul li strong { color: var(--ink); }
+  .post-divider { border: none; border-top: 1px solid var(--line); margin: 44px 0; }
+
+  /* -------- subscribe strip -------- */
+  .subscribe {
+    background: var(--ink); color: #fff; border-radius: 16px;
+    padding: 34px clamp(20px,4vw,44px); margin-bottom: 70px;
+    display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;
+  }
+  .subscribe h4 { font-family: var(--display); font-size: 18px; font-weight: 700; margin: 0 0 4px; }
+  .subscribe p { margin: 0; color: #c9d3d6; font-size: 14px; }
+  .subscribe a {
+    background: #fff; color: var(--ink); font-family: var(--display); font-weight: 700;
+    font-size: 13px; padding: 11px 20px; border-radius: 8px; text-decoration: none; white-space: nowrap;
+  }
+
+  footer.site {
+    border-top: 1px solid var(--line); padding: 28px 0; text-align: center;
+    font-size: 12.5px; color: #9aa3b0;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+  }
+  footer.site .foot-links a { color: #9aa3b0; text-decoration: none; margin-left: 16px; }
+  footer.site .foot-links a:hover { color: var(--ink); }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="/index.html">
+      <svg class="mark" viewBox="-154.8 -180 309.6 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <line x1="-27.0" y1="-83.2" x2="-27.0" y2="83.2" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+        <line x1="27.0" y1="-83.2" x2="27.0" y2="83.2" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+        <line x1="-74.9" y1="-36.6" x2="74.9" y2="-36.6" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+        <line x1="-74.9" y1="36.6" x2="74.9" y2="36.6" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+        <ellipse cx="0" cy="0" rx="124.8" ry="160.0" fill="none" stroke="currentColor" stroke-width="40"/>
+        <line x1="-76.8" y1="126.1" x2="76.8" y2="-126.1" stroke="currentColor" stroke-width="36" stroke-linecap="round"/>
+      </svg>
+      <span class="wordmark">knowhash</span>
+    </a>
+    <nav class="primary">
+      <a href="/demo.html">Demo</a>
+      <a href="/features.html">Features</a>
+      <a href="/pricing.html">Pricing</a>
+      <a href="/blog.html" class="current">Blog</a>
+    </nav>
+    <a class="nav-cta" href="/pricing.html">Get knowhash</a>
+    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false" onclick="var o=document.body.classList.toggle('menu-open'); this.setAttribute('aria-expanded', o);">
+      <svg class="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+      <svg class="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+    </button>
+  </div>
+</header>
+
+<div class="wrap crumb">
+  <a href="/blog.html">&larr; All posts</a>
+</div>
+
+<div class="wrap post-layout">
+  <aside class="post-toc" id="postToc">
+    <div class="post-toc-label">On the blog</div>
+    <nav class="post-toc-list">
+      <a href="/blog/founders-note.html" class="pinned current">
+        Founder's note
+        <span class="post-toc-sub">How it all started</span>
+      </a>
+      <hr class="post-toc-divider">
+      <a href="/blog/sharing.html">
+        Sharing, done properly
+        <span class="post-toc-sub">Sep 2026</span>
+      </a>
+    </nav>
+  </aside>
+
+  <div class="post-main">
+    <button class="toc-toggle" id="tocToggle">&#9776; All posts</button>
+
+    <article class="post">
+      <div class="kicker">Founder's note</div>
+      <h2>How an Australian IT recruiter ended up building a LinkedIn app</h2>
+      <p class="byline">By Mike Reed, founder of knowhash</p>
+
+      <p>knowhash didn't start as a product. It started because I was tired of doing the same thing by hand, over and over, inside LinkedIn.</p>
+
+      <p>I run Team Employment, an IT recruitment agency here in Australia. We built our own in-house recruitment platform to run the business — tracking candidates, opportunities, the whole pipeline. At some point we added smart messaging to it: type a message once, and the right fields fill themselves in for whoever you're writing to next. It saved a genuinely stupid amount of time.</p>
+
+      <p>The obvious next question was: why doesn't LinkedIn work like this? Every day I was messaging candidates directly inside LinkedIn, and every day I was doing the same manual find-and-replace I'd already solved everywhere else. So I built the same idea, but for LinkedIn itself — a small browser extension that reads the profile you're already looking at, and fills your template in for you. No new tab, no CRM, no account to set up.</p>
+
+      <h3>Why "knowhash"</h3>
+      <p>The name is a small joke that turned into the whole philosophy. Templates on LinkedIn are usually built around clunky placeholder syntax — hash symbols, curly braces, parameters you have to remember. knowhash means no hashing about: no fiddly syntax, nothing hashed together. Just a message that fills itself in properly, because it's reading the actual page in front of you.</p>
+
+      <h3>Turned out it was bigger than messaging</h3>
+      <p>Once the messaging side was working well, the next problem was obvious too. I wasn't just messaging people on LinkedIn — I was trying to keep track of who I'd spoken to, what they were suited for, and where they'd gotten to, all without a second system to keep in sync. So knowhash Recruit became the natural next step: the same "reads the page you're already on" idea, turned toward actually managing a candidate pipeline from inside LinkedIn itself.</p>
+
+      <h3>What's in knowhash Recruit</h3>
+      <ul>
+        <li><strong>Reads the profile for you.</strong> Name, headline, company — captured straight from the LinkedIn page, no re-typing.</li>
+        <li><strong>Simple tagging and classification.</strong> Mark someone as a candidate, rate them, tie them to an opportunity — right where you found them.</li>
+        <li><strong>kSIP.</strong> A way to request exactly the details and files you actually need from a candidate, without asking for more than necessary.</li>
+        <li><strong>Ready-made shortlists.</strong> Turn a set of candidates into a clean, branded summary you can share, in a format that's already sorted for you.</li>
+        <li><strong>The original knowhash messaging.</strong> Still there, still free, still the same idea that started all of this.</li>
+      </ul>
+
+      <p>knowhash Prospect is next — the same approach, turned toward finding customers instead of candidates. We've been using an early version of it ourselves for over a year. It's not ready for anyone else yet, but it's coming.</p>
+
+      <hr class="post-divider">
+      <p style="color:#9aa3b0; font-size:14px;">That's the whole story so far. If you're a recruiter and any of this sounds familiar, <a href="/pricing.html" style="color:var(--pink); font-weight:600;">give knowhash Recruit a try</a> — I'd genuinely like to know what you think.</p>
+    </article>
+
+    <section class="subscribe">
+      <div>
+        <h4>Get new posts by email</h4>
+        <p>No spam, no hashed-together mailing lists — just the odd useful post.</p>
+      </div>
+      <a href="mailto:feedback@knowhash.com?subject=Subscribe%20me%20to%20the%20blog">Subscribe</a>
+    </section>
+  </div>
+</div>
+
+<footer class="site">
+  <div class="wrap">
+    <span>knowhash — nothing hashed together</span>
+    <span class="foot-links"><a href="/privacy.html">Privacy</a><a href="/security.html">Security</a></span>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') {
+    document.body.classList.remove('menu-open');
+    document.body.classList.remove('toc-open');
+  }
+});
+document.getElementById('tocToggle')?.addEventListener('click', function () {
+  document.body.classList.toggle('toc-open');
+});
+</script>
+</body>
+</html>

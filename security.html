@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" sizes="16x16" href="/icons/icon16.png">
+<link rel="icon" type="image/png" sizes="48x48" href="/icons/icon48.png">
+<link rel="apple-touch-icon" sizes="128x128" href="/icons/icon128.png">
+<title>Where your data actually lives — knowhash</title>
+<meta name="description" content="knowhash never puts your candidate data on a server. Here's exactly where it lives, and how the one file that ever leaves your browser is protected.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #22355C;
+    --charcoal: #3a3a3a;
+    --pink: #0D5C63;
+    --green: #39B54A;
+    --blue: #00AEEF;
+    --paper: #FFFFFF;
+    --mist: #F6F8FC;
+    --line: #E5E8EE;
+    --mono: ui-monospace, "SF Mono", Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --display: "Comfortaa", var(--sans);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--charcoal);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  header.top {
+    padding: 28px 0 20px;
+    border-bottom: 1px solid var(--line);
+  }
+  header.top .wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .mark {
+    width: 22px;
+    height: 22px;
+    flex: none;
+    color: var(--ink);
+  }
+  .wordmark {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 17px;
+    color: var(--ink);
+    letter-spacing: 0.2px;
+  }
+  nav.primary { display: flex; gap: 26px; }
+  nav.primary a { color: #55606f; text-decoration: none; font-size: 14.5px; font-weight: 600; margin-right: 26px; }
+  nav.primary a:last-child { margin-right: 0; }
+  nav.primary a:hover { color: var(--ink); }
+  nav.primary a.current { color: var(--pink); }
+  .nav-cta {
+    background: var(--pink); color: #fff; font-family: var(--display); font-weight: 700;
+    font-size: 13.5px; padding: 9px 18px; border-radius: 7px; text-decoration: none;
+  }
+  .nav-toggle {
+    display: none; background: none; border: none; cursor: pointer; padding: 4px;
+    color: var(--ink); margin-left: 14px;
+  }
+  .nav-toggle svg { width: 24px; height: 24px; display: block; }
+  .nav-toggle .icon-close { display: none; }
+  body.menu-open .nav-toggle .icon-menu { display: none; }
+  body.menu-open .nav-toggle .icon-close { display: block; }
+
+  @media (max-width: 640px) {
+    .nav-toggle { display: flex; align-items: center; }
+    body.menu-open header.top { backdrop-filter: none; }
+    body.menu-open nav.primary {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 30px; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9;
+      background: var(--paper); opacity: 1; margin: 0; padding: 90px 28px 40px;
+    }
+    body.menu-open nav.primary a { margin-right: 0; font-size: 22px; }
+    body.menu-open { overflow: hidden; }
+  }
+  @media (max-width: 640px) { nav.primary { display: none; } }
+
+  .hero {
+    padding: 64px 0 44px;
+  }
+  .eyebrow {
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--pink);
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(28px, 4.4vw, 40px);
+    line-height: 1.22;
+    color: var(--ink);
+    margin: 0 0 20px;
+    letter-spacing: -0.2px;
+  }
+  .lede {
+    font-size: 18px;
+    line-height: 1.6;
+    color: #4a4a4a;
+    max-width: 58ch;
+  }
+
+  h2 {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--ink);
+    margin: 0 0 6px;
+  }
+  .section {
+    padding: 48px 0;
+    border-top: 1px solid var(--line);
+  }
+  .section-intro {
+    max-width: 58ch;
+    color: var(--charcoal);
+    margin: 0 0 32px;
+  }
+
+  /* ── the three-homes diagram — the page's real thesis, structured
+     because there genuinely are three distinct categories, not for
+     decoration ── */
+  .homes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  .home {
+    background: var(--mist);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 20px 18px;
+  }
+  .home-icon {
+    width: 26px;
+    height: 26px;
+    margin-bottom: 14px;
+  }
+  .home h3 {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--ink);
+    margin: 0 0 8px;
+  }
+  .home p {
+    font-size: 13.5px;
+    color: #55606f;
+    margin: 0 0 12px;
+    line-height: 1.5;
+  }
+  .home .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    padding: 3px 9px;
+    border-radius: 10px;
+  }
+  .tag-navy  { background: #E8EDF7; color: var(--ink); }
+  .tag-green { background: #E3F5E7; color: #1f7a34; }
+  .tag-blue  { background: #E3F6FD; color: #0a7ba8; }
+
+  @media (max-width: 640px) {
+    .homes { grid-template-columns: 1fr; }
+  }
+
+  /* ── passphrase mockup — deliberately the real UI, not invented
+     iconography, so it reads as "this is the actual product" ── */
+  .phrase-mock {
+    background: var(--paper);
+    border: 1px solid #d9d9d9;
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin: 28px 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  }
+  .phrase-mock .label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #58595b;
+    margin-bottom: 10px;
+  }
+  .phrase-row {
+    background: var(--mist);
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: #9a9a9a;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .phrase-row.revealed {
+    color: #1f1f1f;
+    letter-spacing: 0.2px;
+  }
+  .phrase-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn-mini {
+    font-family: var(--sans);
+    background: #fff;
+    border: 1px solid var(--ink);
+    color: var(--ink);
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 12.5px;
+    cursor: pointer;
+  }
+  .btn-mini:hover { background: #E8EDF7; }
+  .phrase-hint {
+    font-size: 11.5px;
+    color: #8a8a8a;
+    margin-top: 6px;
+  }
+
+  ul.plain {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  ul.plain li {
+    position: relative;
+    padding-left: 26px;
+    margin-bottom: 14px;
+    color: var(--charcoal);
+  }
+  ul.plain li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 7px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--green);
+  }
+  ul.plain.caution li::before { background: var(--pink); }
+
+  .callout {
+    background: var(--mist);
+    border-left: 3px solid var(--pink);
+    border-radius: 0 8px 8px 0;
+    padding: 18px 22px;
+    margin-top: 8px;
+  }
+  .callout p { margin: 0; color: var(--charcoal); }
+  .callout strong { color: var(--ink); }
+
+  .compare {
+    margin-top: 28px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .compare-col {
+    border-radius: 10px;
+    padding: 20px;
+  }
+  .compare-col.them { background: #FBEFF4; border: 1px solid #F0CFDE; }
+  .compare-col.us   { background: #EAF7ED; border: 1px solid #C9E9CE; }
+  .compare-col h4 {
+    font-family: var(--display);
+    font-size: 14px;
+    margin: 0 0 10px;
+  }
+  .compare-col.them h4 { color: #a3195f; }
+  .compare-col.us h4 { color: #1f7a34; }
+  .compare-col p { font-size: 13.5px; margin: 0; color: #45505c; }
+
+  @media (max-width: 640px) {
+    .compare { grid-template-columns: 1fr; }
+  }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 40px 0 60px;
+    text-align: center;
+  }
+  .cta-btn {
+    display: inline-block;
+    background: var(--pink);
+    color: #fff;
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 15px;
+    padding: 13px 30px;
+    border-radius: 8px;
+    text-decoration: none;
+    margin-bottom: 14px;
+  }
+  footer .fine { font-size: 12.5px; color: #9a9a9a; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="index.html" style="text-decoration:none; display:flex; align-items:center; gap:9px; margin-right:auto;">
+    <svg class="mark" viewBox="-154.8 -180 309.6 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <line x1="-27.0" y1="-83.2" x2="-27.0" y2="83.2" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+      <line x1="27.0" y1="-83.2" x2="27.0" y2="83.2" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+      <line x1="-74.9" y1="-36.6" x2="74.9" y2="-36.6" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+      <line x1="-74.9" y1="36.6" x2="74.9" y2="36.6" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+      <ellipse cx="0" cy="0" rx="124.8" ry="160.0" fill="none" stroke="currentColor" stroke-width="40"/>
+      <line x1="-76.8" y1="126.1" x2="76.8" y2="-126.1" stroke="currentColor" stroke-width="36" stroke-linecap="round"/>
+    </svg>
+    <span class="wordmark">knowhash</span>
+    </a>
+    <nav class="primary">
+      <a href="demo.html">Demo</a>
+      <a href="features.html">Features</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="blog.html">Blog</a>
+    </nav>
+    <a class="nav-cta" href="pricing.html">Get knowhash</a>
+    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false" onclick="var o=document.body.classList.toggle('menu-open'); this.setAttribute('aria-expanded', o);">
+      <svg class="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+      <svg class="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+    </button>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Data & Security</div>
+    <h1>Your data never leaves your browser.<br>One file does — and even that's locked.</h1>
+    <p class="lede">
+      Most recruiting tools ask you to move your candidate data onto their servers just to
+      use the product. knowhash doesn't. Here's exactly where everything lives, and what
+      protects the one thing that ever leaves your browser.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2>Three places your data can be</h2>
+    <p class="section-intro">
+      Not one policy trying to cover every case — three genuinely different situations,
+      each handled the way that situation actually calls for.
+    </p>
+    <div class="homes">
+      <div class="home">
+        <svg class="home-icon" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="9" cy="10.5" r="2.2"/><path d="M5.5 16.5c0.6-2.2 2.2-3.3 3.5-3.3s2.9 1.1 3.5 3.3" stroke-linecap="round"/></svg>
+        <span class="tag tag-navy">Working data</span>
+        <h3>Candidates & Opportunities</h3>
+        <p>Lives in your browser's own storage. Never sent anywhere, not even to us, for as long as you're using knowhash normally.</p>
+      </div>
+      <div class="home">
+        <svg class="home-icon" viewBox="0 0 24 24" fill="none" stroke="var(--pink)" stroke-width="1.8"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke-linecap="round"/></svg>
+        <span class="tag tag-blue">Backup file</span>
+        <h3>The one file we insist on</h3>
+        <p>The only copy that ever leaves your browser on purpose, as a file. Encrypted — see below.</p>
+      </div>
+      <div class="home">
+        <svg class="home-icon" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.8"><path d="M4 12l7-7 7 7M11 5v14" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="tag tag-green">What you share</span>
+        <h3>Candidate packages & exports</h3>
+        <p>Sent when you decide to send them. Once shared, it's your document to manage — same as any attachment.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2>The backup passphrase</h2>
+    <p class="section-intro">
+      A local-only tool still needs a way to survive a lost laptop or a wiped profile.
+      That's what backups are for — and it's the one moment we ask you to trust a file
+      instead of just your browser, so it's the one moment we lock it properly.
+    </p>
+
+    <div class="phrase-mock">
+      <div class="label">Backup passphrase</div>
+      <div class="phrase-row" id="phraseRow" onclick="document.getElementById('phraseRow').classList.toggle('revealed'); this.textContent = this.classList.contains('revealed') ? 'acorn-velvet-quail-forest-lark-dune-opal' : '••••••• •••••• •••••• •••••• •••••• •••••• ••••••';">••••••• •••••• •••••• •••••• •••••• •••••• ••••••</div>
+      <div class="phrase-actions">
+        <button class="btn-mini" type="button" onclick="event.stopPropagation(); document.getElementById('phraseRow').click();">Show</button>
+        <button class="btn-mini" type="button">Copy</button>
+        <button class="btn-mini" type="button">↻ Generate new</button>
+      </div>
+      <div class="phrase-hint">This is a live mock of the actual screen in the extension — try clicking it.</div>
+    </div>
+
+    <ul class="plain">
+      <li><strong>Generated for you</strong> — seven random words, picked with a cryptographically secure generator the moment you install. Nobody has to invent a good password, which is usually where "secure" passwords fail in practice.</li>
+      <li><strong>Only ever on your machine</strong> — we never see it, never store a copy of it, never have a "forgot your passphrase" link to send. There's nothing on our end to leak, because there's nothing on our end.</li>
+      <li><strong>No recovery if it's lost</strong> — that's not a missing feature. A recoverable passphrase is a passphrase someone else could also recover. Write it down somewhere that isn't the computer it protects.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2>What's not encrypted, on purpose</h2>
+    <p class="section-intro">
+      We'd rather tell you this plainly than have you discover it and wonder what else
+      we didn't mention.
+    </p>
+    <ul class="plain caution">
+      <li><strong>Candidate packages</strong> you generate to share a person's details with a colleague or client aren't encrypted.</li>
+      <li><strong>Spreadsheet exports</strong> of your shortlist aren't encrypted either.</li>
+    </ul>
+    <div class="callout">
+      <p>
+        Both exist because <strong>you</strong> chose to hand that data to someone, on purpose, for
+        them to read. At that point it's a document like any other you've ever emailed —
+        yours to manage, not ours to lock. Encrypting a file you're actively trying to
+        share with someone would just mean building a second system to hand them the key,
+        which defeats the point of never running a server in the first place.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2>Why this matters more than it sounds</h2>
+    <p class="section-intro">
+      Every recruiting platform that stores your candidates on its own servers is a
+      standing liability that exists for as long as your account does — not a one-off
+      risk, a permanent one.
+    </p>
+    <div class="compare">
+      <div class="compare-col them">
+        <h4>A hosted candidate database</h4>
+        <p>Every name, contact detail, and CV sits on someone else's server, indefinitely, as long as you keep the subscription. One breach there exposes everyone you've ever added.</p>
+      </div>
+      <div class="compare-col us">
+        <h4>knowhash</h4>
+        <p>Nothing to breach on our end — there's no central database of your candidates to steal, because it was never collected in the first place.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <a class="cta-btn" href="pricing.html">Get knowhash Recruit</a>
+    <div class="fine">No account. No server. Your data stays exactly where you put it. · <a href="privacy.html" style="color:#9a9a9a;">Privacy</a></div>
+  </div>
+</footer>
+
+
+<script>
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') document.body.classList.remove('menu-open');
+});
+</script>
+</body>
+</html>

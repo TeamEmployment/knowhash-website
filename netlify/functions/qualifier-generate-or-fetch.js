@@ -60,7 +60,10 @@ async function generateQuestions(roleTitle) {
 
   const data = await response.json();
   const textBlock = data.content.find((b) => b.type === "text");
-  return JSON.parse(textBlock.text);
+  // Models sometimes wrap JSON in a markdown fence despite instructions not to —
+  // strip ```json / ``` before parsing rather than trusting raw output.
+  const cleaned = textBlock.text.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/i, "").trim();
+  return JSON.parse(cleaned);
 }
 
 exports.handler = async (event) => {

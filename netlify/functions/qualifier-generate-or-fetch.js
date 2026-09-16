@@ -126,6 +126,8 @@ exports.handler = async (event) => {
     };
   } catch (err) {
     console.error(err);
-    return { statusCode: 500, body: JSON.stringify({ error: "Something went wrong" }) };
+    // TEMPORARY: expose the real error for debugging during first live test.
+    // Revert to a generic message before real prospects can reach this page.
+    return { statusCode: 500, body: JSON.stringify({ error: "Something went wrong", detail: err.message }) };
   }
 };

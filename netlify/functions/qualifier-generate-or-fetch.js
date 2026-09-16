@@ -104,7 +104,7 @@ exports.handler = async (event) => {
     // 4. Pull any responses already received, for the table view.
     const responses = await dataverseRequest(
       "GET",
-      `cre5b_knowhashqualifierresponses?$filter=_cre5b_position_qualifier_value eq ${qualifier.cre5b_knowhashpositionqualifierid}&$select=cre5b_candidate_name,cre5b_candidate_email,createdon&$orderby=createdon desc`
+      `cre5b_knowhashqualifierresponses?$filter=_cre5b_position_qualifier_value eq ${qualifier.cre5b_knowhashpositionqualifierid}&$select=cre5b_candidate_name,cre5b_candidate_email,cre5b_answers,createdon&$orderby=createdon desc`
     );
 
     return {
@@ -122,8 +122,6 @@ exports.handler = async (event) => {
     };
   } catch (err) {
     console.error(err);
-    // TEMPORARY: expose the real error for debugging during first live test.
-    // Revert to a generic message before real prospects can reach this page.
-    return { statusCode: 500, body: JSON.stringify({ error: "Something went wrong", detail: err.message }) };
+    return { statusCode: 500, body: JSON.stringify({ error: "Something went wrong" }) };
   }
 };

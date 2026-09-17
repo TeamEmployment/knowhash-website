@@ -109,7 +109,13 @@ exports.handler = async (event) => {
       qualifier = existing.value[0];
     } else {
       // 3. First visit: generate now.
-      const rawRoleTitle = lead.cre5b_jobpostingtitle || lead.cre5b_title || "the role";
+      const rawRoleTitle = lead.cre5b_jobpostingtitle || "the role";
+      // Deliberately NOT falling back to lead.cre5b_title — that field is
+      // the contact's own LinkedIn headline (who they are), not the role
+      // they're hiring for. Using it produced tests for the recruiter's
+      // own job (e.g. "HR Generalist") rather than an open position,
+      // especially for HR/recruiting contacts whose own titles happen to
+      // read like plausible role names.
       // Defensive cap — cre5b_role_title is NVARCHAR(200). Some LinkedIn
       // headlines (the cre5b_title fallback especially) run well past that.
       // Truncate for storage/display; Claude still sees the full string.

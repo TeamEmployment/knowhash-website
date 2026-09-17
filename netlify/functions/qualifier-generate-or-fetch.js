@@ -32,7 +32,7 @@ The final section's final item(s) should have "type": "open" for the scenario qu
 
 async function generateQuestions(roleTitle) {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 20000); // fail fast rather than ride out to Netlify's own hard cutoff
+  const timeoutId = setTimeout(() => controller.abort(), 35000); // measured directly against Anthropic tonight: normal calls run mid-teens of seconds, with real outliers up to ~38s — 20s was cutting off legitimate generations, not just broken ones
 
   let response;
   try {

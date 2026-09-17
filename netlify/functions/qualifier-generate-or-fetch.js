@@ -105,8 +105,27 @@ exports.handler = async (event) => {
     mark("existingCheck");
 
     let qualifier;
-    if (existing.value && existing.value.length > 0) {
+    const forceRegenerate = event.queryStringParameters?.regenerate === "true";
+    if (existing.value && existing.value.length > 0 && !forceRegenerate) {
       qualifier = existing.value[0];
+    } else if (existing.value && existing.value.length > 0 && forceRegenerate) {
+      // Regenerate in place — same record, same candidate_link_token, so
+      // any link already copied out keeps working with corrected content
+      // rather than going stale. Deliberate, explicit trigger only
+      // (?regenerate=true) — never automatic, since every call here is a
+      // real Claude API cost.
+      const rawRoleTitle = lead.cre5b_jobpostingtitle || "the role";
+      const generated = await generateQuestions(rawRoleTitle);
+      mark("claudeGeneration");
+      const roleTitle = rawRoleTitle.length > 197 ? rawRoleTitle.slice(0, 197) + "..." : rawRoleTitle;
+
+      await dataverseRequest(
+        "PATCH",
+        `cre5b_knowhashpositionqualifiers(${existing.value[0].cre5b_knowhashpositionqualifierid})`,
+        { cre5b_role_title: roleTitle, cre5b_generated_questions: JSON.stringify(generated) }
+      );
+      mark("qualifierWrite");
+      qualifier = { ...existing.value[0], cre5b_role_title: roleTitle, cre5b_generated_questions: JSON.stringify(generated) };
     } else {
       // 3. First visit: generate now.
       const rawRoleTitle = lead.cre5b_jobpostingtitle || "the role";
@@ -129,7 +148,8 @@ exports.handler = async (event) => {
         cre5b_generated_questions: JSON.stringify(generated),
         cre5b_candidate_link_token: candidateToken,
         [OWNER_LEAD_BIND]: `/cre5b_knowhashleadses(${lead.cre5b_knowhashleadsid})`,
-      });      mark("qualifierWrite");
+      });
+      mark("qualifierWrite");
     }
 
     // 4. Pull any responses already received, for the table view.

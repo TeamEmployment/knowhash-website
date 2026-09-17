@@ -131,17 +131,28 @@ const params = new URLSearchParams(window.location.search);
 const token = params.get('token');
 
 const loadingMessages = [
-  "Reading the role…",
-  "Building your screening questions…",
-  "Putting it all together…"
+  { delay: 0,     text: "Reading the role…" },
+  { delay: 3000,  text: "Building your screening questions…" },
+  { delay: 7000,  text: "Structuring the sections…" },
+  { delay: 11000, text: "Almost there…" },
+  { delay: 15000, text: "Still working — first-time generation can take a little longer than usual" },
 ];
-let msgIndex = 0;
 const msgEl = document.getElementById('loading-message');
-const msgTimer = setInterval(() => {
-  msgIndex = (msgIndex + 1) % loadingMessages.length;
-  msgEl.style.opacity = 0;
-  setTimeout(() => { msgEl.textContent = loadingMessages[msgIndex]; msgEl.style.opacity = 1; }, 300);
-}, 1800);
+let msgTimeouts = [];
+
+function startLoadingMessages() {
+  msgEl.textContent = loadingMessages[0].text;
+  msgTimeouts = loadingMessages.slice(1).map(({ delay, text }) =>
+    setTimeout(() => {
+      msgEl.style.opacity = 0;
+      setTimeout(() => { msgEl.textContent = text; msgEl.style.opacity = 1; }, 300);
+    }, delay)
+  );
+}
+
+function stopLoadingMessages() {
+  msgTimeouts.forEach(clearTimeout);
+}
 
 function escapeHtml(str) {
   const div = document.createElement('div');
@@ -240,9 +251,10 @@ async function load(retry) {
   document.getElementById('loading').style.display = '';
   document.getElementById('error').style.display = 'none';
   document.getElementById('content').style.display = 'none';
+  startLoadingMessages(); // fresh sequence each attempt, including on retry
 
   if (!token) {
-    clearInterval(msgTimer);
+    stopLoadingMessages();
     document.getElementById('loading').style.display = 'none';
     document.getElementById('error').style.display = '';
     document.querySelector('#error p').textContent = 'This link is missing its access code.';
@@ -254,7 +266,7 @@ async function load(retry) {
     if (!res.ok) throw new Error('Request failed');
     const data = await res.json();
 
-    clearInterval(msgTimer);
+    stopLoadingMessages();
     const candidateUrl = `${window.location.origin}/position-qualifier/apply/?token=${data.candidateLinkToken}`;
     currentRoleTitle = data.roleTitle;
 
@@ -274,7 +286,7 @@ async function load(retry) {
     document.getElementById('content').style.display = '';
   } catch (err) {
     if (!retry) { load(true); return; } // one silent automatic retry
-    clearInterval(msgTimer);
+    stopLoadingMessages();
     document.getElementById('loading').style.display = 'none';
     document.getElementById('error').style.display = '';
   }

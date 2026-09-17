@@ -60,6 +60,10 @@ async function generateQuestions(roleTitle) {
 }
 
 exports.handler = async (event) => {
+  const t0 = Date.now();
+  const timings = {};
+  const mark = (label) => { timings[label] = Date.now() - t0; };
+
   try {
     const token = event.queryStringParameters && event.queryStringParameters.token;
     if (!token) {
@@ -71,6 +75,7 @@ exports.handler = async (event) => {
       "GET",
       `cre5b_knowhashleadses?$filter=cre5b_landing_page_token eq '${token}'&$select=cre5b_knowhashleadsid,cre5b_title,cre5b_jobpostingtitle,cre5b_company,cre5b_brand_colour,cre5b_brand_logo_url`
     );
+    mark("leadLookup");
 
     if (!leadResult.value || leadResult.value.length === 0) {
       return { statusCode: 404, body: JSON.stringify({ error: "Link not recognised" }) };
@@ -83,6 +88,7 @@ exports.handler = async (event) => {
       "GET",
       `cre5b_knowhashpositionqualifiers?$filter=_cre5b_owner_lead_value eq ${lead.cre5b_knowhashleadsid}`
     );
+    mark("existingCheck");
 
     let qualifier;
     if (existing.value && existing.value.length > 0) {
@@ -91,6 +97,7 @@ exports.handler = async (event) => {
       // 3. First visit: generate now.
       const roleTitle = lead.cre5b_jobpostingtitle || lead.cre5b_title || "the role";
       const generated = await generateQuestions(roleTitle);
+      mark("claudeGeneration");
       const candidateToken = crypto.randomBytes(16).toString("hex");
 
       qualifier = await dataverseRequest("POST", "cre5b_knowhashpositionqualifiers", {
@@ -99,6 +106,7 @@ exports.handler = async (event) => {
         cre5b_candidate_link_token: candidateToken,
         [OWNER_LEAD_BIND]: `/cre5b_knowhashleadses(${lead.cre5b_knowhashleadsid})`,
       });
+      mark("qualifierWrite");
     }
 
     // 4. Pull any responses already received, for the table view.
@@ -106,6 +114,7 @@ exports.handler = async (event) => {
       "GET",
       `cre5b_knowhashqualifierresponses?$filter=_cre5b_position_qualifier_value eq ${qualifier.cre5b_knowhashpositionqualifierid}&$select=cre5b_candidate_name,cre5b_candidate_email,cre5b_answers,createdon&$orderby=createdon desc`
     );
+    mark("responsesLookup");
 
     return {
       statusCode: 200,
@@ -122,6 +131,16 @@ exports.handler = async (event) => {
     };
   } catch (err) {
     console.error(err);
-    return { statusCode: 500, body: JSON.stringify({ error: "Something went wrong" }) };
+    // TEMPORARY: expose the real error + stage timings for debugging tonight's
+    // slow/timeout pattern. Revert to a generic message once diagnosed.
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        error: "Something went wrong",
+        detail: err.message,
+        timingsMs: timings,
+        totalMs: Date.now() - t0,
+      }),
+    };
   }
 };

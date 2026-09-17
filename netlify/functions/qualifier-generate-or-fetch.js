@@ -73,6 +73,18 @@ async function generateQuestions(roleTitle) {
   return JSON.parse(cleaned);
 }
 
+// Priority: a real captured job posting title (most precise) > the Role
+// you typed into Prospect's panel when you found this lead (your own
+// intent, still a genuine signal) > a plain generic fallback.
+// Deliberately NEVER lead.cre5b_title — that's the contact's own LinkedIn
+// headline (who they are), not the role they're hiring for. Using it
+// produced tests for the recruiter's own job (e.g. "HR Generalist")
+// rather than an open position, especially for HR/recruiting contacts
+// whose own titles happen to read like plausible role names.
+function resolveRoleTitle(lead) {
+  return lead.cre5b_jobpostingtitle || lead.cre5b_search_role || "the role";
+}
+
 exports.handler = async (event) => {
   const t0 = Date.now();
   const timings = {};
@@ -87,7 +99,7 @@ exports.handler = async (event) => {
     // 1. Look up the lead by their landing-page token.
     const leadResult = await dataverseRequest(
       "GET",
-      `cre5b_knowhashleadses?$filter=cre5b_landing_page_token eq '${token}'&$select=cre5b_knowhashleadsid,cre5b_title,cre5b_jobpostingtitle,cre5b_company,cre5b_brand_colour,cre5b_brand_logo_url`
+      `cre5b_knowhashleadses?$filter=cre5b_landing_page_token eq '${token}'&$select=cre5b_knowhashleadsid,cre5b_title,cre5b_jobpostingtitle,cre5b_search_role,cre5b_company,cre5b_brand_colour,cre5b_brand_logo_url`
     );
     mark("leadLookup");
 
@@ -114,7 +126,7 @@ exports.handler = async (event) => {
       // rather than going stale. Deliberate, explicit trigger only
       // (?regenerate=true) — never automatic, since every call here is a
       // real Claude API cost.
-      const rawRoleTitle = lead.cre5b_jobpostingtitle || "the role";
+      const rawRoleTitle = resolveRoleTitle(lead);
       const generated = await generateQuestions(rawRoleTitle);
       mark("claudeGeneration");
       const roleTitle = rawRoleTitle.length > 197 ? rawRoleTitle.slice(0, 197) + "..." : rawRoleTitle;
@@ -128,13 +140,7 @@ exports.handler = async (event) => {
       qualifier = { ...existing.value[0], cre5b_role_title: roleTitle, cre5b_generated_questions: JSON.stringify(generated) };
     } else {
       // 3. First visit: generate now.
-      const rawRoleTitle = lead.cre5b_jobpostingtitle || "the role";
-      // Deliberately NOT falling back to lead.cre5b_title — that field is
-      // the contact's own LinkedIn headline (who they are), not the role
-      // they're hiring for. Using it produced tests for the recruiter's
-      // own job (e.g. "HR Generalist") rather than an open position,
-      // especially for HR/recruiting contacts whose own titles happen to
-      // read like plausible role names.
+      const rawRoleTitle = resolveRoleTitle(lead);
       // Defensive cap — cre5b_role_title is NVARCHAR(200). Some LinkedIn
       // headlines (the cre5b_title fallback especially) run well past that.
       // Truncate for storage/display; Claude still sees the full string.

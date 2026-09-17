@@ -31,20 +31,34 @@ Respond ONLY with JSON in this exact shape, no other text:
 The final section's final item(s) should have "type": "open" for the scenario question and "type": "yesno" for any willingness check.`;
 
 async function generateQuestions(roleTitle) {
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "x-api-key": process.env.ANTHROPIC_API_KEY,
-      "anthropic-version": "2023-06-01",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: CLAUDE_MODEL,
-      max_tokens: 1500,
-      system: GENERATION_SYSTEM_PROMPT,
-      messages: [{ role: "user", content: `Role title: ${roleTitle}` }],
-    }),
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 20000); // fail fast rather than ride out to Netlify's own hard cutoff
+
+  let response;
+  try {
+    response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": process.env.ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: CLAUDE_MODEL,
+        max_tokens: 1500,
+        system: GENERATION_SYSTEM_PROMPT,
+        messages: [{ role: "user", content: `Role title: ${roleTitle}` }],
+      }),
+      signal: controller.signal,
+    });
+  } catch (err) {
+    if (err.name === "AbortError") {
+      throw new Error("Generation call timed out after 20s — likely rate-limited or Anthropic API is slow right now");
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeoutId);
+  }
 
   if (!response.ok) {
     const text = await response.text();
@@ -95,8 +109,12 @@ exports.handler = async (event) => {
       qualifier = existing.value[0];
     } else {
       // 3. First visit: generate now.
-      const roleTitle = lead.cre5b_jobpostingtitle || lead.cre5b_title || "the role";
-      const generated = await generateQuestions(roleTitle);
+      const rawRoleTitle = lead.cre5b_jobpostingtitle || lead.cre5b_title || "the role";
+      // Defensive cap — cre5b_role_title is NVARCHAR(200). Some LinkedIn
+      // headlines (the cre5b_title fallback especially) run well past that.
+      // Truncate for storage/display; Claude still sees the full string.
+      const roleTitle = rawRoleTitle.length > 197 ? rawRoleTitle.slice(0, 197) + "..." : rawRoleTitle;
+      const generated = await generateQuestions(rawRoleTitle);
       mark("claudeGeneration");
       const candidateToken = crypto.randomBytes(16).toString("hex");
 
@@ -105,8 +123,7 @@ exports.handler = async (event) => {
         cre5b_generated_questions: JSON.stringify(generated),
         cre5b_candidate_link_token: candidateToken,
         [OWNER_LEAD_BIND]: `/cre5b_knowhashleadses(${lead.cre5b_knowhashleadsid})`,
-      });
-      mark("qualifierWrite");
+      });      mark("qualifierWrite");
     }
 
     // 4. Pull any responses already received, for the table view.

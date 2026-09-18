@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Position Qualifier — usage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #22355c;
+    --teal: #0d5c63;
+    --teal-light: #e6f0ef;
+    --ink: #2a2f36;
+    --muted: #6b7480;
+    --bg: #f7f8fa;
+    --line: #e3e6ea;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: 'Inter', sans-serif; line-height: 1.55;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 48px 24px 80px; }
+  h1 {
+    font-family: 'Comfortaa', sans-serif; font-weight: 700;
+    color: var(--navy); font-size: 24px; margin: 0 0 30px;
+  }
+  .stats { display: flex; gap: 14px; margin-bottom: 24px; }
+  .stat {
+    flex: 1; background: #fff; border: 1px solid var(--line); border-radius: 10px;
+    padding: 18px; text-align: center;
+  }
+  .stat .num { font-size: 28px; font-weight: 700; color: var(--teal); font-family: 'Comfortaa', sans-serif; }
+  .stat .label { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+  .card {
+    background: #fff; border: 1px solid var(--line); border-radius: 10px;
+    padding: 18px 20px; font-size: 14px;
+  }
+  .card .muted { color: var(--muted); }
+  #loading { color: var(--muted); font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Position Qualifier — usage</h1>
+  <div id="loading">Loading…</div>
+  <div id="content" style="display:none"></div>
+</div>
+<script>
+fetch('/.netlify/functions/qualifier-stats')
+  .then(r => r.json())
+  .then(data => {
+    document.getElementById('loading').style.display = 'none';
+    const c = document.getElementById('content');
+    c.style.display = '';
+    const recent = data.mostRecent
+      ? `${data.mostRecent.candidateName} — ${new Date(data.mostRecent.date).toLocaleString()}`
+      : 'No responses yet';
+    c.innerHTML = `
+      <div class="stats">
+        <div class="stat"><div class="num">${data.testsGenerated}</div><div class="label">Tests generated</div></div>
+        <div class="stat"><div class="num">${data.totalResponses}</div><div class="label">Candidate responses</div></div>
+        <div class="stat"><div class="num">${data.testsWithAtLeastOneResponse}</div><div class="label">Tests actually used</div></div>
+      </div>
+      <div class="card">Most recent: <strong>${recent}</strong></div>
+    `;
+  })
+  .catch(() => {
+    document.getElementById('loading').textContent = 'Something went wrong loading this.';
+  });
+</script>
+</body>
+</html>

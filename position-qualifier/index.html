@@ -262,7 +262,9 @@ async function load(retry) {
   }
 
   try {
-    const res = await fetch(`/.netlify/functions/qualifier-generate-or-fetch?token=${encodeURIComponent(token)}`);
+    const forceRegenerate = params.get('regenerate') === 'true';
+    const url = `/.netlify/functions/qualifier-generate-or-fetch?token=${encodeURIComponent(token)}${forceRegenerate ? '&regenerate=true' : ''}`;
+    const res = await fetch(url);
     if (!res.ok) throw new Error('Request failed');
     const data = await res.json();
 

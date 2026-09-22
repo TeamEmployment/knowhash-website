@@ -520,7 +520,7 @@ Comes pre-filled for this role. On knowhash Recruit, edit this freely — Regene
       qualStatus.textContent = '';
       titleSelect.disabled = false;
       generateBtn.disabled = false;
-      resultsCard.style.display = '';
+      resultsCard.style.display = 'block';
       resultsContent.innerHTML = `<p class="empty-state">Something went wrong loading this link. <button class="btn btn-secondary" style="width:auto;display:inline-block;margin-left:8px;padding:6px 12px;" id="retryBtn">Try again</button></p>`;
       document.getElementById('retryBtn').addEventListener('click', () => runGeneration({ regenerate }));
     } finally {
@@ -531,7 +531,7 @@ Comes pre-filled for this role. On knowhash Recruit, edit this freely — Regene
   let currentResponses = [];
 
   function renderResults(data) {
-    resultsCard.style.display = '';
+    resultsCard.style.display = 'block';
     const candidateUrl = `${window.location.origin}/position-qualifier/apply/?token=${data.candidateLinkToken}`;
     currentResponses = data.responses || [];
 

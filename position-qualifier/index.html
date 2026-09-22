@@ -2,309 +2,658 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Your Position Qualifier — knowhash</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Position Qualifier — knowhash</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --navy: #22355c;
-    --teal: #0d5c63;
-    --teal-light: #e6f0ef;
-    --ink: #2a2f36;
-    --muted: #6b7480;
-    --bg: #f7f8fa;
-    --line: #e3e6ea;
+  :root{
+    --ink:#22355C;
+    --ink-70: rgba(34,53,92,.7);
+    --ink-45: rgba(34,53,92,.45);
+    --accent:#0D5C63;
+    --accent-10: rgba(13,92,99,.08);
+    --paper:#FBFAF7;
+    --card:#FFFFFF;
+    --line: rgba(34,53,92,.14);
+    --line-soft: rgba(34,53,92,.08);
+    --locked-bg: rgba(34,53,92,.035);
+    --gold:#B8862E;
+    box-sizing:border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--ink);
-    font-family: 'Inter', sans-serif;
-    line-height: 1.55;
+  *{box-sizing:border-box;}
+  html{scroll-padding-top: env(safe-area-inset-top, 0px);}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',-apple-system,sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
   }
-  .wrap { max-width: 720px; margin: 0 auto; padding: 48px 24px 80px; }
-  h1 {
-    font-family: 'Comfortaa', sans-serif;
-    font-weight: 700;
-    color: var(--navy);
-    font-size: 26px;
-    margin: 0 0 6px;
-  }
-  .subtitle { color: var(--muted); font-size: 15px; margin: 0 0 36px; }
+  h1,h2,h3,.brand{font-family:'Comfortaa',cursive;}
 
-  /* Loading state */
-  #loading { text-align: center; padding: 80px 20px; }
-  .spinner {
-    width: 34px; height: 34px; margin: 0 auto 22px;
-    border: 3px solid var(--line); border-top-color: var(--teal);
-    border-radius: 50%; animation: spin 0.9s linear infinite;
+  /* ---- top bar ---- */
+  .topbar{
+    position:sticky; top:0; z-index:20;
+    top: env(safe-area-inset-top, 0px);
+    background:rgba(251,250,247,.92);
+    backdrop-filter: blur(8px);
+    border-bottom:1px solid var(--line-soft);
+    padding:14px 28px;
+    display:flex; align-items:center; justify-content:space-between;
   }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  #loading-message { color: var(--muted); font-size: 14.5px; transition: opacity 0.3s ease; }
+  .brand{font-size:19px; font-weight:700; color:var(--ink); letter-spacing:.2px; display:flex; align-items:center; gap:8px;}
+  .brand .mark{width:22px;height:22px;border-radius:50%;background:conic-gradient(from 220deg, var(--ink) 0 60%, var(--accent) 60% 100%);}
+  .topbar .context{font-size:13px; color:var(--ink-45); font-family:'Inter';}
+  .topbar .context b{color:var(--ink-70); font-weight:600;}
 
-  /* Result state */
-  .card {
-    background: #fff; border: 1px solid var(--line); border-radius: 12px;
-    padding: 28px 30px; margin-bottom: 24px;
-  }
-  .card h2 {
-    font-family: 'Comfortaa', sans-serif; font-size: 17px; color: var(--navy);
-    margin: 0 0 4px;
-  }
-  .card .tagline { color: var(--muted); font-size: 13.5px; margin: 0 0 16px; }
-  .item { padding: 10px 0; border-top: 1px solid var(--line); }
-  .item:first-of-type { border-top: none; }
-  .item .q { font-size: 14.5px; font-weight: 500; }
-  .item .sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
-  .item .type-open { display: inline-block; font-size: 11px; color: var(--teal); background: var(--teal-light); padding: 1px 8px; border-radius: 10px; margin-left: 8px; }
+  /* ---- layout ---- */
+  .wrap{max-width:920px; margin:0 auto; padding:40px 28px 96px;}
+  .eyebrow-row{display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin-bottom:6px; flex-wrap:wrap;}
+  h1{font-size:26px; margin:0 0 6px; font-weight:600; color:var(--ink);}
+  .lede{color:var(--ink-70); font-size:15px; max-width:60ch; margin:0 0 32px;}
 
-  .link-row {
-    display: flex; gap: 10px; align-items: center;
-    background: var(--teal-light); border-radius: 10px; padding: 14px 16px;
+  .tier-pill{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:12.5px; font-weight:600; color:var(--gold);
+    background:rgba(184,134,46,.1); border:1px solid rgba(184,134,46,.25);
+    padding:5px 11px; border-radius:100px; white-space:nowrap;
   }
-  .link-row input {
-    flex: 1; border: none; background: transparent; font-size: 13.5px;
-    color: var(--navy); font-family: 'Inter', monospace;
-  }
-  .link-row input:focus { outline: none; }
-  button.copy {
-    background: var(--teal); color: #fff; border: none; border-radius: 7px;
-    padding: 8px 16px; font-size: 13.5px; font-weight: 500; cursor: pointer;
-    font-family: 'Inter', sans-serif;
-  }
-  button.copy:hover { background: #0a4a50; }
+  .tier-pill svg{width:12px;height:12px;}
 
-  table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  th { text-align: left; color: var(--muted); font-weight: 500; font-size: 12.5px; padding: 8px 0; border-bottom: 1px solid var(--line); }
-  td { padding: 10px 0; border-bottom: 1px solid var(--line); }
-  .response-row { cursor: pointer; }
-  .response-row:hover td { background: var(--teal-light); }
-  .chevron { width: 20px; color: var(--muted); font-size: 16px; text-align: center; }
-  .response-detail td { border-bottom: 1px solid var(--line); padding: 0 0 14px; }
-  .answer-item { padding: 10px 0; border-top: 1px solid var(--line); }
-  .answer-item:first-child { border-top: none; }
-  .answer-q { font-size: 13.5px; font-weight: 500; margin-bottom: 3px; }
-  .answer-a { font-size: 14px; color: var(--navy); white-space: pre-wrap; }
-  button.download {
-    margin-top: 12px; background: transparent; color: var(--teal); border: 1px solid var(--teal);
-    border-radius: 7px; padding: 7px 14px; font-size: 13px; cursor: pointer; font-family: 'Inter', sans-serif;
+  /* ---- card ---- */
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:28px;
+    margin-bottom:22px;
   }
-  button.download:hover { background: var(--teal-light); }
-  .empty-state { color: var(--muted); font-size: 14px; padding: 8px 0; }
+  .card h2{font-size:14px; font-weight:600; color:var(--ink); margin:0 0 4px;}
+  .card .sub{font-size:13px; color:var(--ink-45); margin:0 0 20px;}
 
-  #error { text-align: center; padding: 60px 20px; color: var(--muted); }
-  #error button {
-    margin-top: 14px; background: var(--navy); color: #fff; border: none;
-    border-radius: 7px; padding: 9px 20px; font-size: 14px; cursor: pointer;
+  label{display:block; font-size:12.5px; font-weight:600; color:var(--ink-70); margin-bottom:7px;}
+  .hint{font-size:12px; color:var(--ink-45); margin-top:6px; line-height:1.45;}
+
+  select, textarea, input[type=text]{
+    width:100%;
+    font-family:'Inter'; font-size:14.5px; color:var(--ink);
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:9px;
+    padding:11px 13px;
+    transition:border-color .15s ease, background .15s ease;
   }
+  select:focus, textarea:focus, input:focus{
+    outline:none; border-color:var(--accent); background:#fff;
+    box-shadow:0 0 0 3px var(--accent-10);
+  }
+  select{appearance:none; -webkit-appearance:none; cursor:pointer;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%2322355C' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat:no-repeat; background-position:right 13px center; padding-right:34px;
+  }
+  textarea{min-height:190px; resize:vertical; line-height:1.55;}
+  textarea[readonly]{background:var(--locked-bg); color:var(--ink-70); cursor:default;}
 
-  footer { text-align: center; margin-top: 40px; }
-  footer span { font-size: 12px; color: var(--muted); }
-  footer strong { color: var(--navy); }
+  .field{margin-bottom:22px;}
+  .field:last-child{margin-bottom:0;}
+
+  .row-label{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:7px;}
+  .row-label label{margin:0;}
+
+  .lock-tag{
+    display:inline-flex; align-items:center; gap:4px;
+    font-size:11px; font-weight:600; color:var(--ink-45);
+    letter-spacing:.2px;
+  }
+  .lock-tag svg{width:10px;height:10px; flex-shrink:0;}
+
+  /* ---- segmented control (Detail Level) ---- */
+  .segmented{
+    display:inline-flex; background:var(--paper); border:1px solid var(--line);
+    border-radius:9px; padding:3px; gap:2px;
+  }
+  .segmented button{
+    font-family:'Inter'; font-size:13.5px; font-weight:500; color:var(--ink-45);
+    background:transparent; border:none; border-radius:7px;
+    padding:8px 18px; cursor:pointer; transition:background .15s ease, color .15s ease;
+  }
+  .segmented button.active{background:var(--ink); color:#fff; font-weight:600;}
+  .segmented button:disabled{cursor:not-allowed;}
+  .segmented button:not(.active):not(:disabled):hover{background:var(--line-soft);}
+
+  /* ---- job board toggle chips ---- */
+  .chip-group{display:flex; flex-wrap:wrap; gap:8px;}
+  .chip{
+    display:inline-flex; align-items:center; gap:7px;
+    font-size:13.5px; font-weight:500; color:var(--ink-70);
+    border:1px solid var(--line); border-radius:100px;
+    padding:8px 15px 8px 12px; cursor:pointer; background:var(--card);
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .chip input{margin:0; accent-color:var(--accent); width:14px; height:14px;}
+  .chip.checked{border-color:var(--accent); background:var(--accent-10); color:var(--ink);}
+  .chip:has(input:disabled){cursor:not-allowed;}
+
+  /* ---- locked state overlay treatment ---- */
+  .locked{position:relative; opacity:.55; filter:saturate(.65);}
+  .locked select, .locked input, .locked textarea{cursor:not-allowed;}
+  .locked .segmented button, .locked .chip{pointer-events:none;}
+
+  /* ---- outputs ---- */
+  .outputs{display:grid; grid-template-columns:repeat(3, 1fr); gap:14px;}
+  @media (max-width:720px){ .outputs{grid-template-columns:1fr;} }
+
+  .output-card{
+    border:1px solid var(--line); border-radius:12px; padding:20px;
+    background:var(--card); display:flex; flex-direction:column; gap:14px;
+  }
+  .output-card.is-locked{background:var(--locked-bg);}
+  .output-head{display:flex; align-items:flex-start; justify-content:space-between; gap:8px;}
+  .output-title{font-size:14.5px; font-weight:600; color:var(--ink);}
+  .output-desc{font-size:12.5px; color:var(--ink-45); line-height:1.5; margin:0; flex:1;}
+
+  .lock-badge{
+    width:24px; height:24px; border-radius:50%; flex-shrink:0;
+    background:rgba(34,53,92,.08); display:flex; align-items:center; justify-content:center;
+  }
+  .lock-badge svg{width:11px;height:11px; stroke:var(--ink-45);}
+
+  .btn{
+    font-family:'Inter'; font-size:13.5px; font-weight:600;
+    border-radius:9px; padding:10px 16px; cursor:pointer; border:none;
+    text-align:center; width:100%;
+  }
+  .btn-primary{background:var(--ink); color:#fff;}
+  .btn-primary:hover{background:#1a2947;}
+  .btn-locked{
+    background:transparent; color:var(--ink-45); border:1px solid var(--line);
+    cursor:not-allowed;
+  }
+  .btn-upgrade{
+    background:transparent; color:var(--accent); border:1px solid rgba(13,92,99,.35);
+  }
+  .btn-upgrade:hover{background:var(--accent-10);}
+
+  /* ---- footer note ---- */
+  .foot-note{
+    display:flex; align-items:center; gap:10px;
+    font-size:12.5px; color:var(--ink-45);
+    border-top:1px solid var(--line-soft); margin-top:8px; padding-top:22px;
+  }
+  .foot-note a{color:var(--accent); text-decoration:none; font-weight:600;}
+  .foot-note a:hover{text-decoration:underline;}
+
+  /* ---- live-mode extras ---- */
+  .override-note{
+    font-size:12px; color:var(--gold); margin-top:6px; line-height:1.45;
+    display:none;
+  }
+  .override-note.show{display:block;}
+
+  .qual-status{font-size:12.5px; color:var(--ink-45); margin-top:2px;}
+  .qual-spinner{
+    width:14px; height:14px; border:2px solid var(--line); border-top-color:var(--accent);
+    border-radius:50%; display:inline-block; vertical-align:-2px; margin-right:6px;
+    animation:spin .9s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .btn-secondary{
+    background:transparent; color:var(--ink-70); border:1px solid var(--line);
+  }
+  .btn-secondary:hover{background:var(--line-soft);}
+
+  #resultsCard{display:none;}
+  .link-row{
+    display:flex; gap:10px; align-items:center;
+    background:var(--accent-10); border-radius:10px; padding:14px 16px; margin-bottom:18px;
+  }
+  .link-row input{
+    flex:1; border:none; background:transparent; font-size:13px;
+    color:var(--ink); font-family:'Inter',monospace;
+  }
+  .link-row input:focus{outline:none; box-shadow:none;}
+  .link-row button{
+    background:var(--accent); color:#fff; border:none; border-radius:7px;
+    padding:8px 14px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter';
+    width:auto;
+  }
+  .link-row button:hover{background:#0a4a50;}
+
+  .q-section{margin-bottom:18px;}
+  .q-section:last-child{margin-bottom:0;}
+  .q-section h3{font-size:13.5px; font-weight:600; color:var(--ink); margin:0 0 2px;}
+  .q-section .q-tagline{font-size:12px; color:var(--ink-45); margin:0 0 10px;}
+  .q-item{padding:9px 0; border-top:1px solid var(--line-soft);}
+  .q-item:first-of-type{border-top:none;}
+  .q-item .q-text{font-size:13.5px; font-weight:500; color:var(--ink);}
+  .q-item .q-sub{font-size:12px; color:var(--ink-45); margin-top:2px;}
+  .q-open-tag{display:inline-block; font-size:10.5px; color:var(--accent); background:var(--accent-10); padding:1px 7px; border-radius:10px; margin-left:7px;}
+
+  .resp-table{width:100%; border-collapse:collapse; font-size:13.5px; margin-top:4px;}
+  .resp-table th{text-align:left; color:var(--ink-45); font-weight:500; font-size:11.5px; padding:7px 0; border-bottom:1px solid var(--line);}
+  .resp-table td{padding:9px 0; border-bottom:1px solid var(--line-soft);}
+  .resp-row{cursor:pointer;}
+  .resp-row:hover td{background:var(--locked-bg);}
+  .resp-chevron{width:16px; color:var(--ink-45); font-size:14px;}
+  .resp-detail td{padding:0 0 12px;}
+  .ans-item{padding:8px 0; border-top:1px solid var(--line-soft);}
+  .ans-item:first-child{border-top:none;}
+  .ans-q{font-size:12.5px; font-weight:500; color:var(--ink-70); margin-bottom:2px;}
+  .ans-a{font-size:13.5px; color:var(--ink); white-space:pre-wrap;}
+  .empty-state{color:var(--ink-45); font-size:13px; padding:4px 0;}
 </style>
 </head>
 <body>
+
+<div class="topbar">
+  <div class="brand"><span class="mark"></span>knowhash</div>
+  <div class="context">Position Qualifier for <b>Technical Service Desk Lead</b></div>
+</div>
+
 <div class="wrap">
-  <h1>Position Qualifier</h1>
-  <p class="subtitle">Your screening questions, ready to send.</p>
 
-  <div id="loading">
-    <div class="spinner"></div>
-    <div id="loading-message">Reading the role…</div>
+  <div class="eyebrow-row">
+    <h1>Set up your position</h1>
+    <span class="tier-pill">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M6 10V8a6 6 0 1112 0v2M5 10h14a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1v-9a1 1 0 011-1z" stroke="currentColor" stroke-width="2"/></svg>
+      Free preview — Recruit unlocks the rest
+    </span>
+  </div>
+  <p class="lede">Pick a role below and knowhash will draft your candidate qualifier test. Ad copy, full editing and every detail level are part of knowhash Recruit.</p>
+
+  <!-- ROLE + BRIEF -->
+  <div class="card">
+    <h2>Role</h2>
+    <p class="sub">On knowhash Recruit this is a free-text brief you write yourself. As a preview, pick from what we've picked up for you.</p>
+
+    <div class="field">
+      <label for="titleSelect">Position title</label>
+      <select id="titleSelect">
+        <option value="scraped" selected>Technical Service Desk Lead — from your LinkedIn post</option>
+        <option value="">— or choose a common role —</option>
+        <option value="csr">Customer Service Representative</option>
+        <option value="pm">Project Manager</option>
+        <option value="data">Data Analyst</option>
+        <option value="sales">Sales Representative</option>
+        <option value="admin">Administrative Assistant</option>
+        <option value="accountant">Accountant</option>
+        <option value="marketing">Marketing Manager</option>
+        <option value="ops">Operations Manager</option>
+        <option value="hr">HR Generalist</option>
+        <option value="nurse">Registered Nurse</option>
+      </select>
+      <p class="hint">Recruit users skip this — the title is just the first line of their own brief.</p>
+      <p class="override-note" id="overrideNote">Generating for a different role isn't wired up yet in this preview — Generate always uses your actual scraped role for now.</p>
+    </div>
+
+    <div class="field locked" id="titleFreeTextField">
+      <div class="row-label">
+        <label for="titleFreeText">Or write your own title</label>
+        <span class="lock-tag">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M6 10V8a6 6 0 1112 0v2M5 10h14a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1v-9a1 1 0 011-1z" stroke="currentColor" stroke-width="2"/></svg>
+          knowhash Recruit
+        </span>
+      </div>
+      <input type="text" id="titleFreeText" placeholder="e.g. Senior Full-Stack Engineer" disabled>
+    </div>
+
+    <div class="field locked" id="textField">
+      <div class="row-label">
+        <label for="posText">Position text</label>
+        <span class="lock-tag">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M6 10V8a6 6 0 1112 0v2M5 10h14a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1v-9a1 1 0 011-1z" stroke="currentColor" stroke-width="2"/></svg>
+          Editing needs Recruit
+        </span>
+      </div>
+      <textarea id="posText" readonly>We're looking for a Technical Service Desk Lead to run day-to-day support operations, mentor a small team of L1/L2 analysts, and own ticket-queue health. You'll work closely with infrastructure and network teams to resolve escalations and improve first-contact resolution.
+
+Comes pre-filled for this role. On knowhash Recruit, edit this freely — Regenerate always works from whatever's here.</textarea>
+      <p class="hint">Generated for the role you picked above. Recruit users can rewrite this before generating.</p>
+    </div>
   </div>
 
-  <div id="error" style="display:none">
-    <p>Something went wrong loading this page.</p>
-    <button onclick="load()">Try again</button>
+  <!-- GENERATION SETTINGS -->
+  <div class="card">
+    <h2>Generation settings</h2>
+    <p class="sub">Control how much detail comes back, and where the ad copy is aimed.</p>
+
+    <div class="field">
+      <div class="row-label">
+        <label>Detail level</label>
+      </div>
+      <div class="segmented locked" id="detailLevel">
+        <button data-level="brief" disabled>Brief</button>
+        <button data-level="standard" class="active" disabled>Standard</button>
+        <button data-level="detailed" disabled>Detailed</button>
+      </div>
+      <p class="hint">Locked to Standard in the free preview. Recruit lets you dial it down for a quick post or up for a full brief.</p>
+    </div>
+
+    <div class="field locked" id="jobBoards">
+      <label>Job boards to tailor ad copy for</label>
+      <div class="chip-group">
+        <label class="chip"><input type="checkbox" disabled> Seek</label>
+        <label class="chip"><input type="checkbox" disabled> LinkedIn</label>
+        <label class="chip"><input type="checkbox" disabled> Indeed</label>
+        <label class="chip checked"><input type="checkbox" checked disabled> General</label>
+      </div>
+      <p class="hint">Ad copy generation is a Recruit feature — see below.</p>
+    </div>
   </div>
 
-  <div id="content" style="display:none"></div>
+  <!-- OUTPUTS -->
+  <div class="card">
+    <h2>What to generate</h2>
+    <p class="sub">Three documents come from the same role. The candidate qualifier is free to try — the rest come with knowhash Recruit.</p>
 
-  <footer><span>Powered by <strong>knowhash</strong></span></footer>
+    <div class="outputs">
+      <div class="output-card is-locked">
+        <div class="output-head">
+          <span class="output-title">Ad copy</span>
+          <span class="lock-badge">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M6 10V8a6 6 0 1112 0v2M5 10h14a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1v-9a1 1 0 011-1z" stroke-width="2"/></svg>
+          </span>
+        </div>
+        <p class="output-desc">A job-board-ready listing, tailored to whichever boards you selected above.</p>
+        <button class="btn btn-locked" disabled>Generate</button>
+      </div>
+
+      <div class="output-card is-locked">
+        <div class="output-head">
+          <span class="output-title">Position description</span>
+          <span class="lock-badge">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M6 10V8a6 6 0 1112 0v2M5 10h14a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1v-9a1 1 0 011-1z" stroke-width="2"/></svg>
+          </span>
+        </div>
+        <p class="output-desc">A formal PD you can send to hiring managers or attach to an internal req.</p>
+        <button class="btn btn-locked" disabled>Generate</button>
+      </div>
+
+      <div class="output-card">
+        <div class="output-head">
+          <span class="output-title">Candidate qualifier</span>
+        </div>
+        <p class="output-desc">A short screening test candidates take before you speak with them.</p>
+        <p class="qual-status" id="qualStatus"></p>
+        <button class="btn btn-primary" id="generateQualifier">Generate test</button>
+      </div>
+    </div>
+
+    <div class="foot-note">
+      Ad copy and position descriptions, free-text roles, full editing and all detail levels are part of <a href="#">knowhash Recruit</a>.
+    </div>
+  </div>
+
+  <!-- RESULTS (populated once a test exists for this lead) -->
+  <div class="card" id="resultsCard">
+    <div id="resultsContent"></div>
+  </div>
+
 </div>
 
 <script>
-const params = new URLSearchParams(window.location.search);
-const token = params.get('token');
+  const titleSelect   = document.getElementById('titleSelect');
+  const posText       = document.getElementById('posText');
+  const overrideNote  = document.getElementById('overrideNote');
+  const generateBtn   = document.getElementById('generateQualifier');
+  const qualStatus    = document.getElementById('qualStatus');
+  const resultsCard   = document.getElementById('resultsCard');
+  const resultsContent= document.getElementById('resultsContent');
 
-const loadingMessages = [
-  { delay: 0,     text: "Reading the role…" },
-  { delay: 3000,  text: "Building your screening questions…" },
-  { delay: 7000,  text: "Structuring the sections…" },
-  { delay: 11000, text: "Almost there…" },
-  { delay: 15000, text: "Still working — first-time generation can take a little longer than usual" },
-];
-const msgEl = document.getElementById('loading-message');
-let msgTimeouts = [];
+  const params = new URLSearchParams(window.location.search);
+  const token  = params.get('token');
 
-function startLoadingMessages() {
-  msgEl.textContent = loadingMessages[0].text;
-  msgTimeouts = loadingMessages.slice(1).map(({ delay, text }) =>
-    setTimeout(() => {
-      msgEl.style.opacity = 0;
-      setTimeout(() => { msgEl.textContent = text; msgEl.style.opacity = 1; }, 300);
-    }, delay)
-  );
-}
+  // ---- Demo-mode canned text — only used when there's no token, e.g.
+  // opening this file directly for a design review. Real deployed links
+  // never hit this path. ----
+  const cannedText = {
+    scraped: `We're looking for a Technical Service Desk Lead to run day-to-day support operations, mentor a small team of L1/L2 analysts, and own ticket-queue health. You'll work closely with infrastructure and network teams to resolve escalations and improve first-contact resolution.
 
-function stopLoadingMessages() {
-  msgTimeouts.forEach(clearTimeout);
-}
+Comes pre-filled for this role. On knowhash Recruit, edit this freely — Regenerate always works from whatever's here.`,
+    csr: `A Customer Service Representative role handling inbound queries, resolving issues, and keeping customer satisfaction high across phone, chat and email.`,
+    pm: `A Project Manager role coordinating delivery across teams, stakeholders and timelines to keep initiatives on track and on budget.`,
+    data: `A Data Analyst role turning raw data into reporting and insight that shapes day-to-day decisions.`,
+    sales: `A Sales Representative role generating leads, running the sales cycle end-to-end, and closing new business against a target.`,
+    admin: `An Administrative Assistant role supporting day-to-day office operations, scheduling, and correspondence for a busy team.`,
+    accountant: `An Accountant role managing day-to-day bookkeeping, reconciliations and reporting to keep the books accurate and compliant.`,
+    marketing: `A Marketing Manager role planning and running campaigns across channels to build brand awareness and drive demand.`,
+    ops: `An Operations Manager role overseeing day-to-day processes and resourcing to keep the business running smoothly.`,
+    hr: `An HR Generalist role covering recruitment support, onboarding, policy and day-to-day employee relations.`,
+    nurse: `A Registered Nurse role providing direct patient care and coordinating with the wider clinical team.`
+  };
 
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
-
-function renderSections(sections) {
-  return sections.map(section => `
-    <div class="card">
-      <h2>${escapeHtml(section.title)}</h2>
-      <p class="tagline">${escapeHtml(section.tagline)}</p>
-      ${section.items.map(item => `
-        <div class="item">
-          <div class="q">${escapeHtml(item.question)}${item.type === 'open' ? '<span class="type-open">Open answer</span>' : ''}</div>
-          <div class="sub">${escapeHtml(item.subtext || '')}</div>
-        </div>
-      `).join('')}
-    </div>
-  `).join('');
-}
-
-let currentResponses = [];
-let currentRoleTitle = '';
-
-function renderResponses(responses) {
-  currentResponses = responses;
-  if (!responses || responses.length === 0) {
-    return `<div class="card"><h2>Responses</h2><p class="empty-state">No responses yet — share the link above with a candidate to get started.</p></div>`;
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str == null ? '' : str;
+    return div.innerHTML;
   }
-  return `
-    <div class="card">
-      <h2>Responses (${responses.length})</h2>
-      <table>
-        <tr><th></th><th>Candidate</th><th>Email</th><th>Received</th></tr>
-        ${responses.map((r, idx) => `
-          <tr class="response-row" onclick="toggleResponse(${idx})">
-            <td class="chevron" id="chevron-${idx}">›</td>
-            <td>${escapeHtml(r.cre5b_candidate_name || 'Not given')}</td>
-            <td>${escapeHtml(r.cre5b_candidate_email || '—')}</td>
-            <td>${new Date(r.createdon).toLocaleDateString()}</td>
-          </tr>
-          <tr class="response-detail" id="detail-${idx}" style="display:none">
-            <td colspan="4">
-              ${renderAnswers(r.cre5b_answers)}
-              <button class="download" onclick="event.stopPropagation(); downloadResponse(${idx})">Download copy</button>
-            </td>
-          </tr>
-        `).join('')}
-      </table>
-    </div>
-  `;
-}
 
-function downloadResponse(idx) {
-  const r = currentResponses[idx];
-  let answers;
-  try { answers = JSON.parse(r.cre5b_answers); } catch (e) { answers = []; }
-  const lines = [
-    `Position Qualifier — ${currentRoleTitle}`,
-    `Candidate: ${r.cre5b_candidate_name || 'Not given'}`,
-    `Email: ${r.cre5b_candidate_email || '—'}`,
-    `Received: ${new Date(r.createdon).toLocaleString()}`,
-    '',
-    ...answers.flatMap(a => [a.question, a.answer || '(skipped)', ''])
+  // ============================================================
+  // DEMO MODE — no token in the URL. Unchanged from the preview:
+  // dropdown swaps canned text, Generate fakes a result.
+  // ============================================================
+  function wireDemoMode() {
+    titleSelect.addEventListener('change', () => {
+      const key = titleSelect.value;
+      posText.value = cannedText[key] || 'Pick a role above to see its position text.';
+    });
+
+    generateBtn.addEventListener('click', (e) => {
+      const btn = e.currentTarget;
+      btn.textContent = 'Generating…';
+      btn.disabled = true;
+      setTimeout(() => {
+        btn.textContent = 'Test generated ✓';
+      }, 900);
+    });
+  }
+
+  // ============================================================
+  // LIVE MODE — a real ?token=... from a Prospect outreach link.
+  // Calls the same /.netlify/functions/qualifier-generate-or-fetch
+  // the current production page uses, so outstanding links keep
+  // working once this file replaces position-qualifier/index.html.
+  // NOTE: this can only actually reach that endpoint once deployed
+  // to knowhash.com (or via `netlify dev`) — a claude.ai artifact
+  // preview cannot call your Netlify functions.
+  // ============================================================
+  function wireLiveMode() {
+    titleSelect.disabled = true;
+    generateBtn.disabled = true;
+    setScrapedOptionLabel('Loading your role…');
+    posText.value = 'Loading…';
+
+    titleSelect.addEventListener('change', () => {
+      const isScraped = titleSelect.value === 'scraped' || titleSelect.value === '';
+      overrideNote.classList.toggle('show', !isScraped);
+    });
+
+    generateBtn.addEventListener('click', () => runGeneration({ regenerate: true }));
+
+    runGeneration({ regenerate: false });
+  }
+
+  function setScrapedOptionLabel(text) {
+    titleSelect.querySelector('option[value="scraped"]').textContent = text;
+  }
+
+  const loadingMessages = [
+    'Reading the role…',
+    'Building your screening questions…',
+    'Structuring the sections…',
+    'Almost there…'
   ];
-  const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `${(r.cre5b_candidate_name || 'candidate').replace(/\s+/g, '-')}-response.txt`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
 
-function renderAnswers(answersJson) {
-  let answers;
-  try { answers = JSON.parse(answersJson); } catch (e) { return '<p class="empty-state">Could not read this response.</p>'; }
-  return answers.map(a => `
-    <div class="answer-item">
-      <div class="answer-q">${escapeHtml(a.question)}</div>
-      <div class="answer-a">${escapeHtml(a.answer || '(skipped)')}</div>
-    </div>
-  `).join('');
-}
+  async function runGeneration({ regenerate }) {
+    generateBtn.disabled = true;
+    titleSelect.disabled = true;
+    let msgIdx = 0;
+    qualStatus.innerHTML = `<span class="qual-spinner"></span>${loadingMessages[0]}`;
+    const msgTimer = setInterval(() => {
+      msgIdx = Math.min(msgIdx + 1, loadingMessages.length - 1);
+      qualStatus.innerHTML = `<span class="qual-spinner"></span>${loadingMessages[msgIdx]}`;
+    }, 3500);
 
-function toggleResponse(idx) {
-  const detail = document.getElementById(`detail-${idx}`);
-  const chevron = document.getElementById(`chevron-${idx}`);
-  const open = detail.style.display !== 'none';
-  detail.style.display = open ? 'none' : '';
-  chevron.textContent = open ? '›' : '⌄';
-}
+    try {
+      const url = `/.netlify/functions/qualifier-generate-or-fetch?token=${encodeURIComponent(token)}${regenerate ? '&regenerate=true' : ''}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Request failed: ' + res.status);
+      const data = await res.json();
 
-async function load(retry) {
-  document.getElementById('loading').style.display = '';
-  document.getElementById('error').style.display = 'none';
-  document.getElementById('content').style.display = 'none';
-  startLoadingMessages(); // fresh sequence each attempt, including on retry
+      setScrapedOptionLabel(`${data.roleTitle} — from your LinkedIn post`);
+      titleSelect.value = 'scraped';
+      titleSelect.disabled = false;
+      overrideNote.classList.remove('show');
+      posText.value = `No job description is on file for this role — the qualifier below is generated from the title alone.\n\nWriting your own brief (and having it feed generation) unlocks with knowhash Recruit.`;
 
-  if (!token) {
-    stopLoadingMessages();
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('error').style.display = '';
-    document.querySelector('#error p').textContent = 'This link is missing its access code.';
-    return;
+      qualStatus.textContent = '';
+      generateBtn.textContent = 'Regenerate';
+      generateBtn.disabled = false;
+      renderResults(data);
+    } catch (err) {
+      qualStatus.textContent = '';
+      titleSelect.disabled = false;
+      generateBtn.disabled = false;
+      resultsCard.style.display = '';
+      resultsContent.innerHTML = `<p class="empty-state">Something went wrong loading this link. <button class="btn btn-secondary" style="width:auto;display:inline-block;margin-left:8px;padding:6px 12px;" id="retryBtn">Try again</button></p>`;
+      document.getElementById('retryBtn').addEventListener('click', () => runGeneration({ regenerate }));
+    } finally {
+      clearInterval(msgTimer);
+    }
   }
 
-  try {
-    const forceRegenerate = params.get('regenerate') === 'true';
-    const url = `/.netlify/functions/qualifier-generate-or-fetch?token=${encodeURIComponent(token)}${forceRegenerate ? '&regenerate=true' : ''}`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('Request failed');
-    const data = await res.json();
+  let currentResponses = [];
 
-    stopLoadingMessages();
+  function renderResults(data) {
+    resultsCard.style.display = '';
     const candidateUrl = `${window.location.origin}/position-qualifier/apply/?token=${data.candidateLinkToken}`;
-    currentRoleTitle = data.roleTitle;
+    currentResponses = data.responses || [];
 
-    document.getElementById('content').innerHTML = `
-      <div class="card">
-        <h2>Share with candidates</h2>
-        <p class="tagline">Anyone with this link can take the test for ${escapeHtml(data.roleTitle)}.</p>
-        <div class="link-row">
-          <input readonly value="${candidateUrl}" id="candidate-link">
-          <button class="copy" onclick="copyLink()">Copy link</button>
-        </div>
+    resultsContent.innerHTML = `
+      <h2>Share with candidates</h2>
+      <p class="sub">Anyone with this link can take the test for ${escapeHtml(data.roleTitle)}.</p>
+      <div class="link-row">
+        <input readonly value="${escapeHtml(candidateUrl)}" id="candidateLink">
+        <button id="copyLinkBtn" type="button">Copy link</button>
       </div>
       ${renderSections(data.questions.sections)}
-      ${renderResponses(data.responses)}
+      ${renderResponses(currentResponses)}
     `;
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('content').style.display = '';
-  } catch (err) {
-    if (!retry) { load(true); return; } // one silent automatic retry
-    stopLoadingMessages();
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('error').style.display = '';
+
+    document.getElementById('copyLinkBtn').addEventListener('click', () => {
+      const input = document.getElementById('candidateLink');
+      input.select();
+      navigator.clipboard.writeText(input.value);
+      const btn = document.getElementById('copyLinkBtn');
+      const original = btn.textContent;
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = original, 1500);
+    });
+
+    currentResponses.forEach((_, idx) => {
+      const row = document.getElementById(`resp-row-${idx}`);
+      if (row) row.addEventListener('click', () => toggleResponse(idx));
+      const dl = document.getElementById(`resp-dl-${idx}`);
+      if (dl) dl.addEventListener('click', (e) => { e.stopPropagation(); downloadResponse(idx); });
+    });
   }
-}
 
-function copyLink() {
-  const input = document.getElementById('candidate-link');
-  input.select();
-  navigator.clipboard.writeText(input.value);
-  const btn = document.querySelector('button.copy');
-  const original = btn.textContent;
-  btn.textContent = 'Copied!';
-  setTimeout(() => btn.textContent = original, 1500);
-}
+  function renderSections(sections) {
+    return sections.map(section => `
+      <div class="q-section">
+        <h3>${escapeHtml(section.title)}</h3>
+        <p class="q-tagline">${escapeHtml(section.tagline)}</p>
+        ${section.items.map(item => `
+          <div class="q-item">
+            <div class="q-text">${escapeHtml(item.question)}${item.type === 'open' ? '<span class="q-open-tag">Open answer</span>' : ''}</div>
+            <div class="q-sub">${escapeHtml(item.subtext || '')}</div>
+          </div>
+        `).join('')}
+      </div>
+    `).join('');
+  }
 
-load();
+  function renderResponses(responses) {
+    if (!responses || responses.length === 0) {
+      return `<div class="q-section"><h3>Responses</h3><p class="empty-state">No responses yet — share the link above with a candidate to get started.</p></div>`;
+    }
+    return `
+      <div class="q-section">
+        <h3>Responses (${responses.length})</h3>
+        <table class="resp-table">
+          <tr><th></th><th>Candidate</th><th>Email</th><th>Received</th></tr>
+          ${responses.map((r, idx) => `
+            <tr class="resp-row" id="resp-row-${idx}">
+              <td class="resp-chevron" id="resp-chevron-${idx}">›</td>
+              <td>${escapeHtml(r.cre5b_candidate_name || 'Not given')}</td>
+              <td>${escapeHtml(r.cre5b_candidate_email || '—')}</td>
+              <td>${new Date(r.createdon).toLocaleDateString()}</td>
+            </tr>
+            <tr class="resp-detail" id="resp-detail-${idx}" style="display:none">
+              <td colspan="4">
+                ${renderAnswers(r.cre5b_answers)}
+                <button class="btn btn-secondary" style="width:auto;padding:6px 12px;margin-top:8px;" id="resp-dl-${idx}">Download copy</button>
+              </td>
+            </tr>
+          `).join('')}
+        </table>
+      </div>
+    `;
+  }
+
+  function renderAnswers(answersJson) {
+    let answers;
+    try { answers = JSON.parse(answersJson); } catch (e) { return '<p class="empty-state">Could not read this response.</p>'; }
+    return answers.map(a => `
+      <div class="ans-item">
+        <div class="ans-q">${escapeHtml(a.question)}</div>
+        <div class="ans-a">${escapeHtml(a.answer || '(skipped)')}</div>
+      </div>
+    `).join('');
+  }
+
+  function toggleResponse(idx) {
+    const detail = document.getElementById(`resp-detail-${idx}`);
+    const chevron = document.getElementById(`resp-chevron-${idx}`);
+    const open = detail.style.display !== 'none';
+    detail.style.display = open ? 'none' : '';
+    chevron.textContent = open ? '›' : '⌄';
+  }
+
+  function downloadResponse(idx) {
+    const r = currentResponses[idx];
+    let answers;
+    try { answers = JSON.parse(r.cre5b_answers); } catch (e) { answers = []; }
+    const lines = [
+      `Position Qualifier`,
+      `Candidate: ${r.cre5b_candidate_name || 'Not given'}`,
+      `Email: ${r.cre5b_candidate_email || '—'}`,
+      `Received: ${new Date(r.createdon).toLocaleString()}`,
+      '',
+      ...answers.flatMap(a => [a.question, a.answer || '(skipped)', ''])
+    ];
+    const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${(r.cre5b_candidate_name || 'candidate').replace(/\s+/g, '-')}-response.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // ---- entry point ----
+  if (token) {
+    wireLiveMode();
+  } else {
+    wireDemoMode();
+  }
 </script>
+
 </body>
 </html>

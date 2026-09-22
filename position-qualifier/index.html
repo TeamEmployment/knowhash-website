@@ -9,17 +9,19 @@
 <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#22355C;
-    --ink-70: rgba(34,53,92,.7);
-    --ink-45: rgba(34,53,92,.45);
+    --ink:#1A2947;
+    --ink-70: rgba(26,41,71,.78);
+    --ink-45: rgba(26,41,71,.52);
     --accent:#0D5C63;
     --accent-10: rgba(13,92,99,.08);
     --paper:#FBFAF7;
     --card:#FFFFFF;
     --line: rgba(34,53,92,.14);
     --line-soft: rgba(34,53,92,.08);
-    --locked-bg: rgba(34,53,92,.035);
+    --locked-bg: rgba(184,134,46,.045);
+    --locked-line: rgba(184,134,46,.28);
     --gold:#B8862E;
+    --gold-10: rgba(184,134,46,.1);
     box-sizing:border-box;
     padding-top: env(safe-area-inset-top, 0px);
     padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -36,20 +38,23 @@
   }
   h1,h2,h3,.brand{font-family:'Comfortaa',cursive;}
 
+  /* ---- brand strip ---- */
+  .brand-strip{height:4px; background:linear-gradient(90deg, var(--ink) 0%, var(--accent) 100%);}
+
   /* ---- top bar ---- */
   .topbar{
-    position:sticky; top:0; z-index:20;
-    top: env(safe-area-inset-top, 0px);
-    background:rgba(251,250,247,.92);
+    position:sticky; top:4px; z-index:20;
+    top: calc(env(safe-area-inset-top, 0px) + 4px);
+    background:rgba(251,250,247,.94);
     backdrop-filter: blur(8px);
-    border-bottom:1px solid var(--line-soft);
+    border-bottom:1px solid var(--line);
     padding:14px 28px;
     display:flex; align-items:center; justify-content:space-between;
   }
   .brand{font-size:19px; font-weight:700; color:var(--ink); letter-spacing:.2px; display:flex; align-items:center; gap:8px;}
-  .brand .mark{width:22px;height:22px;border-radius:50%;background:conic-gradient(from 220deg, var(--ink) 0 60%, var(--accent) 60% 100%);}
-  .topbar .context{font-size:13px; color:var(--ink-45); font-family:'Inter';}
-  .topbar .context b{color:var(--ink-70); font-weight:600;}
+  .brand .mark{width:22px;height:22px;border-radius:50%;background:conic-gradient(from 220deg, var(--ink) 0 60%, var(--accent) 60% 100%); box-shadow:0 0 0 3px rgba(13,92,99,.12);}
+  .topbar .context{font-size:13px; color:var(--ink-70); font-family:'Inter';}
+  .topbar .context b{color:var(--accent); font-weight:700;}
 
   /* ---- layout ---- */
   .wrap{max-width:920px; margin:0 auto; padding:40px 28px 96px;}
@@ -59,9 +64,9 @@
 
   .tier-pill{
     display:inline-flex; align-items:center; gap:6px;
-    font-size:12.5px; font-weight:600; color:var(--gold);
-    background:rgba(184,134,46,.1); border:1px solid rgba(184,134,46,.25);
-    padding:5px 11px; border-radius:100px; white-space:nowrap;
+    font-size:12.5px; font-weight:700; color:var(--gold);
+    background:var(--gold-10); border:1.5px solid rgba(184,134,46,.35);
+    padding:6px 13px; border-radius:100px; white-space:nowrap;
   }
   .tier-pill svg{width:12px;height:12px;}
 
@@ -72,6 +77,7 @@
     border-radius:14px;
     padding:28px;
     margin-bottom:22px;
+    box-shadow:0 1px 2px rgba(34,53,92,.04), 0 4px 16px rgba(34,53,92,.03);
   }
   .card h2{font-size:14px; font-weight:600; color:var(--ink); margin:0 0 4px;}
   .card .sub{font-size:13px; color:var(--ink-45); margin:0 0 20px;}
@@ -83,7 +89,7 @@
     width:100%;
     font-family:'Inter'; font-size:14.5px; color:var(--ink);
     background:var(--paper);
-    border:1px solid var(--line);
+    border:1.5px solid var(--line);
     border-radius:9px;
     padding:11px 13px;
     transition:border-color .15s ease, background .15s ease;
@@ -92,12 +98,13 @@
     outline:none; border-color:var(--accent); background:#fff;
     box-shadow:0 0 0 3px var(--accent-10);
   }
+  #titleSelect{border-color:var(--accent); background:#fff;}
   select{appearance:none; -webkit-appearance:none; cursor:pointer;
     background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%2322355C' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
     background-repeat:no-repeat; background-position:right 13px center; padding-right:34px;
   }
   textarea{min-height:190px; resize:vertical; line-height:1.55;}
-  textarea[readonly]{background:var(--locked-bg); color:var(--ink-70); cursor:default;}
+  textarea[readonly]{background:var(--locked-bg); border-color:var(--locked-line); color:var(--ink-70); cursor:default;}
 
   .field{margin-bottom:22px;}
   .field:last-child{margin-bottom:0;}
@@ -107,10 +114,10 @@
 
   .lock-tag{
     display:inline-flex; align-items:center; gap:4px;
-    font-size:11px; font-weight:600; color:var(--ink-45);
+    font-size:11px; font-weight:700; color:var(--gold);
     letter-spacing:.2px;
   }
-  .lock-tag svg{width:10px;height:10px; flex-shrink:0;}
+  .lock-tag svg{width:10px;height:10px; flex-shrink:0; stroke:var(--gold);}
 
   /* ---- segmented control (Detail Level) ---- */
   .segmented{
@@ -139,39 +146,55 @@
   .chip.checked{border-color:var(--accent); background:var(--accent-10); color:var(--ink);}
   .chip:has(input:disabled){cursor:not-allowed;}
 
-  /* ---- locked state overlay treatment ---- */
-  .locked{position:relative; opacity:.55; filter:saturate(.65);}
+  /* ---- locked state: a premium/gold tint, not a grey wash ---- */
+  .locked{position:relative;}
   .locked select, .locked input, .locked textarea{cursor:not-allowed;}
   .locked .segmented button, .locked .chip{pointer-events:none;}
+  .locked .segmented{background:var(--locked-bg); border-color:var(--locked-line);}
+  .locked .segmented button{color:var(--ink-45);}
+  .locked .segmented button.active{background:var(--gold); color:#fff;}
+  .locked .chip{background:var(--locked-bg); border-color:var(--locked-line); color:var(--ink-45);}
+  .locked .chip.checked{border-color:var(--gold); background:var(--gold-10); color:var(--ink-70);}
+  .locked input[type=text]{background:var(--locked-bg); border-color:var(--locked-line);}
+  .locked input[type=text]::placeholder{color:var(--ink-45);}
 
   /* ---- outputs ---- */
   .outputs{display:grid; grid-template-columns:repeat(3, 1fr); gap:14px;}
   @media (max-width:720px){ .outputs{grid-template-columns:1fr;} }
 
   .output-card{
-    border:1px solid var(--line); border-radius:12px; padding:20px;
+    border:1.5px solid var(--line); border-radius:12px; padding:20px;
     background:var(--card); display:flex; flex-direction:column; gap:14px;
   }
-  .output-card.is-locked{background:var(--locked-bg);}
+  .output-card.is-locked{background:var(--locked-bg); border-color:var(--locked-line); border-style:dashed;}
+  .output-card:not(.is-locked){
+    border-color:var(--accent);
+    box-shadow:0 2px 12px rgba(13,92,99,.1);
+  }
   .output-head{display:flex; align-items:flex-start; justify-content:space-between; gap:8px;}
   .output-title{font-size:14.5px; font-weight:600; color:var(--ink);}
   .output-desc{font-size:12.5px; color:var(--ink-45); line-height:1.5; margin:0; flex:1;}
 
+  .live-dot{
+    width:8px; height:8px; border-radius:50%; background:var(--accent); flex-shrink:0;
+    box-shadow:0 0 0 3px var(--accent-10);
+  }
+
   .lock-badge{
     width:24px; height:24px; border-radius:50%; flex-shrink:0;
-    background:rgba(34,53,92,.08); display:flex; align-items:center; justify-content:center;
+    background:var(--gold-10); display:flex; align-items:center; justify-content:center;
   }
-  .lock-badge svg{width:11px;height:11px; stroke:var(--ink-45);}
+  .lock-badge svg{width:11px;height:11px; stroke:var(--gold);}
 
   .btn{
     font-family:'Inter'; font-size:13.5px; font-weight:600;
     border-radius:9px; padding:10px 16px; cursor:pointer; border:none;
     text-align:center; width:100%;
   }
-  .btn-primary{background:var(--ink); color:#fff;}
-  .btn-primary:hover{background:#1a2947;}
+  .btn-primary{background:linear-gradient(135deg, var(--ink), var(--accent)); color:#fff; box-shadow:0 2px 8px rgba(34,53,92,.18);}
+  .btn-primary:hover{filter:brightness(1.08);}
   .btn-locked{
-    background:transparent; color:var(--ink-45); border:1px solid var(--line);
+    background:transparent; color:var(--gold); border:1.5px dashed var(--locked-line);
     cursor:not-allowed;
   }
   .btn-upgrade{
@@ -250,7 +273,7 @@
 </style>
 </head>
 <body>
-
+<div class="brand-strip"></div>
 <div class="topbar">
   <div class="brand"><span class="mark"></span>knowhash</div>
   <div class="context">Position Qualifier for <b>Technical Service Desk Lead</b></div>
@@ -378,6 +401,7 @@ Comes pre-filled for this role. On knowhash Recruit, edit this freely — Regene
       <div class="output-card">
         <div class="output-head">
           <span class="output-title">Candidate qualifier</span>
+          <span class="live-dot" title="Available now"></span>
         </div>
         <p class="output-desc">A short screening test candidates take before you speak with them.</p>
         <p class="qual-status" id="qualStatus"></p>

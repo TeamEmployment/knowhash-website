@@ -267,6 +267,28 @@
   .btn-secondary:hover{background:var(--line-soft);}
 
   #resultsCard{display:none;}
+  .claim-box{
+    display:flex; gap:10px; align-items:center;
+    background:var(--band-recruit); border:1px solid var(--band-recruit-line);
+    border-radius:10px; padding:12px 14px; margin-bottom:6px;
+  }
+  .claim-box input{
+    flex:1; border:1.5px solid var(--line); background:#fff; border-radius:7px;
+    padding:9px 12px; font-size:13.5px; font-family:'Inter'; color:var(--ink);
+  }
+  .claim-box input:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-10);}
+  .claim-box button{
+    background:var(--band-recruit-deep); color:#fff; border:none; border-radius:7px;
+    padding:9px 16px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter';
+    width:auto; white-space:nowrap;
+  }
+  .claim-box button:hover{filter:brightness(1.08);}
+  .claim-box button:disabled{opacity:.6; cursor:default;}
+  .claim-error{color:#B3261E; font-size:12.5px; min-height:1em; margin:0 0 18px;}
+  .response-note{
+    font-size:13px; color:var(--band-recruit-deep); background:var(--band-recruit);
+    border:1px solid var(--band-recruit-line); border-radius:9px; padding:10px 14px; margin-top:4px;
+  }
   .link-row{
     display:flex; gap:10px; align-items:center;
     background:var(--accent-10); border-radius:10px; padding:14px 16px; margin-bottom:18px;
@@ -520,23 +542,108 @@ Comes pre-filled for this role. On knowhash Recruit, edit this freely — Regene
   }
 
   // ============================================================
-  // DEMO MODE — no token in the URL. Unchanged from the preview:
-  // dropdown swaps canned text, Generate fakes a result.
+  // FREE MODE — no token in the URL. Only the ten generic titles are
+  // offered (no scraped-role option — there's no lead to scrape from).
+  // Generate calls the real, cached, no-auth preview endpoint; the
+  // candidate link stays greyed behind an email capture until claimed.
+  // NOTE: like live mode, these calls only reach anything once this file
+  // is deployed to knowhash.com — a claude.ai artifact preview can't
+  // call your Netlify functions.
   // ============================================================
   function wireDemoMode() {
+    const scrapedOpt = titleSelect.querySelector('option[value="scraped"]');
+    if (scrapedOpt) scrapedOpt.remove();
+    const placeholderOpt = titleSelect.querySelector('option[value=""]');
+    if (placeholderOpt) {
+      placeholderOpt.textContent = '— choose a role —';
+      placeholderOpt.selected = true;
+    }
+    generateBtn.disabled = true;
+
     titleSelect.addEventListener('change', () => {
       const key = titleSelect.value;
       posText.value = cannedText[key] || 'Pick a role above to see its position text.';
+      generateBtn.disabled = !key;
     });
 
-    generateBtn.addEventListener('click', (e) => {
-      const btn = e.currentTarget;
-      btn.textContent = 'Generating…';
-      btn.disabled = true;
-      setTimeout(() => {
-        btn.textContent = 'Test generated ✓';
-      }, 900);
-    });
+    generateBtn.addEventListener('click', () => runFreePreview());
+  }
+
+  async function runFreePreview() {
+    const roleKey = titleSelect.value;
+    if (!roleKey) return;
+
+    generateBtn.disabled = true;
+    titleSelect.disabled = true;
+    let msgIdx = 0;
+    qualStatus.innerHTML = `<span class="qual-spinner"></span>${loadingMessages[0]}`;
+    const msgTimer = setInterval(() => {
+      msgIdx = Math.min(msgIdx + 1, loadingMessages.length - 1);
+      qualStatus.innerHTML = `<span class="qual-spinner"></span>${loadingMessages[msgIdx]}`;
+    }, 3500);
+
+    try {
+      const res = await fetch(`/.netlify/functions/qualifier-generic-preview?role=${encodeURIComponent(roleKey)}`);
+      if (!res.ok) throw new Error('Request failed: ' + res.status);
+      const data = await res.json();
+
+      qualStatus.textContent = '';
+      generateBtn.textContent = 'Generate test';
+      generateBtn.disabled = false;
+      titleSelect.disabled = false;
+      renderFreeResults(data, roleKey);
+    } catch (err) {
+      qualStatus.textContent = '';
+      generateBtn.disabled = false;
+      titleSelect.disabled = false;
+      resultsCard.style.display = 'block';
+      resultsContent.innerHTML = `<p class="empty-state">Something went wrong generating this. <button class="btn btn-secondary" style="width:auto;display:inline-block;margin-left:8px;padding:6px 12px;" id="retryBtn">Try again</button></p>`;
+      document.getElementById('retryBtn').addEventListener('click', () => runFreePreview());
+    } finally {
+      clearInterval(msgTimer);
+    }
+  }
+
+  function renderFreeResults(data, roleKey) {
+    resultsCard.style.display = 'block';
+    resultsContent.innerHTML = `
+      <h2>Share with candidates</h2>
+      <p class="sub">Enter your email to activate the link for ${escapeHtml(data.roleTitle)} — you'll get an email the moment someone completes it.</p>
+      <div class="claim-box">
+        <input type="email" id="claimEmail" placeholder="you@company.com" autocomplete="email">
+        <button id="claimBtn" type="button">Get my link</button>
+      </div>
+      <p class="claim-error" id="claimError"></p>
+      ${renderSections(data.questions.sections)}
+    `;
+
+    const emailInput = document.getElementById('claimEmail');
+    const claimBtn = document.getElementById('claimBtn');
+    const claimError = document.getElementById('claimError');
+
+    const submit = async () => {
+      const email = emailInput.value.trim();
+      claimError.textContent = '';
+      claimBtn.disabled = true;
+      claimBtn.textContent = 'Activating…';
+      try {
+        const res = await fetch('/.netlify/functions/qualifier-claim-free', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, roleKey }),
+        });
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.error || 'Something went wrong');
+        window.location.href = `/position-qualifier/?token=${encodeURIComponent(body.token)}`;
+      } catch (err) {
+        claimBtn.disabled = false;
+        claimBtn.textContent = 'Get my link';
+        claimError.textContent = err.message || 'Something went wrong — try again.';
+      }
+    };
+
+    claimBtn.addEventListener('click', submit);
+    emailInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
   }
 
   // ============================================================
@@ -555,8 +662,12 @@ Comes pre-filled for this role. On knowhash Recruit, edit this freely — Regene
     posText.value = 'Loading…';
 
     titleSelect.addEventListener('change', () => {
-      const isScraped = titleSelect.value === 'scraped' || titleSelect.value === '';
+      const key = titleSelect.value;
+      const isScraped = key === 'scraped' || key === '';
       overrideNote.classList.toggle('show', !isScraped);
+      posText.value = isScraped
+        ? liveScrapedText
+        : (cannedText[key] || 'Pick a role above to see its position text.');
     });
 
     generateBtn.addEventListener('click', () => runGeneration({ regenerate: true }));
@@ -574,6 +685,8 @@ Comes pre-filled for this role. On knowhash Recruit, edit this freely — Regene
     'Structuring the sections…',
     'Almost there…'
   ];
+
+  let liveScrapedText = '';
 
   async function runGeneration({ regenerate }) {
     generateBtn.disabled = true;
@@ -595,9 +708,10 @@ Comes pre-filled for this role. On knowhash Recruit, edit this freely — Regene
       titleSelect.value = 'scraped';
       titleSelect.disabled = false;
       overrideNote.classList.remove('show');
-      posText.value = data.adText && data.adText.trim()
+      liveScrapedText = data.adText && data.adText.trim()
         ? data.adText.trim()
         : `No job description is on file for this role — the qualifier below is generated from the title alone.\n\nWriting your own brief (and having it feed generation) unlocks with knowhash Recruit.`;
+      posText.value = liveScrapedText;
 
       qualStatus.textContent = '';
       generateBtn.textContent = 'Regenerate';
@@ -622,6 +736,10 @@ Comes pre-filled for this role. On knowhash Recruit, edit this freely — Regene
     const candidateUrl = `${window.location.origin}/position-qualifier/apply/?token=${data.candidateLinkToken}`;
     currentResponses = data.responses || [];
 
+    const responsesBlock = data.isWebsiteLead
+      ? `<p class="response-note">You'll get an email at your address whenever a candidate completes this — responses aren't listed here.</p>`
+      : renderResponses(currentResponses);
+
     resultsContent.innerHTML = `
       <h2>Share with candidates</h2>
       <p class="sub">Anyone with this link can take the test for ${escapeHtml(data.roleTitle)}.</p>
@@ -630,7 +748,7 @@ Comes pre-filled for this role. On knowhash Recruit, edit this freely — Regene
         <button id="copyLinkBtn" type="button">Copy link</button>
       </div>
       ${renderSections(data.questions.sections)}
-      ${renderResponses(currentResponses)}
+      ${responsesBlock}
     `;
 
     document.getElementById('copyLinkBtn').addEventListener('click', () => {
@@ -642,6 +760,8 @@ Comes pre-filled for this role. On knowhash Recruit, edit this freely — Regene
       btn.textContent = 'Copied!';
       setTimeout(() => btn.textContent = original, 1500);
     });
+
+    if (data.isWebsiteLead) return;
 
     currentResponses.forEach((_, idx) => {
       const row = document.getElementById(`resp-row-${idx}`);

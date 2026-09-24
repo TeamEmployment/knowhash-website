@@ -99,7 +99,7 @@ exports.handler = async (event) => {
     // 1. Look up the lead by their landing-page token.
     const leadResult = await dataverseRequest(
       "GET",
-      `cre5b_knowhashleadses?$filter=cre5b_landing_page_token eq '${token}'&$select=cre5b_knowhashleadsid,cre5b_title,cre5b_jobpostingtitle,cre5b_search_role,cre5b_company,cre5b_brand_colour,cre5b_brand_logo_url`
+      `cre5b_knowhashleadses?$filter=cre5b_landing_page_token eq '${token}'&$select=cre5b_knowhashleadsid,cre5b_title,cre5b_jobpostingtitle,cre5b_search_role,cre5b_company,cre5b_brand_colour,cre5b_brand_logo_url,cre5b_ad_text`
     );
     mark("leadLookup");
 
@@ -175,6 +175,7 @@ exports.handler = async (event) => {
           colour: lead.cre5b_brand_colour || null,
           logoUrl: lead.cre5b_brand_logo_url || null,
         },
+        adText: lead.cre5b_ad_text || null,
         responses: responses.value || [],
       }),
     };

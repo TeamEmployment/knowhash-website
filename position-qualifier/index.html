@@ -3,31 +3,37 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" type="image/png" sizes="16x16" href="/icons/icon16.png">
+<link rel="icon" type="image/png" sizes="48x48" href="/icons/icon48.png">
+<link rel="apple-touch-icon" sizes="128x128" href="/icons/icon128.png">
 <title>Position Qualifier — knowhash</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#1A2947;
-    --ink-70: rgba(26,41,71,.78);
-    --ink-45: rgba(26,41,71,.52);
+    --ink:#22355C;
+    --ink-70: rgba(34,53,92,.76);
+    --ink-45: rgba(34,53,92,.5);
     --accent:#0D5C63;
     --accent-10: rgba(13,92,99,.08);
-    --paper:#FBFAF7;
+    --paper:#FFFFFF;
     --card:#FFFFFF;
-    --line: rgba(34,53,92,.14);
-    --line-soft: rgba(34,53,92,.08);
-    --locked-bg: rgba(184,134,46,.045);
-    --locked-line: rgba(184,134,46,.28);
-    --gold:#B8862E;
-    --gold-10: rgba(184,134,46,.1);
+    --line: #E5E8EE;
+    --line-soft: #EFF1F5;
+    --band-recruit: #EAF7ED;
+    --band-recruit-line: #CFEAD6;
+    --band-recruit-deep: #1F8F3B;
+    --locked-bg: var(--band-recruit);
+    --locked-line: var(--band-recruit-line);
+    --gold: var(--band-recruit-deep);
+    --gold-10: rgba(31,143,59,.1);
     box-sizing:border-box;
     padding-top: env(safe-area-inset-top, 0px);
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
   *{box-sizing:border-box;}
-  html{scroll-padding-top: env(safe-area-inset-top, 0px);}
+  html{scroll-padding-top: env(safe-area-inset-top, 0px); scroll-behavior:smooth;}
   body{
     margin:0;
     background:var(--paper);
@@ -38,37 +44,66 @@
   }
   h1,h2,h3,.brand{font-family:'Comfortaa',cursive;}
 
-  /* ---- brand strip ---- */
-  .brand-strip{height:4px; background:linear-gradient(90deg, var(--ink) 0%, var(--accent) 100%);}
+  .wrap{max-width:1080px; margin:0 auto; padding:0 28px;}
+  .page-wrap{max-width:920px; margin:0 auto; padding:40px 28px 96px;}
 
-  /* ---- top bar ---- */
-  .topbar{
-    position:sticky; top:4px; z-index:20;
-    top: calc(env(safe-area-inset-top, 0px) + 4px);
-    background:rgba(251,250,247,.94);
-    backdrop-filter: blur(8px);
+  /* ---- top bar — copied from the main site so this reads as the same
+     product, not an adjacent tool ---- */
+  header.top{
+    position:sticky; top:0; z-index:20;
+    top: env(safe-area-inset-top, 0px);
+    background:rgba(255,255,255,.92);
+    backdrop-filter: blur(6px);
     border-bottom:1px solid var(--line);
-    padding:14px 28px;
-    display:flex; align-items:center; justify-content:space-between;
   }
-  .brand{font-size:19px; font-weight:700; color:var(--ink); letter-spacing:.2px; display:flex; align-items:center; gap:8px;}
-  .brand .mark{width:22px;height:22px;border-radius:50%;background:conic-gradient(from 220deg, var(--ink) 0 60%, var(--accent) 60% 100%); box-shadow:0 0 0 3px rgba(13,92,99,.12);}
-  .topbar .context{font-size:13px; color:var(--ink-70); font-family:'Inter';}
-  .topbar .context b{color:var(--accent); font-weight:700;}
+  header.top .wrap{display:flex; align-items:center; gap:32px; padding-top:16px; padding-bottom:16px;}
+  .brand{display:flex; align-items:center; gap:9px; margin-right:auto; text-decoration:none;}
+  .brand .mark{width:20px; height:20px; color:var(--ink); flex:none;}
+  .brand .wordmark{font-family:'Comfortaa'; font-weight:700; font-size:16px; color:var(--ink);}
+  nav.primary{display:flex; gap:26px;}
+  nav.primary a{color:#55606f; text-decoration:none; font-size:14.5px; font-weight:600; margin-right:26px;}
+  nav.primary a:last-child{margin-right:0;}
+  nav.primary a:hover{color:var(--ink);}
+  .nav-cta{
+    background:var(--accent); color:#fff; font-family:'Comfortaa'; font-weight:700;
+    font-size:13.5px; padding:9px 18px; border-radius:7px; text-decoration:none;
+  }
+  .nav-toggle{display:none; background:none; border:none; cursor:pointer; padding:4px; color:var(--ink); margin-left:14px;}
+  .nav-toggle svg{width:24px; height:24px; display:block;}
+  .nav-toggle .icon-close{display:none;}
+  body.menu-open .nav-toggle .icon-menu{display:none;}
+  body.menu-open .nav-toggle .icon-close{display:block;}
+  @media (max-width:760px){
+    .nav-toggle{display:flex; align-items:center;}
+    body.menu-open header.top{backdrop-filter:none;}
+    body.menu-open nav.primary{
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:30px; position:fixed; top:0; left:0; right:0; bottom:0; z-index:9;
+      background:var(--paper); opacity:1; margin:0; padding:90px 28px 40px;
+    }
+    body.menu-open nav.primary a{margin-right:0; font-size:22px;}
+    body.menu-open{overflow:hidden;}
+  }
+  @media (max-width:760px){ nav.primary{display:none;} }
+
+  /* ---- hero band — same band pattern as Demo/Features/Pricing; green
+     because Recruit (green throughout the site) is where this upgrades to ---- */
+  .band{padding:44px 0 40px;}
+  .band-recruit{background:var(--band-recruit);}
+  .eyebrow{font-size:12.5px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; color:var(--band-recruit-deep); margin:0;}
+  .eyebrow-row{display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:10px; flex-wrap:wrap;}
 
   /* ---- layout ---- */
-  .wrap{max-width:920px; margin:0 auto; padding:40px 28px 96px;}
-  .eyebrow-row{display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin-bottom:6px; flex-wrap:wrap;}
-  h1{font-size:26px; margin:0 0 6px; font-weight:600; color:var(--ink);}
-  .lede{color:var(--ink-70); font-size:15px; max-width:60ch; margin:0 0 32px;}
+  h1{font-family:'Comfortaa'; font-weight:700; font-size:clamp(26px,3.6vw,34px); line-height:1.2; color:var(--ink); margin:0 0 12px; letter-spacing:-.2px; max-width:22ch;}
+  .lede{color:#445; font-size:16px; max-width:52ch; margin:0;}
 
   .tier-pill{
     display:inline-flex; align-items:center; gap:6px;
-    font-size:12.5px; font-weight:700; color:var(--gold);
-    background:var(--gold-10); border:1.5px solid rgba(184,134,46,.35);
-    padding:6px 13px; border-radius:100px; white-space:nowrap;
+    font-size:11.5px; font-weight:700; color:var(--gold);
+    background:#fff; border:1px solid var(--gold);
+    padding:4px 12px; border-radius:20px; white-space:nowrap;
   }
-  .tier-pill svg{width:12px;height:12px;}
+  .tier-pill svg{width:11px;height:11px;}
 
   /* ---- card ---- */
   .card{
@@ -146,7 +181,7 @@
   .chip.checked{border-color:var(--accent); background:var(--accent-10); color:var(--ink);}
   .chip:has(input:disabled){cursor:not-allowed;}
 
-  /* ---- locked state: a premium/gold tint, not a grey wash ---- */
+  /* ---- locked state: a Recruit-green tint, not a grey wash ---- */
   .locked{position:relative;}
   .locked select, .locked input, .locked textarea{cursor:not-allowed;}
   .locked .segmented button, .locked .chip{pointer-events:none;}
@@ -273,22 +308,48 @@
 </style>
 </head>
 <body>
-<div class="brand-strip"></div>
-<div class="topbar">
-  <div class="brand"><span class="mark"></span>knowhash</div>
-  <div class="context">Position Qualifier for <b>Technical Service Desk Lead</b></div>
-</div>
-
-<div class="wrap">
-
-  <div class="eyebrow-row">
-    <h1>Set up your position</h1>
-    <span class="tier-pill">
-      <svg viewBox="0 0 24 24" fill="none"><path d="M6 10V8a6 6 0 1112 0v2M5 10h14a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1v-9a1 1 0 011-1z" stroke="currentColor" stroke-width="2"/></svg>
-      Free preview — Recruit unlocks the rest
-    </span>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="/index.html">
+      <svg class="mark" viewBox="-154.8 -180 309.6 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <line x1="-27.0" y1="-83.2" x2="-27.0" y2="83.2" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+        <line x1="27.0" y1="-83.2" x2="27.0" y2="83.2" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+        <line x1="-74.9" y1="-36.6" x2="74.9" y2="-36.6" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+        <line x1="-74.9" y1="36.6" x2="74.9" y2="36.6" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+        <ellipse cx="0" cy="0" rx="124.8" ry="160.0" fill="none" stroke="currentColor" stroke-width="40"/>
+        <line x1="-76.8" y1="126.1" x2="76.8" y2="-126.1" stroke="currentColor" stroke-width="36" stroke-linecap="round"/>
+      </svg>
+      <span class="wordmark">knowhash</span>
+    </a>
+    <nav class="primary">
+      <a href="/demo.html">Demo</a>
+      <a href="/features.html">Features</a>
+      <a href="/pricing.html">Pricing</a>
+      <a href="/blog.html">Blog</a>
+    </nav>
+    <a class="nav-cta" href="/pricing.html">Get knowhash</a>
+    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false" onclick="var o=document.body.classList.toggle('menu-open'); this.setAttribute('aria-expanded', o);">
+      <svg class="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+      <svg class="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+    </button>
   </div>
-  <p class="lede">Pick a role below and knowhash will draft your candidate qualifier test. Ad copy, full editing and every detail level are part of knowhash Recruit.</p>
+</header>
+
+<section class="band band-recruit">
+  <div class="wrap">
+    <div class="eyebrow-row">
+      <div class="eyebrow">knowhash &middot; Position Qualifier</div>
+      <span class="tier-pill">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M6 10V8a6 6 0 1112 0v2M5 10h14a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1v-9a1 1 0 011-1z" stroke="currentColor" stroke-width="2"/></svg>
+        Free preview — Recruit unlocks the rest
+      </span>
+    </div>
+    <h1>Set up your position</h1>
+    <p class="lede">Pick a role below and knowhash will draft your candidate qualifier test. Ad copy, full editing and every detail level are part of knowhash Recruit.</p>
+  </div>
+</section>
+
+<div class="page-wrap">
 
   <!-- ROLE + BRIEF -->
   <div class="card">
@@ -534,7 +595,9 @@ Comes pre-filled for this role. On knowhash Recruit, edit this freely — Regene
       titleSelect.value = 'scraped';
       titleSelect.disabled = false;
       overrideNote.classList.remove('show');
-      posText.value = `No job description is on file for this role — the qualifier below is generated from the title alone.\n\nWriting your own brief (and having it feed generation) unlocks with knowhash Recruit.`;
+      posText.value = data.adText && data.adText.trim()
+        ? data.adText.trim()
+        : `No job description is on file for this role — the qualifier below is generated from the title alone.\n\nWriting your own brief (and having it feed generation) unlocks with knowhash Recruit.`;
 
       qualStatus.textContent = '';
       generateBtn.textContent = 'Regenerate';

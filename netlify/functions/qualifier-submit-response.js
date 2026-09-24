@@ -4,9 +4,22 @@ const { dataverseRequest } = require("./dataverse-client");
 // matches the logical name exactly, lowercase with underscores.
 const POSITION_QUALIFIER_BIND = "cre5b_position_qualifier@odata.bind";
 
-async function sendNotificationEmail(toEmail, candidateName, landingPageToken, roleTitle) {
+async function sendNotificationEmail({ toEmail, candidateName, landingPageToken, roleTitle, isWebsiteLead, answers }) {
   if (!toEmail || !landingPageToken) return; // nothing to notify, or nowhere to send them
   const landingUrl = `https://knowhash.com/position-qualifier/?token=${landingPageToken}`;
+
+  // Website/free-tier leads never see a Responses list on their page — for
+  // them the email itself has to carry the actual answers, not just a
+  // notice-plus-link, or "relayed by email" would mean nothing landed.
+  let body;
+  if (isWebsiteLead && answers) {
+    const qa = answers
+      .map((a) => `${a.question}\n${a.answer || "(skipped)"}`)
+      .join("\n\n");
+    body = `${candidateName || "A candidate"} just completed your Position Qualifier for ${roleTitle}.\n\n${qa}`;
+  } else {
+    body = `${candidateName || "A candidate"} just completed your Position Qualifier for ${roleTitle}.\n\nView it here: ${landingUrl}`;
+  }
 
   await fetch("https://api.sendgrid.com/v3/mail/send", {
     method: "POST",
@@ -18,10 +31,7 @@ async function sendNotificationEmail(toEmail, candidateName, landingPageToken, r
       personalizations: [{ to: [{ email: toEmail }] }],
       from: { email: "notifications@knowhash.com", name: "knowhash" },
       subject: `New response — ${roleTitle}`,
-      content: [{
-        type: "text/plain",
-        value: `${candidateName || "A candidate"} just completed your Position Qualifier for ${roleTitle}.\n\nView it here: ${landingUrl}`,
-      }],
+      content: [{ type: "text/plain", value: body }],
     }),
   });
 }
@@ -100,14 +110,16 @@ exports.handler = async (event) => {
         if (leadId) {
           const leadResult = await dataverseRequest(
             "GET",
-            `cre5b_knowhashleadses(${leadId})?$select=cre5b_email,cre5b_landing_page_token`
+            `cre5b_knowhashleadses(${leadId})?$select=cre5b_email,cre5b_landing_page_token,cre5b_lead_source`
           );
-          await sendNotificationEmail(
-            leadResult.cre5b_email,
+          await sendNotificationEmail({
+            toEmail: leadResult.cre5b_email,
             candidateName,
-            leadResult.cre5b_landing_page_token,
-            qualifier.cre5b_role_title
-          );
+            landingPageToken: leadResult.cre5b_landing_page_token,
+            roleTitle: qualifier.cre5b_role_title,
+            isWebsiteLead: leadResult.cre5b_lead_source === 342840001,
+            answers,
+          });
         }
       } catch (notifyErr) {
         console.error("Notification email failed (response was still saved):", notifyErr);

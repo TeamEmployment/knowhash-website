@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>How an Australian IT recruiter ended up building a LinkedIn app — knowhash Blog</title>
-<meta name="description" content="The founder's note — why knowhash exists, where the name comes from, and what's in knowhash Recruit today.">
+<title>Screen candidates before you ever pick up the phone — knowhash Blog</title>
+<meta name="description" content="Try the free Position Qualifier: pick a role, get a real screening test in seconds, and get emailed the moment a candidate completes it.">
 <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon16.png">
 <link rel="icon" type="image/png" sizes="48x48" href="/icons/icon48.png">
 <link rel="apple-touch-icon" sizes="128x128" href="/icons/icon128.png">
@@ -142,6 +142,14 @@
   .post ul li { font-size: 15.5px; line-height: 1.7; color: #3a4457; margin-bottom: 8px; }
   .post ul li strong { color: var(--ink); }
   .post-divider { border: none; border-top: 1px solid var(--line); margin: 44px 0; }
+  .post img.shot {
+    width: 100%; height: auto; display: block; border-radius: 12px;
+    border: 1px solid var(--line); box-shadow: 0 4px 24px rgba(34,53,92,0.08);
+    margin: 8px 0 30px;
+  }
+  .post .shot-caption {
+    font-size: 13px; color: #9aa3b0; margin: -20px 0 30px; text-align: center;
+  }
 
   /* -------- subscribe strip -------- */
   .subscribe {
@@ -163,6 +171,30 @@
   }
   footer.site .foot-links a { color: #9aa3b0; text-decoration: none; margin-left: 16px; }
   footer.site .foot-links a:hover { color: var(--ink); }
+  .post video.shot {
+    width: 100%; height: auto; display: block; border-radius: 12px;
+    border: 1px solid var(--line); box-shadow: 0 4px 24px rgba(34,53,92,0.08);
+    margin: 8px 0 30px; background: var(--bg);
+  }
+  .post .shot.narrow { max-width: 300px; margin-left: auto; margin-right: auto; }
+  .post .shot.medium { max-width: 500px; margin-left: auto; margin-right: auto; }
+  .post .shot-pair { display: flex; gap: 22px; justify-content: center; align-items: flex-start; flex-wrap: wrap; margin: 8px 0 30px; }
+  .post .shot-pair figure { margin: 0; flex: 1 1 250px; max-width: 320px; }
+  .post .shot-pair img {
+    width: 100%; height: auto; display: block; border-radius: 10px;
+    border: 1px solid var(--line); box-shadow: 0 4px 24px rgba(34,53,92,0.08);
+  }
+  .post .shot-pair figcaption { font-size: 13px; color: #9aa3b0; text-align: center; margin-top: 10px; line-height: 1.5; }
+  .post kbd {
+    font-family: var(--mono); font-size: 0.86em; font-weight: 600; color: var(--ink);
+    background: var(--bg); border: 1px solid var(--line); border-bottom-width: 2px;
+    border-radius: 6px; padding: 1px 7px; white-space: nowrap;
+  }
+  .post .cta-row { text-align: center; margin: 8px 0 30px; }
+  .post .cta-row a {
+    display: inline-block; background: var(--pink); color: #fff; font-family: var(--display);
+    font-weight: 700; font-size: 14px; padding: 13px 26px; border-radius: 8px; text-decoration: none;
+  }
 </style>
 </head>
 <body>
@@ -202,12 +234,12 @@
   <aside class="post-toc" id="postToc">
     <div class="post-toc-label">On the blog</div>
     <nav class="post-toc-list">
-      <a href="/blog/founders-note.html" class="pinned current">
+      <a href="/blog/founders-note.html" class="pinned">
         Founder's note
         <span class="post-toc-sub">How it all started</span>
       </a>
       <hr class="post-toc-divider">
-      <a href="/blog/position-qualifier.html">
+      <a href="/blog/position-qualifier.html" class="current">
         Screen candidates before you pick up the phone
         <span class="post-toc-sub">Sep 2026</span>
       </a>
@@ -226,35 +258,61 @@
     <button class="toc-toggle" id="tocToggle">&#9776; All posts</button>
 
     <article class="post">
-      <div class="kicker">Founder's note</div>
-      <h2>How an Australian IT recruiter ended up building a LinkedIn app</h2>
+      <div class="kicker">New: Position Qualifier</div>
+      <h2>Screen candidates before you ever pick up the phone</h2>
       <p class="byline">By Mike Reed, founder of knowhash</p>
 
-      <p>knowhash didn't start as a product. It started because I was tired of doing the same thing by hand, over and over, inside LinkedIn.</p>
+      <p>A recruiter's week is full of calls that end the same way: fifteen minutes in, and the basics aren't there. Not the wrong person, just the wrong moment to have found that out by phone.</p>
 
-      <p>I run Team Employment, an IT recruitment agency here in Australia. We built our own in-house recruitment platform to run the business — tracking candidates, opportunities, the whole pipeline. At some point we added smart messaging to it: type a message once, and the right fields fill themselves in for whoever you're writing to next. It saved a genuinely stupid amount of time.</p>
+      <p>The Position Qualifier fixes the order of operations. Pick a role, and knowhash writes a short, plain-English screening test in seconds — the kind of thing you'd want to know before the call, not during it. Send the link, and candidates answer it in their own time.</p>
 
-      <p>The obvious next question was: why doesn't LinkedIn work like this? Every day I was messaging candidates directly inside LinkedIn, and every day I was doing the same manual find-and-replace I'd already solved everywhere else. So I built the same idea, but for LinkedIn itself — a small browser extension that reads the profile you're already looking at, and fills your template in for you. No new tab, no CRM, no account to set up.</p>
+      <p>It's free to try right now, no account and nothing to install.</p>
 
-      <h3>Why "knowhash"</h3>
-      <p>The name is a small joke that turned into the whole philosophy. Templates on LinkedIn are usually built around clunky placeholder syntax — hash symbols, curly braces, parameters you have to remember. knowhash means no hashing about: no fiddly syntax, nothing hashed together. Just a message that fills itself in properly, because it's reading the actual page in front of you.</p>
+      <p><strong>You can see the test generation for yourself here</strong> — pick a role, hit Generate, and watch it write a real screening test in front of you: <a href="/position-qualifier/" style="color:var(--pink); font-weight:600;">knowhash.com/position-qualifier</a></p>
 
-      <h3>Turned out it was bigger than messaging</h3>
-      <p>Once the messaging side was working well, the next problem was obvious too. I wasn't just messaging people on LinkedIn — I was trying to keep track of who I'd spoken to, what they were suited for, and where they'd gotten to, all without a second system to keep in sync. So knowhash Recruit became the natural next step: the same "reads the page you're already on" idea, turned toward actually managing a candidate pipeline from inside LinkedIn itself.</p>
+      <h3>Pick a role, get a real test</h3>
 
-      <h3>What's in knowhash Recruit</h3>
-      <ul>
-        <li><strong>Reads the profile for you.</strong> Name, headline, company — captured straight from the LinkedIn page, no re-typing.</li>
-        <li><strong>Simple tagging and classification.</strong> Mark someone as a candidate, rate them, tie them to an opportunity — right where you found them.</li>
-        <li><strong>kSIP.</strong> A way to request exactly the details and files you actually need from a candidate, without asking for more than necessary.</li>
-        <li><strong>Ready-made shortlists.</strong> Turn a set of candidates into a clean, branded summary you can share, in a format that's already sorted for you.</li>
-        <li><strong>The original knowhash messaging.</strong> Still there, still free, still the same idea that started all of this.</li>
-      </ul>
+      <p>Choose from ten common roles and knowhash drafts the test on the spot — grouped sections, plain-English yes/no questions with a line explaining what each one is really asking, and one open question at the end for the recruiter to actually read.</p>
 
-      <p>knowhash Prospect is next — the same approach, turned toward finding customers instead of candidates. We've been using an early version of it ourselves for over a year. It's not ready for anyone else yet, but it's coming.</p>
+      <img class="shot" src="img-pq-setup.png" alt="The Position Qualifier page with a role selected from the dropdown and Generate test highlighted.">
+      <p class="shot-caption">Pick a role — the test is generated for that exact title.</p>
+
+      <h3>See exactly what you're asking</h3>
+
+      <p>Every question comes with the reasoning underneath it, so it never reads like a generic form. Skip what doesn't apply, answer what does.</p>
+
+      <video class="shot medium" autoplay loop muted playsinline preload="metadata" poster="img-pq-questions-poster.png" aria-label="Scrolling through a generated Position Qualifier test, showing grouped sections with yes/no questions and explanatory subtext.">
+        <source src="vid-pq-questions.webm" type="video/webm">
+        <source src="vid-pq-questions.mp4" type="video/mp4">
+      </video>
+      <p class="shot-caption">Grouped by domain-specific vs. portable skills — not just a flat list of questions.</p>
+
+      <h3>One email, and it's yours</h3>
+
+      <p>The test itself is free to generate and read. To get a link you can actually send to candidates, drop in your email — that's it, no password, no account to set up.</p>
+
+      <img class="shot medium" src="img-pq-claim.png" alt="The greyed candidate link box with an email field and Get my link button.">
+      <p class="shot-caption">Enter your email, and the real candidate link activates immediately.</p>
+
+      <h3>Share it, then forget about it</h3>
+
+      <p>You don't need to keep checking a dashboard. The moment a candidate completes it, their answers land straight in your inbox — question by question, ready to read over coffee.</p>
+
+      <img class="shot medium" src="img-pq-email.png" alt="An email notification showing a candidate's completed answers, question by question.">
+      <p class="shot-caption">Completed responses arrive by email — nothing to log back in and check.</p>
+
+      <div class="cta-row">
+        <a href="/position-qualifier/">Try the Position Qualifier</a>
+      </div>
+
+      <h3>This is the free preview</h3>
+
+      <p>What's live today works off ten common titles. knowhash Recruit is where this gets properly useful: your test pulled from the actual role you're hiring for, a brief you can edit yourself, and matching ad copy and position descriptions generated from the same source — all part of the same workflow you're already using to message candidates on LinkedIn.</p>
+
+      <p>That side is still being built. If the free version is useful enough that you're asking when the rest is coming — good, that's exactly the problem worth having.</p>
 
       <hr class="post-divider">
-      <p style="color:#9aa3b0; font-size:14px;">That's the whole story so far. If you're a recruiter and any of this sounds familiar, <a href="/pricing.html" style="color:var(--pink); font-weight:600;">give knowhash Recruit a try</a> — I'd genuinely like to know what you think.</p>
+      <p style="color:#9aa3b0; font-size:14px;">Free to try right now — no account, no install. <a href="/position-qualifier/" style="color:var(--pink); font-weight:600;">Try the Position Qualifier</a>.</p>
     </article>
 
     <section class="subscribe">

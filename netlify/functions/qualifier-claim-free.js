@@ -82,12 +82,13 @@ exports.handler = async (event) => {
       return { statusCode: 400, body: JSON.stringify({ error: "Enter a valid email address" }) };
     }
 
-    // Case-insensitive match — same person, however they typed it. Covers a
-    // LinkedIn-scraped Prospect independently finding the free page later:
-    // they get updated, not duplicated.
+    // Dataverse text columns use case-insensitive collation by default, so a
+    // plain eq match already catches "Percy@X.com" vs "percy@x.com" — no
+    // need for tolower(), which this Dataverse environment rejects outright
+    // (confirmed: "The \"tolower\" function isn't supported", HTTP 501).
     const existing = await dataverseRequest(
       "GET",
-      `cre5b_knowhashleadses?$filter=tolower(cre5b_email) eq '${cleanEmail}'&$select=cre5b_knowhashleadsid,cre5b_landing_page_token,cre5b_lead_source`
+      `cre5b_knowhashleadses?$filter=cre5b_email eq '${cleanEmail}'&$select=cre5b_knowhashleadsid,cre5b_landing_page_token,cre5b_lead_source`
     );
 
     let leadId, token;

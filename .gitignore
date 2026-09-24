@@ -1,0 +1,12 @@
+# macOS clutter
+.DS_Store
+__MACOSX/
+
+# Dependencies (Netlify installs these from package.json)
+node_modules/
+
+# Generated on every deploy by scripts/build-guides-index.js
+guides/index.json
+
+# Zipped copies of the site; these should never be public
+*.zip

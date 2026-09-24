@@ -1,0 +1,13 @@
+# knowhash.com — Netlify config
+# Settings here override the Build settings in the Netlify dashboard.
+
+[build]
+  publish = "."
+  functions = "netlify/functions"
+  command = "node scripts/build-guides-index.js"
+
+# Always serve a fresh guides list so new guides appear straight after a deploy
+[[headers]]
+  for = "/guides/index.json"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"

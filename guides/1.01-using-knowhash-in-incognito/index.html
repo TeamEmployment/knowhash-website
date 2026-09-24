@@ -1,0 +1,59 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Allow knowhash to run when you open LinkedIn in a Chrome Incognito window."><meta name="kh-guide-section" content="Setup"><meta name="kh-guide-listed" content="true"><meta name="robots" content="noindex, nofollow"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&display=swap" rel="stylesheet">
+<title>Using knowhash in an Incognito window | knowhash guides</title>
+<style>:root{--ink:#22355C;--teal:#0D5C63;--paper:#FFFFFF;--mist:#EEF2F7;--line:#D5DDE8;--muted:#56657F;--warn:#8A5A00;--warnbg:#FFF6E0}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Comfortaa',system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--ink);background:var(--paper);line-height:1.65;font-size:17px}
+a{color:var(--teal)}
+a:focus-visible,button:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+header.site{border-bottom:1px solid var(--line);padding:14px 20px}
+header.site a{font-weight:700;text-decoration:none;color:var(--ink);font-size:1.1rem}
+main{max-width:680px;margin:0 auto;padding:44px 20px 64px}
+.guide-no{color:var(--muted);font-size:.9rem;margin:0 0 6px}
+h1{font-size:2rem;line-height:1.2;margin:0 0 14px}
+.lede{font-size:1.1rem;color:var(--muted);margin:0 0 32px}
+h2{font-size:1.25rem;margin:40px 0 12px}
+ol.steps{list-style:none;counter-reset:s;padding:0;margin:0}
+ol.steps>li{counter-increment:s;position:relative;padding:0 0 22px 52px}
+ol.steps>li::before{content:counter(s);position:absolute;left:0;top:-2px;width:34px;height:34px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-weight:700;font-size:.95rem}
+ol.steps>li:not(:last-child)::after{content:"";position:absolute;left:16px;top:36px;bottom:4px;width:2px;background:var(--line)}
+code,kbd{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88em;background:var(--mist);padding:2px 6px;border-radius:4px}
+.note{background:var(--warnbg);color:var(--warn);border-left:4px solid #E0A800;padding:14px 16px;border-radius:0 6px 6px 0;margin:24px 0;font-size:.95rem}
+.note strong{color:#6B4500}
+.mock{border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:18px 0 8px;background:var(--mist);font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-size:.92rem}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0}
+.row+.row{border-top:1px solid var(--line)}
+.row small{display:block;color:var(--muted)}
+.toggle{flex:none;width:40px;height:22px;border-radius:11px;background:#B8C2D0;position:relative}
+.toggle::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff}
+.toggle.on{background:var(--teal)}
+.toggle.on::after{left:21px}
+.row.off{opacity:.55}
+.caption{font-size:.85rem;color:var(--muted);margin:0 0 20px}
+footer.site{border-top:1px solid var(--line);padding:22px 20px;text-align:center;font-size:.85rem;color:var(--muted)}
+@media (max-width:520px){h1{font-size:1.6rem}body{font-size:16px}}</style></head><body>
+<header class="site"><a href="https://knowhash.com/">knowhash</a></header>
+<main>
+<p class="guide-no">Guide 1.01</p>
+<h1>Using knowhash in an Incognito window</h1>
+<p class="lede">Chrome switches extensions off in Incognito by default. If you open LinkedIn in an Incognito window and knowhash doesn't appear, you just need to allow it there.</p>
+
+<h2>Turn it on for Incognito</h2>
+<ol class="steps">
+<li>In a normal Chrome window, type <code>chrome://extensions</code> into the address bar and press Enter.</li>
+<li>Find the knowhash extension you use (knowhash Recruit or knowhash) and click <strong>Details</strong>.</li>
+<li>Scroll down and switch on <strong>Allow in Incognito</strong>.
+<div class="mock" aria-hidden="true">
+<div class="row"><span>Allow in Incognito<small>Chrome can't prevent extensions from recording your browsing history.</small></span><span class="toggle on"></span></div>
+</div>
+<p class="caption">Chrome shows this standard warning for every extension. knowhash only works on LinkedIn pages.</p></li>
+<li>Close any Incognito windows you already have open, then open a new one with <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>N</kbd> (Windows) or <kbd>⌘</kbd>+<kbd>Shift</kbd>+<kbd>N</kbd> (Mac).</li>
+<li>Sign in to LinkedIn. Incognito doesn't share your normal LinkedIn login, so you'll need to sign in each time you open a new Incognito window.</li>
+</ol>
+
+<div class="note"><strong>Only switch on one knowhash extension.</strong> If you have both knowhash and knowhash Recruit installed, allow just the one you use. Running both at once causes errors. See <a href="../1.02-one-extension-at-a-time/">Guide 1.02: Use one knowhash extension at a time</a>.</div>
+
+<h2>Still not showing?</h2>
+<p>Reload the LinkedIn page with <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd> (or <kbd>⌘</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd> on Mac). If that doesn't fix it, email <a href="mailto:feedback@knowhash.com">feedback@knowhash.com</a> with a screenshot.</p>
+</main>
+<footer class="site">© 2026 knowhash · Optimum Internet Pty Ltd</footer>
+</body></html>

@@ -267,6 +267,12 @@
   .btn-secondary:hover{background:var(--line-soft);}
 
   #resultsCard{display:none;}
+  .top-status{
+    display:flex; align-items:center; gap:9px;
+    background:var(--accent-10); border:1px solid rgba(13,92,99,.25);
+    border-radius:10px; padding:12px 16px; margin-bottom:22px;
+    font-size:13.5px; font-weight:600; color:var(--accent);
+  }
   .claim-box{
     display:flex; gap:10px; align-items:center;
     background:var(--band-recruit); border:1px solid var(--band-recruit-line);
@@ -372,6 +378,9 @@
 </section>
 
 <div class="page-wrap">
+  <div class="top-status" id="topStatus" style="display:none">
+    <span class="qual-spinner"></span><span id="topStatusText"></span>
+  </div>
 
   <!-- ROLE + BRIEF -->
   <div class="card">
@@ -511,6 +520,8 @@ Comes pre-filled for this role. On knowhash Recruit, edit this freely — Regene
   const generateBtn   = document.getElementById('generateQualifier');
   const qualStatus    = document.getElementById('qualStatus');
   const resultsCard   = document.getElementById('resultsCard');
+  const topStatus      = document.getElementById('topStatus');
+  const topStatusText  = document.getElementById('topStatusText');
   const resultsContent= document.getElementById('resultsContent');
 
   const params = new URLSearchParams(window.location.search);
@@ -693,9 +704,12 @@ Comes pre-filled for this role. On knowhash Recruit, edit this freely — Regene
     titleSelect.disabled = true;
     let msgIdx = 0;
     qualStatus.innerHTML = `<span class="qual-spinner"></span>${loadingMessages[0]}`;
+    topStatus.style.display = 'flex';
+    topStatusText.textContent = loadingMessages[0];
     const msgTimer = setInterval(() => {
       msgIdx = Math.min(msgIdx + 1, loadingMessages.length - 1);
       qualStatus.innerHTML = `<span class="qual-spinner"></span>${loadingMessages[msgIdx]}`;
+      topStatusText.textContent = loadingMessages[msgIdx];
     }, 3500);
 
     try {
@@ -714,11 +728,13 @@ Comes pre-filled for this role. On knowhash Recruit, edit this freely — Regene
       posText.value = liveScrapedText;
 
       qualStatus.textContent = '';
+      topStatus.style.display = 'none';
       generateBtn.textContent = 'Regenerate';
       generateBtn.disabled = false;
       renderResults(data);
     } catch (err) {
       qualStatus.textContent = '';
+      topStatus.style.display = 'none';
       titleSelect.disabled = false;
       generateBtn.disabled = false;
       resultsCard.style.display = 'block';

@@ -38,13 +38,20 @@
   <div class="scope"><strong>Everything below applies only to knowhash Recruit</strong> (the paid extension) and its two supporting services — the licensing/billing system and kSIP, the candidate-detail collection portal.</div>
 
   <h2>knowhash Recruit — account &amp; licence data</h2>
-  <p>Recruit is licensed per browser install, not per person. When you verify your email inside the extension, we create a record identified by a randomly generated install ID (not tied to your identity by itself), containing:</p>
+  <p>Recruit is licensed per browser install, not per person. The first time the extension runs on LinkedIn, it quietly creates a record for that install so your free month can start straight away. That record is identified by a randomly generated install ID (not tied to your identity by itself) and, until you choose to verify an email address, holds only:</p>
+  <ul>
+    <li>The install ID</li>
+    <li>When the install was first used, and when your free month started</li>
+    <li>When the extension was last used (updated at most about twice a day, so we can see whether installs are active — not a record of what you do)</li>
+    <li>Your approximate country, detected automatically from your network location — not precise location, not tracked afterwards</li>
+    <li>Your licence status (free month, active, past due, cancelled)</li>
+  </ul>
+  <p>If you verify your email inside the extension (needed to subscribe or to send candidate detail requests), the same record also holds:</p>
   <ul>
     <li>Your email address (used to verify you and for account communication — not shown to anyone else, not unique across installs)</li>
     <li>The name and agency you provide</li>
-    <li>Your approximate country, detected automatically from your network location at the moment you verify — not precise location, not tracked afterwards</li>
     <li>Your LinkedIn member ID, only if the extension happened to be open on your own LinkedIn profile during setup — entirely optional, used only to link your installs together in our own records</li>
-    <li>Your subscription status (active/past due/cancelled), kept in sync with Stripe</li>
+    <li>If you subscribe, your subscription status, kept in sync with Stripe</li>
   </ul>
   <p>This data is used solely to run licensing, feature access, and basic support/marketing visibility (e.g. which countries our customers are in). It's never sold, shared with advertisers or data brokers, or used to build advertising profiles.</p>
 
@@ -77,6 +84,6 @@
   <h2>Questions</h2>
   <p>Contact <a href="mailto:feedback@knowhash.com">feedback@knowhash.com</a>. knowhash and knowhash Recruit are products of Optimum Internet Pty Ltd (ACN 117 538 173).</p>
 
-  <div class="updated">Last updated 10 September 2026.</div>
+  <div class="updated">Last updated 29 September 2026.</div>
 </body>
 </html>

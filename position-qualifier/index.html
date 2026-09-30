@@ -6,8 +6,8 @@
 <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon16.png">
 <link rel="icon" type="image/png" sizes="48x48" href="/icons/icon48.png">
 <link rel="apple-touch-icon" sizes="128x128" href="/icons/icon128.png">
-<title>knowhash Role — everything for your next hire</title>
-<meta name="description" content="From one role title: candidate questions, a position description and a job ad, drafted for you and reviewed by you. Your first role is free.">
+<title>knowhash Role — polished position documents from your notes</title>
+<meta name="description" content="Turn your notes into a polished job ad, position description and tailored candidate questions, drafted for you and reviewed by you. Your first role is free.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -56,7 +56,7 @@
   .eyebrow-row{display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:10px;}
   .eyebrow{font-size:12.5px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; color:var(--band-deep);}
   .pill{display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:700; color:var(--band-deep); background:#fff; border:1px solid var(--band-deep); padding:4px 12px; border-radius:20px; white-space:nowrap;}
-  h1{font-weight:700; font-size:clamp(26px,3.6vw,34px); line-height:1.2; margin:0 0 12px; letter-spacing:-.2px; max-width:22ch;}
+  h1{font-weight:700; font-size:clamp(26px,3.6vw,34px); line-height:1.2; margin:0 0 12px; letter-spacing:-.2px; max-width:34ch;}
   .lede{color:#445; font-size:16px; max-width:56ch; margin:0;}
 
   /* cards & fields */
@@ -131,6 +131,10 @@
   .doc ul{margin:0 0 6px; padding-left:20px;}
   .doc li{font-size:14px; color:#2b2b2b; margin-bottom:5px;}
   .ad + .ad{border-top:1px solid var(--line); margin-top:22px; padding-top:22px;}
+  .board-row{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:16px;}
+  .board-label{font-size:12.5px; font-weight:600; color:var(--ink-70);}
+  .segmented button .has{display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--band-deep); margin-left:6px; vertical-align:middle;}
+  .segmented button.active .has{background:#fff;}
   .board-tag{display:inline-block; font-size:11px; font-weight:700; color:var(--accent); background:var(--accent-10); padding:3px 9px; border-radius:20px; margin-bottom:8px;}
   .ad-headline{font-family:'Comfortaa'; font-weight:700; font-size:17px; margin:0 0 10px;}
   .q-section{margin-top:18px;}
@@ -225,7 +229,7 @@
       <div class="eyebrow">knowhash &middot; Role</div>
       <span class="pill">Your first role is free</span>
     </div>
-    <h1>Everything for your next hire, from one role title.</h1>
+    <h1>Turn your notes into polished position documents, ready to share.</h1>
     <p class="lede">Candidate questions, a position description and a job ad, drafted for you in a minute. Change anything, redo anything. AI drafts; you decide.</p>
   </div>
 </section>
@@ -278,16 +282,10 @@
         <textarea id="positionText" placeholder="Paste a job ad or position description, or jot down what the role involves: team, tools, must-haves. The more you give, the better the drafts. Leave it empty and we'll work from the title."></textarea>
       </div>
 
-      <div class="row2">
-        <div class="field">
-          <label>Detail level</label>
-          <div class="segmented" id="detail">
-            <button data-v="brief">Brief</button><button data-v="standard">Standard</button><button data-v="detailed">Detailed</button>
-          </div>
-        </div>
-        <div class="field">
-          <label>Job boards, for the ad</label>
-          <div class="chips" id="boards"></div>
+      <div class="field">
+        <label>Detail level</label>
+        <div class="segmented" id="detail">
+          <button data-v="brief">Brief</button><button data-v="standard">Standard</button><button data-v="detailed">Detailed</button>
         </div>
       </div>
     </div>
@@ -297,6 +295,10 @@
         <button class="tab" data-doc="qualifier"><span class="dot"></span>Candidate questions</button>
         <button class="tab" data-doc="pd"><span class="dot"></span>Position description</button>
         <button class="tab" data-doc="ad"><span class="dot"></span>Job ad</button>
+      </div>
+      <div class="board-row" id="boardRow" hidden>
+        <span class="board-label">Job board</span>
+        <div class="segmented" id="boardPick"></div>
       </div>
       <div class="doc-bar">
         <span class="usage" id="usage"></span>
@@ -345,17 +347,18 @@
 (() => {
   const API = '/.netlify/functions/qualifier-role';
   const token = new URLSearchParams(location.search).get('token');
-  const BOARDS = ['General', 'Seek', 'LinkedIn', 'Indeed'];
+  const BOARDS = ['General', 'LinkedIn', 'Indeed', 'Seek']; // Seek last: vital in Australia, small worldwide
   const DOCS = {
     qualifier: { name: 'Candidate questions', what: 'A short, friendly set of questions to send candidates before you interview: what they have and haven\u2019t done, in their own words. You read every answer.' },
     pd: { name: 'Position description', what: 'A clear, professional position description: purpose, responsibilities, essential and desirable skills. Ready to send internally or attach to a requisition.' },
-    ad: { name: 'Job ad', what: 'Ad copy written to candidates, with a version for each job board you\u2019ve ticked above.' },
+    ad: { name: 'Job ad', what: 'Ad copy written to candidates and shaped for the job board you pick. Each board\u2019s ad is kept, so you can have one for every board you use.' },
   };
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 
   let role = null;          // last server state
   let activeDoc = 'qualifier';
+  let activeBoard = 'General'; // job ad: one board per draft
   let busyDoc = null;       // doc currently generating
   let saveTimer = null, savePromise = null, pendingSave = {};
 
@@ -411,12 +414,7 @@
     $('detail').querySelectorAll('button').forEach((b) => b.addEventListener('click', () => {
       role.detailLevel = b.dataset.v; renderSettings(); queueSave({ detailLevel: b.dataset.v }, 0);
     }));
-    $('boards').innerHTML = BOARDS.map((b) => `<label class="chip" data-b="${b}"><input type="checkbox" value="${b}">${b}</label>`).join('');
-    $('boards').querySelectorAll('input').forEach((cb) => cb.addEventListener('change', () => {
-      let picked = [...$('boards').querySelectorAll('input:checked')].map((x) => x.value);
-      if (!picked.length) { cb.checked = true; picked = [cb.value]; } // always at least one
-      role.jobBoards = picked; renderSettings(); queueSave({ jobBoards: picked }, 0);
-    }));
+    if (BOARDS.includes(role.jobBoards?.[0])) activeBoard = role.jobBoards[0];
     $('tabs').querySelectorAll('.tab').forEach((t) => t.addEventListener('click', () => { activeDoc = t.dataset.doc; renderDocs(); }));
   }
 
@@ -453,11 +451,7 @@
 
   function renderSettings() {
     $('detail').querySelectorAll('button').forEach((b) => b.classList.toggle('active', b.dataset.v === role.detailLevel));
-    $('boards').querySelectorAll('.chip').forEach((c) => {
-      const on = role.jobBoards.includes(c.dataset.b);
-      c.classList.toggle('checked', on);
-      c.querySelector('input').checked = on;
-    });
+
   }
 
   function renderTitleLock() {
@@ -478,28 +472,37 @@
       t.querySelector('.dot').classList.toggle('done', !!role.documents[t.dataset.doc]);
     });
     const left = remaining();
-    $('usage').innerHTML = `<b>${left}</b> of ${role.generations.max} drafts left for this role`;
+    $('usage').innerHTML = `<b>${left}</b> of ${role.generations.max} free drafts left for this role`;
 
-    const doc = role.documents[activeDoc];
     const info = DOCS[activeDoc];
+    let doc = role.documents[activeDoc];
+    const boardRow = $('boardRow');
+    boardRow.hidden = activeDoc !== 'ad';
+    if (activeDoc === 'ad') {
+      const have = new Set((doc?.ads || []).map((a) => a.board));
+      $('boardPick').innerHTML = BOARDS.map((b) => `<button data-b="${b}" class="${b === activeBoard ? 'active' : ''}">${b}${have.has(b) ? '<span class="has" title="Ad created"></span>' : ''}</button>`).join('');
+      $('boardPick').querySelectorAll('button').forEach((btn) => btn.addEventListener('click', () => { activeBoard = btn.dataset.b; renderDocs(); }));
+      const ad = (doc?.ads || []).find((a) => a.board === activeBoard);
+      doc = ad ? { ads: [ad] } : null;
+    }
     const actions = $('docActions');
     $('docErr').classList.remove('show');
 
     if (busyDoc === activeDoc) {
       actions.innerHTML = '';
-      $('docBody').innerHTML = `<div class="working"><span class="spinner"></span>Drafting your ${info.name.toLowerCase()}\u2026 this usually takes 15 to 30 seconds.</div>`;
+      $('docBody').innerHTML = `<div class="working"><span class="spinner"></span>Drafting your ${activeDoc === 'ad' ? `${activeBoard} ad` : info.name.toLowerCase()}\u2026 this usually takes 15 to 30 seconds.</div>`;
       return;
     }
     if (!doc) {
       actions.innerHTML = '';
-      $('docBody').innerHTML = `<div class="empty-doc"><h3>${info.name}</h3><p>${info.what}</p>
-        <button class="btn btn-primary" id="genBtn" ${left === 0 || busyDoc ? 'disabled' : ''}>Create ${info.name.toLowerCase()}</button></div>`;
+      $('docBody').innerHTML = `<div class="empty-doc"><h3>${activeDoc === 'ad' ? `Job ad for ${activeBoard}` : info.name}</h3><p>${info.what}</p>
+        <button class="btn btn-primary" id="genBtn" ${left === 0 || busyDoc ? 'disabled' : ''}>Create ${activeDoc === 'ad' ? `${activeBoard} ad` : info.name.toLowerCase()}</button></div>`;
       $('genBtn')?.addEventListener('click', () => generate(activeDoc, false));
       return;
     }
     actions.innerHTML = `<button class="btn btn-ghost btn-sm" id="copyBtn">Copy text</button>
       <button class="btn btn-ghost btn-sm" id="regenBtn" ${left === 0 || busyDoc ? 'disabled' : ''}>Redo</button>`;
-    $('copyBtn').addEventListener('click', () => copyDoc(activeDoc));
+    $('copyBtn').addEventListener('click', () => copyDoc(activeDoc, doc));
     $('regenBtn').addEventListener('click', () => generate(activeDoc, false));
     $('docBody').innerHTML = renderDoc(activeDoc, doc);
     if (activeDoc === 'qualifier') wireShare();
@@ -511,7 +514,7 @@
     if (savePromise) await savePromise;
     if (!role.title.trim()) { showDocErr('Add a role title first.'); return; }
     busyDoc = docKey; renderDocs();
-    const { status, data } = await api('POST', { action: 'generate', doc: docKey, confirmLock });
+    const { status, data } = await api('POST', { action: 'generate', doc: docKey, board: docKey === 'ad' ? activeBoard : undefined, confirmLock });
     busyDoc = null;
     if (status === 409 && data.needsConfirm) {
       renderDocs();
@@ -551,8 +554,8 @@
         ${(d.sections || []).map((s) => `<h4>${esc(s.heading)}</h4>${list(s.items)}`).join('')}
         ${d.reportingLine ? `<h4>Reporting line</h4><p>${esc(d.reportingLine)}</p>` : ''}</div>`;
     }
-    return `<div class="doc">${title}${kind(k)}${(d.ads || []).map((a) => `
-      <div class="ad"><span class="board-tag">${esc(a.board)}</span>
+    return `<div class="doc">${title}<div class="doc-kind">Job ad \u00b7 ${esc((d.ads[0] || {}).board || '')}</div>${(d.ads || []).map((a) => `
+      <div class="ad">
         <div class="ad-headline">${esc(a.headline)}</div>
         ${a.sellingPoints && a.sellingPoints.length ? `<h4>Selling points</h4>${list(a.sellingPoints)}` : ''}
         ${a.intro ? `<p>${esc(a.intro)}</p>` : ''}${list(a.bullets)}${a.closing ? `<p>${esc(a.closing)}</p>` : ''}
@@ -566,8 +569,8 @@
     if (k === 'ad') (d.ads || []).forEach((a) => { L.push(`[${a.board}]`, a.headline, ''); if (a.sellingPoints?.length) L.push(...a.sellingPoints.map((p) => `* ${p}`), ''); if (a.intro) L.push(a.intro, ''); L.push(...(a.bullets || []).map((b) => `- ${b}`)); if (a.closing) L.push('', a.closing); L.push('', ''); });
     return L.join('\n').trim();
   }
-  async function copyDoc(k) {
-    await navigator.clipboard.writeText(docAsText(k, role.documents[k]));
+  async function copyDoc(k, d) {
+    await navigator.clipboard.writeText(docAsText(k, d));
     const b = $('copyBtn'); const t = b.textContent; b.textContent = 'Copied'; setTimeout(() => (b.textContent = t), 1500);
   }
 

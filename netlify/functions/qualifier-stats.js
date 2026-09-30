@@ -1,36 +1,26 @@
-const { dataverseRequest } = require("./dataverse-client");
+// qualifier-stats.js
+// Mission Control: knowhash Role usage for a chosen window (30 Sep 2026,
+// rewritten for the knowhash Role flow). GET ?days=1|7|30|365
+//
+// Public-by-obscurity like the rest of Mission Control, so it NEVER
+// returns private role links or contact details — titles, sources and
+// counts only. The private links live in the morning digest email.
 
-// Simple aggregate view for Mission Control — how many Position Qualifier
-// tests exist, how many candidates have actually responded, and who the
-// most recent respondent was. Read-only, no auth beyond obscurity (same
-// posture as the rest of Mission Control's linked pages).
-exports.handler = async () => {
+const { roleActivity } = require("./role-activity");
+
+exports.handler = async (event) => {
   try {
-    const qualifiers = await dataverseRequest(
-      "GET",
-      `cre5b_knowhashpositionqualifiers?$select=cre5b_knowhashpositionqualifierid&$count=true`
-    );
-    const responses = await dataverseRequest(
-      "GET",
-      `cre5b_knowhashqualifierresponses?$select=cre5b_candidate_name,createdon,cre5b_position_qualifier&$orderby=createdon desc`
-    );
-
-    const responseList = responses.value || [];
-    // Distinct qualifiers that have at least one response, to answer
-    // "how many tests actually got used" rather than just raw reply count.
-    const respondedTo = new Set(responseList.map((r) => r._cre5b_position_qualifier_value)).size;
-
-    const mostRecent = responseList[0]
-      ? { candidateName: responseList[0].cre5b_candidate_name || "Unnamed", date: responseList[0].createdon }
-      : null;
-
+    const days = Math.min(365, Math.max(1, Number(event.queryStringParameters?.days) || 7));
+    const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+    const { totals, roles } = await roleActivity(since);
     return {
       statusCode: 200,
+      headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
       body: JSON.stringify({
-        testsGenerated: qualifiers.value ? qualifiers.value.length : 0,
-        totalResponses: responseList.length,
-        testsWithAtLeastOneResponse: respondedTo,
-        mostRecent,
+        days,
+        totals,
+        roles: roles.map(({ title, source, company, isNew, locked, drafts, docs, email, answers }) =>
+          ({ title, source, company, isNew, locked, drafts, docs, email, answers })),
       }),
     };
   } catch (err) {

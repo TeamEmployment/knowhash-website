@@ -3,73 +3,97 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Position Qualifier — usage</title>
+<meta name="robots" content="noindex">
+<title>knowhash Role — usage</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --navy: #22355c;
-    --teal: #0d5c63;
-    --teal-light: #e6f0ef;
-    --ink: #2a2f36;
-    --muted: #6b7480;
-    --bg: #f7f8fa;
-    --line: #e3e6ea;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; background: var(--bg); color: var(--ink);
-    font-family: 'Inter', sans-serif; line-height: 1.55;
-  }
-  .wrap { max-width: 640px; margin: 0 auto; padding: 48px 24px 80px; }
-  h1 {
-    font-family: 'Comfortaa', sans-serif; font-weight: 700;
-    color: var(--navy); font-size: 24px; margin: 0 0 30px;
-  }
-  .stats { display: flex; gap: 14px; margin-bottom: 24px; }
-  .stat {
-    flex: 1; background: #fff; border: 1px solid var(--line); border-radius: 10px;
-    padding: 18px; text-align: center;
-  }
-  .stat .num { font-size: 28px; font-weight: 700; color: var(--teal); font-family: 'Comfortaa', sans-serif; }
-  .stat .label { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
-  .card {
-    background: #fff; border: 1px solid var(--line); border-radius: 10px;
-    padding: 18px 20px; font-size: 14px;
-  }
-  .card .muted { color: var(--muted); }
-  #loading { color: var(--muted); font-size: 14px; }
+  :root { --navy:#22355c; --teal:#0d5c63; --teal-light:#e6f0ef; --green:#1F8F3B; --ink:#2a2f36; --muted:#6b7480; --bg:#f7f8fa; --line:#e3e6ea; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:'Inter',sans-serif; line-height:1.55; }
+  .wrap { max-width:900px; margin:0 auto; padding:44px 24px 80px; }
+  .head { display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; margin-bottom:24px; }
+  h1 { font-family:'Comfortaa',sans-serif; font-weight:700; color:var(--navy); font-size:24px; margin:0; }
+  .range { display:inline-flex; background:#fff; border:1px solid var(--line); border-radius:9px; padding:3px; gap:2px; }
+  .range button { font:500 13.5px 'Inter'; color:var(--muted); background:none; border:none; border-radius:7px; padding:7px 14px; cursor:pointer; }
+  .range button.on { background:var(--navy); color:#fff; font-weight:600; }
+  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
+  @media (max-width:700px){ .stats{grid-template-columns:repeat(2,1fr);} }
+  .stat { background:#fff; border:1px solid var(--line); border-radius:10px; padding:16px; text-align:center; }
+  .stat .num { font-size:28px; font-weight:700; color:var(--teal); font-family:'Comfortaa',sans-serif; }
+  .stat .label { font-size:12.5px; color:var(--muted); margin-top:2px; }
+  .stat .sub { font-size:11.5px; color:var(--muted); }
+  .card { background:#fff; border:1px solid var(--line); border-radius:10px; padding:4px 0; overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; font-size:13.5px; }
+  th { text-align:left; color:var(--muted); font-weight:500; font-size:11.5px; padding:10px 14px; border-bottom:1px solid var(--line); }
+  td { padding:10px 14px; border-bottom:1px solid #eef0f4; vertical-align:top; }
+  tr:last-child td { border-bottom:none; }
+  .t { font-weight:600; color:var(--navy); }
+  .new { font-size:10.5px; font-weight:700; color:var(--green); margin-left:6px; }
+  .m { color:var(--muted); font-size:12.5px; }
+  .pill { display:inline-block; font-size:11px; font-weight:600; padding:2px 8px; border-radius:10px; background:var(--teal-light); color:var(--teal); }
+  .pill.draft { background:#f1f2f5; color:var(--muted); }
+  .empty { padding:24px; text-align:center; color:var(--muted); font-size:14px; }
+  #loading { color:var(--muted); font-size:14px; }
+  .note { font-size:12px; color:var(--muted); margin-top:14px; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>Position Qualifier — usage</h1>
+  <div class="head">
+    <h1>knowhash Role — usage</h1>
+    <div class="range" id="range">
+      <button data-d="1">24 hours</button><button data-d="7" class="on">7 days</button><button data-d="30">30 days</button><button data-d="365">Year</button>
+    </div>
+  </div>
   <div id="loading">Loading…</div>
   <div id="content" style="display:none"></div>
+  <p class="note">Internal test roles are left out. Private role links are in the morning digest email only, never on this page.</p>
 </div>
 <script>
-fetch('/.netlify/functions/qualifier-stats')
-  .then(r => r.json())
-  .then(data => {
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+function docs(d) {
+  const p = [];
+  if (d.pd) p.push('PD');
+  if (d.ads.length) p.push('Ad (' + d.ads.join(', ') + ')');
+  if (d.questions) p.push('Questions');
+  return p.join(' · ') || '—';
+}
+async function load(days) {
+  document.querySelectorAll('#range button').forEach((b) => b.classList.toggle('on', b.dataset.d == days));
+  document.getElementById('loading').style.display = '';
+  const c = document.getElementById('content');
+  try {
+    const data = await (await fetch('/.netlify/functions/qualifier-stats?days=' + days)).json();
+    const t = data.totals;
     document.getElementById('loading').style.display = 'none';
-    const c = document.getElementById('content');
     c.style.display = '';
-    const recent = data.mostRecent
-      ? `${data.mostRecent.candidateName} — ${new Date(data.mostRecent.date).toLocaleString()}`
-      : 'No responses yet';
     c.innerHTML = `
       <div class="stats">
-        <div class="stat"><div class="num">${data.testsGenerated}</div><div class="label">Tests generated</div></div>
-        <div class="stat"><div class="num">${data.totalResponses}</div><div class="label">Candidate responses</div></div>
-        <div class="stat"><div class="num">${data.testsWithAtLeastOneResponse}</div><div class="label">Tests actually used</div></div>
+        <div class="stat"><div class="num">${t.newRoles}</div><div class="label">New roles</div><div class="sub">${t.newWebsite} website · ${t.newProspect} prospect</div></div>
+        <div class="stat"><div class="num">${t.lockedInWindow}</div><div class="label">Roles set</div><div class="sub">first document created</div></div>
+        <div class="stat"><div class="num">${t.withEmail}</div><div class="label">Gave an email</div><div class="sub">of ${t.activeRoles} active roles</div></div>
+        <div class="stat"><div class="num">${t.answers}</div><div class="label">Candidate answers</div><div class="sub">&nbsp;</div></div>
       </div>
-      <div class="card">Most recent: <strong>${recent}</strong></div>
-    `;
-  })
-  .catch(() => {
+      <div class="card">${data.roles.length ? `
+        <table>
+          <tr><th>Role</th><th>Status</th><th>Documents</th><th>Email</th><th>Answers</th></tr>
+          ${data.roles.map((r) => `<tr>
+            <td><span class="t">${esc(r.title)}</span>${r.isNew ? '<span class="new">NEW</span>' : ''}<br><span class="m">${r.source}${r.company ? ' · ' + esc(r.company) : ''}</span></td>
+            <td><span class="pill ${r.locked ? '' : 'draft'}">${r.locked ? 'Set' : 'Draft'}</span><br><span class="m">${r.drafts}/10 drafts</span></td>
+            <td class="m">${docs(r.docs)}</td>
+            <td>${r.email ? '✓' : '<span class="m">—</span>'}</td>
+            <td>${r.answers || '<span class="m">—</span>'}</td>
+          </tr>`).join('')}
+        </table>` : '<div class="empty">No knowhash Role activity in this period.</div>'}
+      </div>`;
+  } catch (e) {
     document.getElementById('loading').textContent = 'Something went wrong loading this.';
-  });
+  }
+}
+document.querySelectorAll('#range button').forEach((b) => b.addEventListener('click', () => load(b.dataset.d)));
+load(7);
 </script>
 </body>
 </html>

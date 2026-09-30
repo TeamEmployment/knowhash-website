@@ -11,3 +11,8 @@
   for = "/guides/index.json"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
+
+# knowhash Role morning digest — 20:00 UTC = 7am Melbourne in daylight
+# saving (Oct–Apr), 6am otherwise.
+[functions."role-digest"]
+  schedule = "0 20 * * *"

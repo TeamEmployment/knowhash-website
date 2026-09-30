@@ -163,6 +163,7 @@ ${TITLE_RULE}
 ${NO_INVENTION}
 If position text is provided, base the ad on it; otherwise use general domain knowledge for this role.
 Write to the candidate ("you"), warm and specific, no clichés ("rockstar", "fast-paced environment", "wear many hats").
+The headline is a hook, never the role title: the title is already printed above every ad, so repeating it wastes the line. Make it a short line (about 4-10 words) that names something specific and attractive about THIS role, drawn from the text where possible (the team, the scope, the impact, the flexibility). Good: "Lead a six-person service desk that people rate". Bad: "Technical Service Desk Lead", "Exciting opportunity", "Join our team".
 
 Per board:
 - General: headline, a short opening paragraph, 3-6 bullet points, closing line.

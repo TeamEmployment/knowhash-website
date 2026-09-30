@@ -19,7 +19,7 @@
 //   GET                               → role (created as an unlocked draft on first visit)
 //   POST { action: "save", title?, positionText?, detailLevel?, jobBoards? }
 //                                     → saves draft fields (title only while unlocked)
-//   POST { action: "generate", doc: "qualifier"|"pd"|"ad", confirmLock? }
+//   POST { action: "generate", doc: "qualifier"|"pd"|"ad", board?, confirmLock? }  (board: ads only, one per draft)
 //        - unlocked + no confirmLock  → 409 { needsConfirm: true, title } (page shows the warning)
 //        - otherwise                  → locks title (first time), generates that one document
 
@@ -32,7 +32,9 @@ const OWNER_LEAD_BIND = "cre5b_owner_lead@odata.bind";
 
 const DETAIL = { brief: 342840000, standard: 342840001, detailed: 342840002 };
 const DETAIL_BY_VALUE = Object.fromEntries(Object.entries(DETAIL).map(([k, v]) => [v, k]));
-const BOARDS = ["General", "Seek", "LinkedIn", "Indeed"];
+// Order matters: it's the order shown on the page. Seek last — vital in
+// Australia, small worldwide.
+const BOARDS = ["General", "LinkedIn", "Indeed", "Seek"];
 
 const QUALIFIER_FIELDS = [
   "cre5b_knowhashpositionqualifierid", "cre5b_role_title", "cre5b_position_text",
@@ -212,7 +214,7 @@ function briefFor(q, extra) {
   ].filter(Boolean).join("\n\n");
 }
 
-async function generateDoc(doc, q) {
+async function generateDoc(doc, q, opts = {}) {
   if (doc === "qualifier") {
     return callClaude(QUALIFIER_PROMPT, briefFor(q), 2000);
   }
@@ -221,11 +223,16 @@ async function generateDoc(doc, q) {
     return { title: q.cre5b_role_title, ...out }; // server-stamped title
   }
   if (doc === "ad") {
-    const boards = (q.cre5b_job_boards || "General").split(",").map((s) => s.trim()).filter((b) => BOARDS.includes(b));
-    const useBoards = boards.length ? boards : ["General"];
-    const out = await callClaude(AD_PROMPT, briefFor(q, `Job boards: ${useBoards.join(", ")}`), 1200 + 700 * useBoards.length);
+    // ONE board per generation (30 Sep 2026) — each board's ad costs one
+    // draft, and ads for other boards are kept alongside, not replaced.
+    const board = BOARDS.includes(opts.board) ? opts.board : "General";
+    const out = await callClaude(AD_PROMPT, briefFor(q, `Job boards: ${board}`), 1900);
+    const fresh = { ...((out.ads || [])[0] || {}), board, roleTitle: q.cre5b_role_title };
+    const prev = parseMaybe(q.cre5b_generated_ad_copy);
+    const others = (prev?.ads || []).filter((a) => a.board !== board);
+    const ads = [...others, fresh].sort((a, b) => BOARDS.indexOf(a.board) - BOARDS.indexOf(b.board));
     // Server-stamped title on every ad, whatever headline the AI wrote.
-    return { title: q.cre5b_role_title, ads: (out.ads || []).map((a) => ({ ...a, roleTitle: q.cre5b_role_title })) };
+    return { title: q.cre5b_role_title, ads };
   }
   throw new Error("unknown_doc");
 }
@@ -317,12 +324,13 @@ exports.handler = async (event) => {
         return json(429, { error: "generation_limit", used, max: MAX_GENERATIONS_PER_ROLE });
       }
 
-      const generated = await generateDoc(doc, q);
+      const generated = await generateDoc(doc, q, { board: body.board });
       const patch = {
         [DOC_COLUMN[doc]]: JSON.stringify(generated),
         cre5b_generation_count: used + 1,
       };
       if (!q.cre5b_title_locked_at) patch.cre5b_title_locked_at = new Date().toISOString();
+      if (doc === "ad" && BOARDS.includes(body.board)) patch.cre5b_job_boards = body.board; // last board used
       await dataverseRequest("PATCH", `cre5b_knowhashpositionqualifiers(${qid})`, patch);
       q = { ...q, ...patch };
       return json(200, rolePayload(lead, q, await loadResponses()));

@@ -16,3 +16,15 @@
 # saving (Oct–Apr), 6am otherwise.
 [functions."role-digest"]
   schedule = "0 20 * * *"
+
+# redirect to allow a shorter url for knowhash role 
+# Shorter URL for knowhash Role: knowhash.com/role
+[[redirects]]
+  from = "/role"
+  to = "/position-qualifier/"
+  status = 200
+
+[[redirects]]
+  from = "/role/"
+  to = "/position-qualifier/"
+  status = 200

@@ -295,6 +295,7 @@ exports.handler = async (event) => {
     // ── save draft fields ──
     if (body.action === "save") {
       const patch = {};
+      let sendLinkAfterSave = null;
       if (typeof body.title === "string") {
         if (isLocked(q)) {
           if (cleanTitle(body.title) !== q.cre5b_role_title) return json(403, { error: "title_locked" });
@@ -317,6 +318,10 @@ exports.handler = async (event) => {
           const e = cleanEmail(body.notifyEmail);
           if (!e) return json(400, { error: "invalid_email" });
           patch.cre5b_notify_email = e;
+          // First email ever given for this role → send them their private
+          // link, so they can always get back. Only on this first save, so
+          // the field can't be used to spam an address repeatedly.
+          if (!q.cre5b_notify_email) sendLinkAfterSave = e;
           // Populate the lead record if we don't have an address for them yet.
           if (!lead.cre5b_email) {
             await dataverseRequest("PATCH", `cre5b_knowhashleadses(${lead.cre5b_knowhashleadsid})`, { cre5b_email: e });
@@ -327,6 +332,23 @@ exports.handler = async (event) => {
       if (Object.keys(patch).length) {
         await dataverseRequest("PATCH", `cre5b_knowhashpositionqualifiers(${qid})`, patch);
         q = { ...q, ...patch };
+      }
+      if (sendLinkAfterSave) {
+        const link = `https://knowhash.com/position-qualifier/?token=${encodeURIComponent(token)}`;
+        const t = q.cre5b_role_title || "your role";
+        try {
+          await sendEmail({
+            to: sendLinkAfterSave,
+            subject: `Your knowhash Role link — ${t}`,
+            text: `Here's your private link to knowhash Role for ${t}:\n\n${link}\n\nKeep this email — the link is how you get back to your role, its documents and your candidates' answers. Anyone with the link can open your role, so share document links rather than this one.\n\nknowhash — https://knowhash.com`,
+            html: `<div style="font-family:-apple-system,Segoe UI,sans-serif;color:#22355C;max-width:520px;line-height:1.55">
+<p>Here's your private link to <b>knowhash Role</b> for <b>${t.replace(/[<>&]/g, "")}</b>:</p>
+<p><a href="${link}" style="display:inline-block;background:#0D5C63;color:#fff;text-decoration:none;padding:11px 20px;border-radius:8px;font-weight:600">Open my role</a></p>
+<p style="font-size:13px;color:#58595b">Keep this email: the link is how you get back to your role, its documents and your candidates' answers. Anyone with it can open your role, so share document links rather than this one.</p></div>`,
+          });
+        } catch (mailErr) {
+          console.error("link email failed (save still succeeded):", mailErr);
+        }
       }
       return json(200, rolePayload(lead, q, await loadResponses()));
     }

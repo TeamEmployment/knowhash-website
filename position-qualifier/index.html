@@ -185,6 +185,12 @@
   .modal p{font-size:14px; color:var(--ink-70); margin:0 0 10px;}
   .modal .big-title{font-family:'Comfortaa'; font-weight:700; font-size:18px; color:var(--ink); background:var(--wash); border-radius:9px; padding:10px 14px; margin:6px 0 14px;}
   .modal-actions{display:flex; gap:8px; justify-content:flex-end; margin-top:18px; flex-wrap:wrap;}
+  .keep{border-radius:14px; background:#FFF6E0; border:1px solid #F3DFA8; padding:16px 20px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;}
+  .keep-text{font-size:13.5px; color:#5b4300; flex:1 1 320px;}
+  .keep-text b{color:#3d2d00;}
+  .keep-form{display:flex; gap:8px; flex:1 1 300px;}
+  .keep-form input{flex:1; min-width:0; padding:9px 12px; font-size:14px;}
+  .keep-done{font-size:13.5px; color:var(--band-deep); font-weight:600;}
   .upsell{border-radius:14px; background:var(--band); border:1px solid var(--band-line); padding:22px 26px; display:flex; align-items:center; justify-content:space-between; gap:18px; flex-wrap:wrap;}
   .upsell h3{font-size:16px; margin:0 0 4px;}
   .upsell p{font-size:13.5px; color:var(--ink-70); margin:0; max-width:56ch;}
@@ -245,28 +251,26 @@
   <section id="startView" hidden>
     <div class="card start">
       <div id="startForm">
-        <div class="card-head"><div><h2>Start your free role</h2><p class="sub">We'll email you a private link to your role. Keep it: it's how you get back to your documents and your candidates' answers.</p></div></div>
+        <div class="card-head"><div><h2>Start your free role</h2><p class="sub">Type the role you're hiring for. You'll add your notes on the next screen, and nothing is drafted until you say so.</p></div></div>
         <div class="field">
           <label for="startTitle">What role are you hiring for?</label>
           <input type="text" id="startTitle" placeholder="e.g. Technical Service Desk Lead" maxlength="190">
         </div>
-        <div class="field">
-          <label for="startEmail">Your work email</label>
-          <input type="email" id="startEmail" placeholder="you@company.com" maxlength="100">
-        </div>
-        <button class="btn btn-primary" id="startBtn">Email me my link</button>
-        <p class="hint" style="margin-top:12px">Protected by reCAPTCHA — Google <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy</a> and <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Terms</a> apply.</p>
+        <button class="btn btn-primary" id="startBtn">Start my free role</button>
+        <p class="hint" style="margin-top:12px">No sign-up needed. Protected by reCAPTCHA — Google <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy</a> and <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Terms</a> apply.</p>
         <div class="notice err" id="startErr"></div>
-      </div>
-      <div class="sent" id="startSent" hidden>
-        <h2>Check your inbox</h2>
-        <p class="sub" style="font-size:14px">We've sent your link to <b id="sentTo"></b>. Open it to set up your role. If it's not there in a minute or two, check your spam folder.</p>
       </div>
     </div>
   </section>
 
   <!-- ===== ROLE (with link) ===== -->
   <section id="roleView" hidden>
+
+    <div class="keep" id="keepBanner" hidden>
+      <div class="keep-text"><b>This page is your private link.</b> Add your email and we'll send it to you, so you can come back any time. We'll also email you candidates' answers.</div>
+      <div class="keep-form"><input type="email" id="keepEmail" placeholder="you@company.com" maxlength="100" autocomplete="email"><button class="btn btn-primary btn-sm" id="keepBtn">Email me my link</button></div>
+      <div class="keep-done" id="keepDone" hidden></div>
+    </div>
 
     <div class="card">
       <div class="card-head">
@@ -386,25 +390,24 @@
   // ─────────── no link: start a free role ───────────
   function startMode() {
     $('startView').hidden = false;
-    $('startBtn').addEventListener('click', async () => {
+    const go = async () => {
       const title = $('startTitle').value.trim();
-      const email = $('startEmail').value.trim();
       const err = $('startErr');
       err.classList.remove('show');
       if (!title) { err.textContent = 'Enter the role you\u2019re hiring for.'; err.classList.add('show'); return; }
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = 'Enter a valid email address.'; err.classList.add('show'); return; }
-      const btn = $('startBtn'); btn.disabled = true; btn.textContent = 'Sending\u2026';
+      const btn = $('startBtn'); btn.disabled = true; btn.textContent = 'Starting\u2026';
       try {
-        const res = await fetch('/.netlify/functions/role-start', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, email, recaptchaToken: await recaptchaToken('role_start') }) });
+        const res = await fetch('/.netlify/functions/role-start', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, recaptchaToken: await recaptchaToken('role_start') }) });
         const body = await res.json();
-        if (!res.ok) throw new Error(body.error || 'Something went wrong');
-        $('sentTo').textContent = email;
-        $('startForm').hidden = true; $('startSent').hidden = false;
+        if (!res.ok || !body.token) throw new Error(body.error || 'Something went wrong');
+        location.href = `/position-qualifier/?token=${encodeURIComponent(body.token)}`;
       } catch (e) {
         err.textContent = e.message; err.classList.add('show');
-        btn.disabled = false; btn.textContent = 'Email me my link';
+        btn.disabled = false; btn.textContent = 'Start my free role';
       }
-    });
+    };
+    $('startBtn').addEventListener('click', go);
+    $('startTitle').addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
   }
 
   // ─────────── with link: the role ───────────
@@ -433,6 +436,24 @@
     $('title').addEventListener('input', () => queueSave({ title: $('title').value }));
     $('positionText').addEventListener('input', () => queueSave({ positionText: $('positionText').value }));
     $('notifyEmail').value = role.notifyEmail || '';
+    $('keepBanner').hidden = !!role.notifyEmail;
+    const keep = async () => {
+      const v = $('keepEmail').value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { $('keepEmail').focus(); $('keepEmail').style.borderColor = 'var(--err)'; return; }
+      $('keepBtn').disabled = true; $('keepBtn').textContent = 'Sending\u2026';
+      $('notifyEmail').value = v;
+      queueSave({ notifyEmail: v }, 0); await flushSave(); if (savePromise) await savePromise;
+      if (role.notifyEmail) {
+        $('keepBanner').querySelector('.keep-form').hidden = true;
+        $('keepDone').hidden = false;
+        $('keepDone').textContent = `Sent \u2014 check ${role.notifyEmail} for your link.`;
+        setTimeout(() => { $('keepBanner').hidden = true; }, 6000);
+      } else {
+        $('keepBtn').disabled = false; $('keepBtn').textContent = 'Email me my link';
+      }
+    };
+    $('keepBtn').addEventListener('click', keep);
+    $('keepEmail').addEventListener('keydown', (e) => { if (e.key === 'Enter') keep(); });
     $('notifyEmail').addEventListener('change', () => {
       const v = $('notifyEmail').value.trim();
       if (v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { $('saveState').textContent = 'Check the email address'; return; }
@@ -637,9 +658,7 @@
   function candidateUrl() { return `${location.origin}/position-qualifier/apply/?token=${role.candidateLinkToken}`; }
   function shareBlock() {
     const mailNote = role.notifyEmail ? `<p class="empty-state">Each candidate's answers are also emailed to ${esc(role.notifyEmail)}.</p>` : '';
-    const responses = role.isWebsiteLead
-      ? `<p class="empty-state">We'll email you each candidate's answers as they come in.</p>`
-      : renderResponses(role.responses || []) + mailNote;
+    const responses = renderResponses(role.responses || []) + mailNote;
     return `<div class="share"><h3>Send these questions to candidates</h3>
       <p>Anyone with this link can answer the questions for ${esc(role.title)}. You read every answer.</p>
       <div class="link-row"><input type="text" readonly id="candLink" value="${esc(candidateUrl())}"><button class="btn btn-primary btn-sm" id="copyLink">Copy link</button></div></div>

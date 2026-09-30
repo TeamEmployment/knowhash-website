@@ -1,10 +1,13 @@
 const { dataverseRequest } = require("./dataverse-client");
+const { verifyRecaptcha } = require("./role-format");
 
 // Confirmed directly against Dataverse's own metadata — navigation property
 // matches the logical name exactly, lowercase with underscores.
 const POSITION_QUALIFIER_BIND = "cre5b_position_qualifier@odata.bind";
 
-async function sendNotificationEmail({ toEmail, candidateName, landingPageToken, roleTitle, isWebsiteLead, answers }) {
+const TOKEN_RE = /^[A-Za-z0-9_-]{8,128}$/; // 30 Sep 2026: also keeps tokens safe inside OData filters
+
+async function sendNotificationEmail({ toEmail, candidateName, landingPageToken, roleTitle, isWebsiteLead, answers, includeAnswers }) {
   if (!toEmail || !landingPageToken) return; // nothing to notify, or nowhere to send them
   const landingUrl = `https://knowhash.com/position-qualifier/?token=${landingPageToken}`;
 
@@ -12,13 +15,15 @@ async function sendNotificationEmail({ toEmail, candidateName, landingPageToken,
   // them the email itself has to carry the actual answers, not just a
   // notice-plus-link, or "relayed by email" would mean nothing landed.
   let body;
-  if (isWebsiteLead && answers) {
+  // includeAnswers (30 Sep 2026): the person gave us this address on their
+  // role page specifically to receive answers, so send them in full.
+  if ((isWebsiteLead || includeAnswers) && answers) {
     const qa = answers
       .map((a) => `${a.question}\n${a.answer || "(skipped)"}`)
       .join("\n\n");
-    body = `${candidateName || "A candidate"} just completed your Position Qualifier for ${roleTitle}.\n\n${qa}`;
+    body = `${candidateName || "A candidate"} just answered your candidate questions for ${roleTitle}.\n\n${qa}\n\nSee all answers: ${landingUrl}`;
   } else {
-    body = `${candidateName || "A candidate"} just completed your Position Qualifier for ${roleTitle}.\n\nView it here: ${landingUrl}`;
+    body = `${candidateName || "A candidate"} just answered your candidate questions for ${roleTitle}.\n\nView it here: ${landingUrl}`;
   }
 
   await fetch("https://api.sendgrid.com/v3/mail/send", {
@@ -30,7 +35,7 @@ async function sendNotificationEmail({ toEmail, candidateName, landingPageToken,
     body: JSON.stringify({
       personalizations: [{ to: [{ email: toEmail }] }],
       from: { email: "notifications@knowhash.com", name: "knowhash" },
-      subject: `New response — ${roleTitle}`,
+      subject: `New answers — ${roleTitle}`,
       content: [{ type: "text/plain", value: body }],
     }),
   });
@@ -41,7 +46,7 @@ exports.handler = async (event) => {
     if (event.httpMethod === "GET") {
       // Candidate loading the page: fetch the qualifier's questions by their token.
       const token = event.queryStringParameters && event.queryStringParameters.token;
-      if (!token) {
+      if (!token || !TOKEN_RE.test(token)) {
         return { statusCode: 400, body: JSON.stringify({ error: "Missing token" }) };
       }
 
@@ -66,6 +71,9 @@ exports.handler = async (event) => {
           `cre5b_knowhashleadses(${leadId})?$select=cre5b_name,cre5b_company`
         );
         recruiterName = leadResult.cre5b_name || null;
+        // Website sign-ups use their email as the record name — never show
+        // a hirer's email address to candidates as if it were their name.
+        if (recruiterName && recruiterName.includes("@")) recruiterName = null;
         company = leadResult.cre5b_company || null;
       }
 
@@ -82,15 +90,18 @@ exports.handler = async (event) => {
 
     if (event.httpMethod === "POST") {
       // Candidate submitting their answers.
-      const { token, candidateName, candidateEmail, answers } = JSON.parse(event.body || "{}");
-      if (!token || !answers) {
+      const { token, candidateName, candidateEmail, answers, recaptchaToken } = JSON.parse(event.body || "{}");
+      if (!(await verifyRecaptcha(recaptchaToken, "candidate_answers"))) {
+        return { statusCode: 403, body: JSON.stringify({ error: "recaptcha_failed" }) };
+      }
+      if (!token || !TOKEN_RE.test(token) || !answers) {
         return { statusCode: 400, body: JSON.stringify({ error: "Missing token or answers" }) };
       }
 
       // Pull the qualifier plus enough to notify its owner afterwards.
       const result = await dataverseRequest(
         "GET",
-        `cre5b_knowhashpositionqualifiers?$filter=cre5b_candidate_link_token eq '${token}'&$select=cre5b_knowhashpositionqualifierid,cre5b_role_title,_cre5b_owner_lead_value`
+        `cre5b_knowhashpositionqualifiers?$filter=cre5b_candidate_link_token eq '${token}'&$select=cre5b_knowhashpositionqualifierid,cre5b_role_title,_cre5b_owner_lead_value,cre5b_notify_email`
       );
       if (!result.value || result.value.length === 0) {
         return { statusCode: 404, body: JSON.stringify({ error: "Link not recognised" }) };
@@ -113,7 +124,10 @@ exports.handler = async (event) => {
             `cre5b_knowhashleadses(${leadId})?$select=cre5b_email,cre5b_landing_page_token,cre5b_lead_source`
           );
           await sendNotificationEmail({
-            toEmail: leadResult.cre5b_email,
+            // The address given on the role page wins; otherwise the lead's
+            // own email, as before.
+            toEmail: qualifier.cre5b_notify_email || leadResult.cre5b_email,
+            includeAnswers: !!qualifier.cre5b_notify_email,
             candidateName,
             landingPageToken: leadResult.cre5b_landing_page_token,
             roleTitle: qualifier.cre5b_role_title,

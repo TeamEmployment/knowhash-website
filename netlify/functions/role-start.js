@@ -18,6 +18,7 @@
 
 const { dataverseRequest } = require("./dataverse-client");
 const crypto = require("crypto");
+const { verifyRecaptcha } = require("./role-format");
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const SITE = "https://knowhash.com";
@@ -65,7 +66,11 @@ async function sendLinkEmail(toEmail, token, title) {
 exports.handler = async (event) => {
   try {
     if (event.httpMethod !== "POST") return json(405, { error: "method_not_allowed" });
-    const { email, title } = JSON.parse(event.body || "{}");
+    const { email, title, recaptchaToken } = JSON.parse(event.body || "{}");
+    // Bot check first — this endpoint sends email to whatever address is typed.
+    if (!(await verifyRecaptcha(recaptchaToken, "role_start"))) {
+      return json(403, { error: "We couldn’t confirm you’re not a robot — please refresh the page and try again." });
+    }
 
     const cleanEmail = String(email || "").trim().toLowerCase();
     if (!EMAIL_RE.test(cleanEmail) || cleanEmail.length > 100 || /['"\s]/.test(cleanEmail)

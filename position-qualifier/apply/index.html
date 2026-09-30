@@ -93,6 +93,7 @@
   footer span { font-size: 12px; color: var(--muted); }
   footer strong { color: var(--navy); }
 </style>
+<script src="https://www.google.com/recaptcha/api.js?render=6Lfy0NYtAAAAADUIlMix-F6g_N-qQb6hUXKLdFWr"></script>
 </head>
 <body>
 <div class="wrap">
@@ -196,6 +197,14 @@ function collectAnswers() {
   return answers;
 }
 
+// Google reCAPTCHA v3 — invisible; the server checks the token.
+function recaptchaToken(action) {
+  return new Promise((resolve) => {
+    if (!window.grecaptcha) return resolve('');
+    grecaptcha.ready(() => grecaptcha.execute('6Lfy0NYtAAAAADUIlMix-F6g_N-qQb6hUXKLdFWr', { action }).then(resolve, () => resolve('')));
+  });
+}
+
 async function submitForm() {
   const btn = document.querySelector('button.submit');
   btn.disabled = true;
@@ -209,7 +218,8 @@ async function submitForm() {
         token,
         candidateName: document.getElementById('candidate-name').value.trim(),
         candidateEmail: document.getElementById('candidate-email').value.trim(),
-        answers: collectAnswers()
+        answers: collectAnswers(),
+        recaptchaToken: await recaptchaToken('candidate_answers')
       })
     });
     if (!res.ok) throw new Error('Submit failed');

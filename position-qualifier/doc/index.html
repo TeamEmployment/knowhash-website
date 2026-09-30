@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" type="image/png" sizes="16x16" href="/icons/icon16.png">
+<link rel="icon" type="image/png" sizes="48x48" href="/icons/icon48.png">
+<title>Position document — knowhash Role</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#22355C; --ink-70:rgba(34,53,92,.76); --ink-45:rgba(34,53,92,.5); --accent:#0D5C63; --line:#E5E8EE; --wash:#F6F8FA; --band:#EAF7ED; --band-line:#CFEAD6; --band-deep:#1F8F3B;
+    box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);}
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--wash); color:var(--ink); font-family:'Inter',-apple-system,sans-serif; line-height:1.55; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1080px; margin:0 auto; padding:0 28px;}
+  header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; background:rgba(255,255,255,.94); backdrop-filter:blur(6px); border-bottom:1px solid var(--line);}
+  header.top .wrap{display:flex; align-items:center; gap:32px; padding-top:16px; padding-bottom:16px;}
+  .brand{display:flex; align-items:center; gap:9px; margin-right:auto; text-decoration:none;}
+  .brand .mark{width:20px; height:20px; color:var(--ink);}
+  .brand .wordmark{font-family:'Comfortaa'; font-weight:700; font-size:16px; color:var(--ink);}
+  nav.primary{display:flex; gap:26px;}
+  nav.primary a{color:#55606f; text-decoration:none; font-size:14.5px; font-weight:600;}
+  .nav-cta{background:var(--accent); color:#fff; font-family:'Comfortaa'; font-weight:700; font-size:13.5px; padding:9px 18px; border-radius:7px; text-decoration:none;}
+  .nav-toggle{display:none;}
+  @media (max-width:760px){ nav.primary{display:none;} }
+  main{max-width:780px; margin:0 auto; padding:34px 22px 60px;}
+  .paper{background:#fff; border:1px solid var(--line); border-radius:14px; padding:38px 42px; box-shadow:0 1px 2px rgba(34,53,92,.04),0 8px 28px rgba(34,53,92,.06);}
+  @media (max-width:600px){ .paper{padding:26px 22px;} }
+  h1{font-family:'Comfortaa'; font-weight:700; font-size:clamp(24px,3.4vw,30px); line-height:1.25; margin:0 0 4px;}
+  .kind{font-size:12px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; color:var(--band-deep); margin-bottom:22px;}
+  h2{font-size:15.5px; font-weight:700; margin:24px 0 8px; color:var(--ink);}
+  .headline{font-family:'Comfortaa'; font-weight:700; font-size:20px; margin:0 0 14px;}
+  p, li{font-size:15px; color:#2b2b2b;}
+  p{margin:0 0 12px;}
+  ul{margin:0 0 10px; padding-left:22px;}
+  li{margin-bottom:6px;}
+  .actions{display:flex; gap:8px; justify-content:flex-end; margin:0 0 14px;}
+  .btn{font-family:'Inter'; font-size:13px; font-weight:600; border-radius:8px; padding:8px 14px; cursor:pointer; border:1.5px solid var(--line); background:#fff; color:var(--ink);}
+  .btn:hover{border-color:var(--accent);}
+  .made{margin-top:26px; border-radius:14px; background:var(--band); border:1px solid var(--band-line); padding:18px 22px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;}
+  .made p{margin:0; font-size:14px; color:var(--ink-70);}
+  .made b{color:var(--ink);}
+  .made a{background:var(--band-deep); color:#fff; text-decoration:none; font-weight:600; font-size:13.5px; padding:9px 16px; border-radius:8px; white-space:nowrap;}
+  .msg{text-align:center; padding:60px 20px; color:var(--ink-70);}
+  @media print{ header.top, .actions, .made{display:none;} body{background:#fff;} .paper{border:none; box-shadow:none; padding:0;} }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="/index.html">
+      <svg class="mark" viewBox="-154.8 -180 309.6 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <line x1="-27.0" y1="-83.2" x2="-27.0" y2="83.2" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+        <line x1="27.0" y1="-83.2" x2="27.0" y2="83.2" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+        <line x1="-74.9" y1="-36.6" x2="74.9" y2="-36.6" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+        <line x1="-74.9" y1="36.6" x2="74.9" y2="36.6" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+        <ellipse cx="0" cy="0" rx="124.8" ry="160.0" fill="none" stroke="currentColor" stroke-width="40"/>
+        <line x1="-76.8" y1="126.1" x2="76.8" y2="-126.1" stroke="currentColor" stroke-width="36" stroke-linecap="round"/>
+      </svg>
+      <span class="wordmark">knowhash</span>
+    </a>
+    <nav class="primary">
+      <a href="/demo.html">Demo</a>
+      <a href="/features.html">Features</a>
+      <a href="/pricing.html">Pricing</a>
+      <a href="/blog.html">Blog</a>
+    </nav>
+    <a class="nav-cta" href="/pricing.html">Get knowhash</a>
+    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false" onclick="var o=document.body.classList.toggle('menu-open'); this.setAttribute('aria-expanded', o);">
+      <svg class="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+      <svg class="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+    </button>
+  </div>
+</header>
+
+<main>
+  <div class="actions" id="actions" hidden>
+    <button class="btn" id="copyBtn">Copy text</button>
+    <button class="btn" onclick="window.print()">Print or save as PDF</button>
+  </div>
+  <article class="paper" id="paper"><div class="msg">Loading…</div></article>
+  <div class="made">
+    <p><b>Made with knowhash Role.</b> Turn your notes into a polished job ad, position description and candidate questions. Your first role is free.</p>
+    <a href="/position-qualifier/">Create your own</a>
+  </div>
+</main>
+<script>
+(async () => {
+  const q = new URLSearchParams(location.search);
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  const list = (a) => a && a.length ? `<ul>${a.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>` : '';
+  const paper = document.getElementById('paper');
+  let text = '';
+  try {
+    const res = await fetch(`/.netlify/functions/role-doc?t=${encodeURIComponent(q.get('t') || '')}&d=${encodeURIComponent(q.get('d') || '')}&b=${encodeURIComponent(q.get('b') || '')}`);
+    if (!res.ok) throw new Error();
+    const d = await res.json();
+    document.title = `${d.title} \u2014 ${d.kind === 'ad' ? 'Job ad' : 'Position description'}`;
+    if (d.kind === 'pd') {
+      const pd = d.pd;
+      paper.innerHTML = `<h1>${esc(d.title)}</h1><div class="kind">Position description</div>
+        ${pd.purpose ? `<h2>Purpose of the role</h2><p>${esc(pd.purpose)}</p>` : ''}
+        ${(pd.sections || []).map((s) => `<h2>${esc(s.heading)}</h2>${list(s.items)}`).join('')}
+        ${pd.reportingLine ? `<h2>Reporting line</h2><p>${esc(pd.reportingLine)}</p>` : ''}`;
+      text = [d.title, 'Position description', '', pd.purpose ? `Purpose of the role\n${pd.purpose}\n` : '',
+        ...(pd.sections || []).map((s) => `${s.heading}\n${(s.items || []).map((i) => `- ${i}`).join('\n')}\n`),
+        pd.reportingLine ? `Reporting line\n${pd.reportingLine}` : ''].join('\n').trim();
+    } else {
+      const a = d.ad;
+      paper.innerHTML = `<h1>${esc(d.title)}</h1><div class="kind">Job ad</div>
+        <div class="headline">${esc(a.headline)}</div>
+        ${a.sellingPoints && a.sellingPoints.length ? `<h2>Selling points</h2>${list(a.sellingPoints)}` : ''}
+        ${a.intro ? `<p>${esc(a.intro)}</p>` : ''}${list(a.bullets)}${a.closing ? `<p>${esc(a.closing)}</p>` : ''}`;
+      text = [d.title, '', a.headline, '', ...(a.sellingPoints || []).map((p) => `* ${p}`), a.intro || '', ...(a.bullets || []).map((b) => `- ${b}`), '', a.closing || ''].join('\n').trim();
+    }
+    document.getElementById('actions').hidden = false;
+    document.getElementById('copyBtn').addEventListener('click', async (e) => {
+      await navigator.clipboard.writeText(text);
+      e.target.textContent = 'Copied'; setTimeout(() => (e.target.textContent = 'Copy text'), 1500);
+    });
+  } catch (_) {
+    paper.innerHTML = `<div class="msg">This document link isn\u2019t available. It may have been mistyped.</div>`;
+  }
+})();
+</script>
+</body>
+</html>

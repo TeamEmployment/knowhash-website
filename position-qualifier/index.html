@@ -66,6 +66,7 @@
   .card .sub{font-size:13px; color:var(--ink-45); margin:4px 0 0;}
   .save-state{font-size:12px; color:var(--ink-45); min-height:18px;}
   label{display:block; font-size:12.5px; font-weight:600; color:var(--ink-70); margin-bottom:7px;}
+  .opt{font-weight:400; color:var(--ink-45);}
   .hint{font-size:12px; color:var(--ink-45); margin-top:6px; line-height:1.45;}
   input[type=text], input[type=email], textarea{width:100%; font-family:'Inter'; font-size:14.5px; color:var(--ink); background:var(--paper); border:1.5px solid var(--line); border-radius:9px; padding:11px 13px; transition:border-color .15s, box-shadow .15s;}
   input:focus, textarea:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-10);}
@@ -174,6 +175,8 @@
   .notice{font-size:13px; padding:10px 14px; border-radius:9px; margin-top:12px; display:none;}
   .notice.show{display:block;}
   .notice.err{background:#FBEFEF; color:var(--err);}
+  .notice.ok{background:var(--band); color:var(--ink-70);}
+  .notice a{color:var(--accent); font-weight:600;}
   .notice.warn{background:var(--warn-bg); color:var(--warn);}
   .modal-back{position:fixed; inset:0; background:rgba(34,53,92,.35); display:none; align-items:center; justify-content:center; z-index:50; padding:20px;}
   .modal-back.show{display:flex;}
@@ -191,7 +194,9 @@
   footer.site .foot-links a{color:#9aa3b0; text-decoration:none; margin-left:16px;}
   footer.site .foot-links a:hover{color:var(--ink);}
   [hidden]{display:none!important;}
+  .grecaptcha-badge{visibility:hidden;}
 </style>
+<script src="https://www.google.com/recaptcha/api.js?render=6Lfy0NYtAAAAADUIlMix-F6g_N-qQb6hUXKLdFWr"></script>
 </head>
 <body>
 
@@ -250,6 +255,7 @@
           <input type="email" id="startEmail" placeholder="you@company.com" maxlength="100">
         </div>
         <button class="btn btn-primary" id="startBtn">Email me my link</button>
+        <p class="hint" style="margin-top:12px">Protected by reCAPTCHA — Google <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy</a> and <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Terms</a> apply.</p>
         <div class="notice err" id="startErr"></div>
       </div>
       <div class="sent" id="startSent" hidden>
@@ -282,11 +288,18 @@
         <textarea id="positionText" placeholder="Paste a job ad or position description, or jot down what the role involves: team, tools, must-haves. The more you give, the better the drafts. Leave it empty and we'll work from the title."></textarea>
       </div>
 
+      <div class="row2">
       <div class="field">
         <label>Detail level</label>
         <div class="segmented" id="detail">
           <button data-v="brief">Brief</button><button data-v="standard">Standard</button><button data-v="detailed">Detailed</button>
         </div>
+      </div>
+      <div class="field">
+        <label for="notifyEmail">Your email <span class="opt">(optional)</span></label>
+        <input type="email" id="notifyEmail" placeholder="you@company.com" maxlength="100" autocomplete="email">
+        <div class="hint">We'll send you each candidate's answers, and a copy of any document you ask for. Nothing else.</div>
+      </div>
       </div>
     </div>
 
@@ -362,6 +375,14 @@
   let busyDoc = null;       // doc currently generating
   let saveTimer = null, savePromise = null, pendingSave = {};
 
+  // Google reCAPTCHA v3 — invisible; the server checks the token.
+  function recaptchaToken(action) {
+    return new Promise((resolve) => {
+      if (!window.grecaptcha) return resolve('');
+      grecaptcha.ready(() => grecaptcha.execute('6Lfy0NYtAAAAADUIlMix-F6g_N-qQb6hUXKLdFWr', { action }).then(resolve, () => resolve('')));
+    });
+  }
+
   // ─────────── no link: start a free role ───────────
   function startMode() {
     $('startView').hidden = false;
@@ -374,7 +395,7 @@
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = 'Enter a valid email address.'; err.classList.add('show'); return; }
       const btn = $('startBtn'); btn.disabled = true; btn.textContent = 'Sending\u2026';
       try {
-        const res = await fetch('/.netlify/functions/role-start', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, email }) });
+        const res = await fetch('/.netlify/functions/role-start', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, email, recaptchaToken: await recaptchaToken('role_start') }) });
         const body = await res.json();
         if (!res.ok) throw new Error(body.error || 'Something went wrong');
         $('sentTo').textContent = email;
@@ -411,6 +432,12 @@
     $('positionText').value = role.positionText;
     $('title').addEventListener('input', () => queueSave({ title: $('title').value }));
     $('positionText').addEventListener('input', () => queueSave({ positionText: $('positionText').value }));
+    $('notifyEmail').value = role.notifyEmail || '';
+    $('notifyEmail').addEventListener('change', () => {
+      const v = $('notifyEmail').value.trim();
+      if (v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { $('saveState').textContent = 'Check the email address'; return; }
+      queueSave({ notifyEmail: v }, 0);
+    });
     $('detail').querySelectorAll('button').forEach((b) => b.addEventListener('click', () => {
       role.detailLevel = b.dataset.v; renderSettings(); queueSave({ detailLevel: b.dataset.v }, 0);
     }));
@@ -438,6 +465,8 @@
         role = { ...data, documents: data.documents };
         $('saveState').textContent = 'Saved';
         setTimeout(() => { if ($('saveState').textContent === 'Saved') $('saveState').textContent = ''; }, 1600);
+      } else if (data.error === 'invalid_email') {
+        $('saveState').textContent = 'Check the email address';
       } else if (data.error === 'title_required') {
         $('saveState').textContent = 'A role title is needed';
       } else {
@@ -486,7 +515,7 @@
       doc = ad ? { ads: [ad] } : null;
     }
     const actions = $('docActions');
-    $('docErr').classList.remove('show');
+    $('docErr').className = 'notice';
 
     if (busyDoc === activeDoc) {
       actions.innerHTML = '';
@@ -500,12 +529,42 @@
       $('genBtn')?.addEventListener('click', () => generate(activeDoc, false));
       return;
     }
+    const shareable = activeDoc !== 'qualifier';
     actions.innerHTML = `<button class="btn btn-ghost btn-sm" id="copyBtn">Copy text</button>
+      ${shareable ? `<button class="btn btn-ghost btn-sm" id="shareBtn">Copy share link</button>
+      <button class="btn btn-ghost btn-sm" id="mailBtn">Email me a copy</button>` : ''}
       <button class="btn btn-ghost btn-sm" id="regenBtn" ${left === 0 || busyDoc ? 'disabled' : ''}>Redo</button>`;
     $('copyBtn').addEventListener('click', () => copyDoc(activeDoc, doc));
+    if (shareable) {
+      $('shareBtn').addEventListener('click', async () => {
+        await navigator.clipboard.writeText(docShareUrl(activeDoc));
+        flash('shareBtn', 'Link copied');
+        showDocNote(`Anyone with this link can view this ${activeDoc === 'ad' ? `${activeBoard} ad` : 'position description'} (read-only): <a href="${docShareUrl(activeDoc)}" target="_blank" rel="noopener">open it</a>`);
+      });
+      $('mailBtn').addEventListener('click', () => emailDoc(activeDoc));
+    }
     $('regenBtn').addEventListener('click', () => generate(activeDoc, false));
     $('docBody').innerHTML = renderDoc(activeDoc, doc);
     if (activeDoc === 'qualifier') wireShare();
+  }
+
+  function docShareUrl(k) {
+    const b = k === 'ad' ? `&b=${encodeURIComponent(activeBoard)}` : '';
+    return `${location.origin}/position-qualifier/doc/?t=${role.candidateLinkToken}&d=${k}${b}`;
+  }
+  function flash(id, text) { const b = $(id); if (!b) return; const t = b.textContent; b.textContent = text; setTimeout(() => { if ($(id)) $(id).textContent = t; }, 1600); }
+  function showDocNote(html) { const e = $('docErr'); e.className = 'notice ok show'; e.innerHTML = html; }
+  async function emailDoc(k) {
+    await flushSave(); if (savePromise) await savePromise;
+    if (!role.notifyEmail) {
+      showDocErr('Add your email in \u201cYour role\u201d above first, then we can send you a copy.');
+      $('notifyEmail').focus(); return;
+    }
+    const b = $('mailBtn'); b.disabled = true; b.textContent = 'Sending\u2026';
+    const { status, data } = await api('POST', { action: 'email', doc: k, board: k === 'ad' ? activeBoard : undefined });
+    b.disabled = false; b.textContent = 'Email me a copy';
+    if (status === 200) showDocNote(`Sent to <b>${esc(data.to)}</b>.`);
+    else showDocErr('Couldn\u2019t send that just now \u2014 please try again.');
   }
 
   // ─────────── generate ───────────
@@ -526,7 +585,7 @@
     if (status === 429) showDocErr('You\u2019ve used all the drafts for this role. knowhash Recruit gives you more roles, free for your first month.');
     else showDocErr('That didn\u2019t work this time \u2014 please try again. (Nothing was used up.)');
   }
-  function showDocErr(msg) { const e = $('docErr'); e.textContent = msg; e.classList.add('show'); }
+  function showDocErr(msg) { const e = $('docErr'); e.className = 'notice err show'; e.textContent = msg; }
 
   function askLock(title, onOk) {
     $('lockTitle').textContent = title;
@@ -577,9 +636,10 @@
   // ─────────── candidate link + responses ───────────
   function candidateUrl() { return `${location.origin}/position-qualifier/apply/?token=${role.candidateLinkToken}`; }
   function shareBlock() {
+    const mailNote = role.notifyEmail ? `<p class="empty-state">Each candidate's answers are also emailed to ${esc(role.notifyEmail)}.</p>` : '';
     const responses = role.isWebsiteLead
       ? `<p class="empty-state">We'll email you each candidate's answers as they come in.</p>`
-      : renderResponses(role.responses || []);
+      : renderResponses(role.responses || []) + mailNote;
     return `<div class="share"><h3>Send these questions to candidates</h3>
       <p>Anyone with this link can answer the questions for ${esc(role.title)}. You read every answer.</p>
       <div class="link-row"><input type="text" readonly id="candLink" value="${esc(candidateUrl())}"><button class="btn btn-primary btn-sm" id="copyLink">Copy link</button></div></div>

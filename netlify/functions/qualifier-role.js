@@ -17,7 +17,8 @@
 // API (all calls carry ?token=<landing page token> for now; Recruit's
 // op- ids and web accounts become further "owner" types later):
 //   GET                               → role (created as an unlocked draft on first visit)
-//   POST { action: "save", title?, positionText?, detailLevel?, jobBoards? }
+//   POST { action: "save", title?, positionText?, detailLevel?, jobBoards?, notifyEmail? }
+//   POST { action: "email", doc: "pd"|"ad", board? }  → emails a copy to the notify address
 //                                     → saves draft fields (title only while unlocked)
 //   POST { action: "generate", doc: "qualifier"|"pd"|"ad", board?, confirmLock? }  (board: ads only, one per draft)
 //        - unlocked + no confirmLock  → 409 { needsConfirm: true, title } (page shows the warning)
@@ -25,6 +26,7 @@
 
 const { dataverseRequest } = require("./dataverse-client");
 const crypto = require("crypto");
+const { shareUrl, docToText, docToHtml, sendEmail, cleanEmail, NAMES } = require("./role-format");
 
 const CLAUDE_MODEL = "claude-sonnet-4-6";
 const MAX_GENERATIONS_PER_ROLE = Number(process.env.QUALIFIER_MAX_GENERATIONS || 10);
@@ -40,7 +42,7 @@ const QUALIFIER_FIELDS = [
   "cre5b_knowhashpositionqualifierid", "cre5b_role_title", "cre5b_position_text",
   "cre5b_detail_level", "cre5b_job_boards", "cre5b_generated_questions",
   "cre5b_generated_pd", "cre5b_generated_ad_copy", "cre5b_title_locked_at",
-  "cre5b_generation_count", "cre5b_candidate_link_token", "createdon",
+  "cre5b_generation_count", "cre5b_candidate_link_token", "cre5b_notify_email", "createdon",
 ].join(",");
 
 const json = (statusCode, body) => ({
@@ -90,6 +92,11 @@ function rolePayload(lead, q, responses) {
     },
     generations: { used, max: MAX_GENERATIONS_PER_ROLE },
     candidateLinkToken: q.cre5b_candidate_link_token,
+    // Only ever an address this person gave us: their notify email, or the
+    // email a website visitor signed up with. Never an enriched Prospect
+    // email — a stranger's page showing an address they never gave would
+    // feel like surveillance.
+    notifyEmail: q.cre5b_notify_email || (lead.cre5b_lead_source === 342840001 ? lead.cre5b_email || "" : ""),
     brand: { colour: lead.cre5b_brand_colour || null, logoUrl: lead.cre5b_brand_logo_url || null },
     isWebsiteLead: lead.cre5b_lead_source === 342840001,
     responses: responses || [],
@@ -246,7 +253,7 @@ exports.handler = async (event) => {
 
     const leadResult = await dataverseRequest(
       "GET",
-      `cre5b_knowhashleadses?$filter=cre5b_landing_page_token eq '${token}'&$select=cre5b_knowhashleadsid,cre5b_jobpostingtitle,cre5b_search_role,cre5b_brand_colour,cre5b_brand_logo_url,cre5b_ad_text,cre5b_lead_source`
+      `cre5b_knowhashleadses?$filter=cre5b_landing_page_token eq '${token}'&$select=cre5b_knowhashleadsid,cre5b_jobpostingtitle,cre5b_search_role,cre5b_brand_colour,cre5b_brand_logo_url,cre5b_ad_text,cre5b_lead_source,cre5b_email`
     );
     const lead = leadResult.value?.[0];
     if (!lead) return json(404, { error: "Link not recognised" });
@@ -302,6 +309,20 @@ exports.handler = async (event) => {
         const b = body.jobBoards.filter((x) => BOARDS.includes(x));
         patch.cre5b_job_boards = (b.length ? b : ["General"]).join(", ");
       }
+      if (typeof body.notifyEmail === "string") {
+        if (body.notifyEmail.trim() === "") {
+          patch.cre5b_notify_email = null;
+        } else {
+          const e = cleanEmail(body.notifyEmail);
+          if (!e) return json(400, { error: "invalid_email" });
+          patch.cre5b_notify_email = e;
+          // Populate the lead record if we don't have an address for them yet.
+          if (!lead.cre5b_email) {
+            await dataverseRequest("PATCH", `cre5b_knowhashleadses(${lead.cre5b_knowhashleadsid})`, { cre5b_email: e });
+            lead.cre5b_email = e;
+          }
+        }
+      }
       if (Object.keys(patch).length) {
         await dataverseRequest("PATCH", `cre5b_knowhashpositionqualifiers(${qid})`, patch);
         q = { ...q, ...patch };
@@ -334,6 +355,30 @@ exports.handler = async (event) => {
       await dataverseRequest("PATCH", `cre5b_knowhashpositionqualifiers(${qid})`, patch);
       q = { ...q, ...patch };
       return json(200, rolePayload(lead, q, await loadResponses()));
+    }
+
+    // ── email a copy of one document to the notify address ──
+    if (body.action === "email") {
+      const doc = body.doc;
+      if (doc !== "pd" && doc !== "ad") return json(400, { error: "unknown_doc" });
+      const to = q.cre5b_notify_email || (lead.cre5b_lead_source === 342840001 ? cleanEmail(lead.cre5b_email) : null);
+      if (!to) return json(400, { error: "no_email" });
+      const stored = parseMaybe(q[DOC_COLUMN[doc]]);
+      const board = doc === "ad" ? body.board : null;
+      if (!stored || (doc === "ad" && !(stored.ads || []).some((a) => a.board === board))) return json(404, { error: "no_document" });
+      const title = q.cre5b_role_title;
+      const link = shareUrl(q.cre5b_candidate_link_token, doc, board);
+      const label = doc === "ad" ? `${NAMES.ad} (${board})` : NAMES[doc];
+      await sendEmail({
+        to,
+        subject: `${label} — ${title}`,
+        text: `${docToText(doc, title, stored, board)}\n\n—\nShare this ${label.toLowerCase()}: ${link}\nMade with knowhash Role — https://knowhash.com/position-qualifier/`,
+        html: `${docToHtml(doc, title, stored, board)}
+<p style="font-family:-apple-system,Segoe UI,sans-serif;font-size:13px;color:#58595b;margin-top:24px;border-top:1px solid #E5E8EE;padding-top:14px">
+Share it: <a href="${link}" style="color:#0D5C63;font-weight:600">${link}</a><br>
+<span style="color:#9aa3b0">Made with <a href="https://knowhash.com/position-qualifier/" style="color:#9aa3b0">knowhash Role</a></span></p>`,
+      });
+      return json(200, { sent: true, to });
     }
 
     return json(400, { error: "unknown_action" });

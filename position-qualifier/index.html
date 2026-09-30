@@ -241,7 +241,7 @@
       <span class="pill">Your first role is free</span>
     </div>
     <h1>Turn your notes into polished position documents, ready to share.</h1>
-    <p class="lede">Candidate questions, a position description and a job ad, drafted for you in a minute. Change anything, redo anything. AI drafts; you decide.</p>
+    <p class="lede">A position description, a job ad and candidate questions, drafted for you in a minute. Change anything, redo anything. AI drafts; you decide.</p>
   </div>
 </section>
 
@@ -309,9 +309,9 @@
 
     <div class="card">
       <div class="tabs" id="tabs">
-        <button class="tab" data-doc="qualifier"><span class="dot"></span>Candidate questions</button>
         <button class="tab" data-doc="pd"><span class="dot"></span>Position description</button>
         <button class="tab" data-doc="ad"><span class="dot"></span>Job ad</button>
+        <button class="tab" data-doc="qualifier"><span class="dot"></span>Candidate questions</button>
       </div>
       <div class="board-row" id="boardRow" hidden>
         <span class="board-label">Job board</span>
@@ -374,7 +374,7 @@
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 
   let role = null;          // last server state
-  let activeDoc = 'qualifier';
+  let activeDoc = 'pd'; // natural order: define the role, advertise it, then question applicants
   let activeBoard = 'General'; // job ad: one board per draft
   let busyDoc = null;       // doc currently generating
   let saveTimer = null, savePromise = null, pendingSave = {};

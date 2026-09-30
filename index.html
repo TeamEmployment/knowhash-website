@@ -2,202 +2,473 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon16.png">
 <link rel="icon" type="image/png" sizes="48x48" href="/icons/icon48.png">
 <link rel="apple-touch-icon" sizes="128x128" href="/icons/icon128.png">
-<title>knowhash Role — polished position documents from your notes</title>
-<meta name="description" content="Turn your notes into a polished job ad, position description and tailored candidate questions, drafted for you and reviewed by you. Your first role is free.">
+<title>See knowhash in action — Demo</title>
+<meta name="description" content="Watch knowhash turn a template into a message, right where you're already working — inside LinkedIn.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@600;700&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --ink:#22355C; --ink-70:rgba(34,53,92,.76); --ink-45:rgba(34,53,92,.5);
-    --accent:#0D5C63; --accent-10:rgba(13,92,99,.08); --accent-20:rgba(13,92,99,.16);
-    --paper:#FFFFFF; --card:#FFFFFF; --line:#E5E8EE; --line-soft:#EFF1F5; --wash:#F6F8FA;
-    --band:#EAF7ED; --band-line:#CFEAD6; --band-deep:#1F8F3B;
-    --warn:#8a5a00; --warn-bg:#FFF6E0; --err:#a33;
-    box-sizing:border-box;
-    padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
-  }
-  *{box-sizing:border-box;}
-  html{scroll-padding-top:env(safe-area-inset-top,0px); scroll-behavior:smooth;}
-  body{margin:0; background:var(--paper); color:var(--ink); font-family:'Inter',-apple-system,sans-serif; line-height:1.5; -webkit-font-smoothing:antialiased;}
-  h1,h2,h3,.brand{font-family:'Comfortaa',cursive;}
-  .wrap{max-width:1080px; margin:0 auto; padding:0 28px;}
-  .page{max-width:920px; margin:0 auto; padding:34px 28px 80px;}
+  :root {
+    --ink: #22355C;
+    --charcoal: #3a3a3a;
+    --pink: #0D5C63;
+    --green: #39B54A;
+    --blue: #00AEEF;
+    --paper: #FFFFFF;
+    --line: #E5E8EE;
 
-  /* header — same as the main site */
-  header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; background:rgba(255,255,255,.92); backdrop-filter:blur(6px); border-bottom:1px solid var(--line);}
-  header.top .wrap{display:flex; align-items:center; gap:32px; padding-top:16px; padding-bottom:16px;}
-  .brand{display:flex; align-items:center; gap:9px; margin-right:auto; text-decoration:none;}
-  .brand .mark{width:20px; height:20px; color:var(--ink); flex:none;}
-  .brand .wordmark{font-weight:700; font-size:16px; color:var(--ink);}
-  nav.primary{display:flex; gap:26px;}
-  nav.primary a{color:#55606f; text-decoration:none; font-size:14.5px; font-weight:600;}
-  nav.primary a:hover{color:var(--ink);}
-  .nav-cta{background:var(--accent); color:#fff; font-family:'Comfortaa'; font-weight:700; font-size:13.5px; padding:9px 18px; border-radius:7px; text-decoration:none;}
-  .nav-toggle{display:none; background:none; border:none; cursor:pointer; padding:4px; color:var(--ink); margin-left:14px;}
-  .nav-toggle svg{width:24px; height:24px; display:block;}
-  .nav-toggle .icon-close{display:none;}
-  body.menu-open .nav-toggle .icon-menu{display:none;}
-  body.menu-open .nav-toggle .icon-close{display:block;}
-  @media (max-width:760px){
-    .nav-toggle{display:flex; align-items:center;}
-    nav.primary{display:none;}
-    body.menu-open nav.primary{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:30px; position:fixed; inset:0; z-index:9; background:var(--paper); padding:90px 28px 40px;}
-    body.menu-open nav.primary a{font-size:22px;}
-    body.menu-open{overflow:hidden;}
+    /* Tier washes — reused, in this same order, across Demo, Features,
+       and Pricing. The colour is the wayfinding: pale blue always means
+       Messaging, pale green always means Recruitment, pale plum always
+       means Prospect, no matter which page you're on. */
+    --band-messaging: #EAF7FD;
+    --band-messaging-line: #CFEAF6;
+    --band-messaging-deep: #0A9BCB;
+
+    --band-recruit: #EAF7ED;
+    --band-recruit-line: #CFEAD6;
+    --band-recruit-deep: #1F8F3B;
+
+    --band-prospect: #F3EAF5;
+    --band-prospect-line: #E3D2E8;
+    --band-prospect-deep: #5B2A6B;
+
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --display: "Comfortaa", var(--sans);
+    --mono: ui-monospace, "SF Mono", Consolas, monospace;
   }
 
-  /* hero band */
-  .band{background:var(--band); padding:40px 0 36px;}
-  .eyebrow-row{display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:10px;}
-  .eyebrow{font-size:12.5px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; color:var(--band-deep);}
-  .pill{display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:700; color:var(--band-deep); background:#fff; border:1px solid var(--band-deep); padding:4px 12px; border-radius:20px; white-space:nowrap;}
-  h1{font-weight:700; font-size:clamp(26px,3.6vw,34px); line-height:1.2; margin:0 0 12px; letter-spacing:-.2px; max-width:34ch;}
-  .lede{color:#445; font-size:16px; max-width:56ch; margin:0;}
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--charcoal);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
 
-  /* cards & fields */
-  .card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:26px 28px; margin-bottom:20px; box-shadow:0 1px 2px rgba(34,53,92,.04),0 4px 16px rgba(34,53,92,.03);}
-  .card-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:18px;}
-  .card h2{font-size:17px; font-weight:700; margin:0;}
-  .card .sub{font-size:13px; color:var(--ink-45); margin:4px 0 0;}
-  .save-state{font-size:12px; color:var(--ink-45); min-height:18px;}
-  label{display:block; font-size:12.5px; font-weight:600; color:var(--ink-70); margin-bottom:7px;}
-  .hint{font-size:12px; color:var(--ink-45); margin-top:6px; line-height:1.45;}
-  input[type=text], input[type=email], textarea{width:100%; font-family:'Inter'; font-size:14.5px; color:var(--ink); background:var(--paper); border:1.5px solid var(--line); border-radius:9px; padding:11px 13px; transition:border-color .15s, box-shadow .15s;}
-  input:focus, textarea:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-10);}
-  textarea{min-height:170px; resize:vertical; line-height:1.55;}
-  .field{margin-bottom:20px;}
-  .field:last-child{margin-bottom:0;}
-  .row2{display:grid; grid-template-columns:1fr 1fr; gap:20px;}
-  @media (max-width:720px){ .row2{grid-template-columns:1fr;} }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 28px; }
 
-  /* the title — the one thing that locks */
-  .title-wrap{position:relative;}
-  .title-input{font-family:'Comfortaa'!important; font-weight:700; font-size:18px!important;}
-  .title-wrap.locked .title-input{background:var(--wash); border-color:var(--line); color:var(--ink); cursor:default; padding-right:120px;}
-  .lock-badge{position:absolute; right:10px; top:50%; transform:translateY(-50%); display:none; align-items:center; gap:5px; font-size:11.5px; font-weight:700; color:var(--accent); background:var(--accent-10); padding:4px 9px; border-radius:20px;}
-  .title-wrap.locked .lock-badge{display:inline-flex;}
-  .lock-badge svg{width:11px; height:11px;}
+  /* ── nav — stays neutral regardless of which band is behind it,
+     so it's a stable anchor while the page's colour identity shifts
+     underneath it ── */
+  header.top {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--line);
+  }
+  header.top .wrap { display: flex; align-items: center; gap: 32px; padding-top: 16px; padding-bottom: 16px; }
+  .brand { display: flex; align-items: center; gap: 9px; margin-right: auto; }
+  .brand .mark { width: 20px; height: 20px; color: var(--ink); flex: none; }
+  .brand .wordmark { font-family: var(--display); font-weight: 700; font-size: 16px; color: var(--ink); }
+  nav.primary { display: flex; gap: 26px; }
+  nav.primary a { color: #55606f; text-decoration: none; font-size: 14.5px; font-weight: 600; margin-right: 26px; }
+  nav.primary a:last-child { margin-right: 0; }
+  nav.primary a:hover { color: var(--ink); }
+  nav.primary a.current { color: var(--pink); }
+  .nav-cta {
+    background: var(--pink); color: #fff; font-family: var(--display); font-weight: 700;
+    font-size: 13.5px; padding: 9px 18px; border-radius: 7px; text-decoration: none;
+  }
+  .nav-toggle {
+    display: none; background: none; border: none; cursor: pointer; padding: 4px;
+    color: var(--ink); margin-left: 14px;
+  }
+  .nav-toggle svg { width: 24px; height: 24px; display: block; }
+  .nav-toggle .icon-close { display: none; }
+  body.menu-open .nav-toggle .icon-menu { display: none; }
+  body.menu-open .nav-toggle .icon-close { display: block; }
 
-  .segmented{display:inline-flex; border:1px solid var(--line); border-radius:9px; padding:3px; gap:2px; background:var(--paper);}
-  .segmented button{font-family:'Inter'; font-size:13.5px; font-weight:500; color:var(--ink-45); background:transparent; border:none; border-radius:7px; padding:8px 16px; cursor:pointer;}
-  .segmented button.active{background:var(--ink); color:#fff; font-weight:600;}
-  .segmented button:not(.active):hover{background:var(--line-soft);}
-  .chips{display:flex; flex-wrap:wrap; gap:8px;}
-  .chip{display:inline-flex; align-items:center; gap:7px; font-size:13.5px; font-weight:500; color:var(--ink-70); border:1px solid var(--line); border-radius:100px; padding:7px 14px 7px 11px; cursor:pointer; background:#fff; user-select:none;}
-  .chip input{margin:0; accent-color:var(--accent); width:14px; height:14px;}
-  .chip.checked{border-color:var(--accent); background:var(--accent-10); color:var(--ink);}
+  @media (max-width: 760px) {
+    .nav-toggle { display: flex; align-items: center; }
+    body.menu-open header.top { backdrop-filter: none; }
+    body.menu-open nav.primary {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 30px; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9;
+      background: var(--paper); opacity: 1; margin: 0; padding: 90px 28px 40px;
+    }
+    body.menu-open nav.primary a { margin-right: 0; font-size: 22px; }
+    body.menu-open { overflow: hidden; }
+  }
 
-  /* buttons */
-  .btn{font-family:'Inter'; font-size:14px; font-weight:600; border-radius:9px; padding:11px 18px; cursor:pointer; border:none; display:inline-flex; align-items:center; gap:8px; text-decoration:none;}
-  .btn-primary{background:var(--accent); color:#fff;}
-  .btn-primary:hover{filter:brightness(1.08);}
-  .btn-ghost{background:#fff; color:var(--ink); border:1.5px solid var(--line);}
-  .btn-ghost:hover{border-color:var(--accent);}
-  .btn:disabled{opacity:.55; cursor:not-allowed;}
-  .btn-sm{font-size:12.5px; padding:7px 12px;}
+  @media (max-width: 760px) {
+    nav.primary { display: none; }
+  }
 
-  /* document tabs */
-  .tabs{display:flex; gap:4px; border-bottom:1px solid var(--line); margin:0 -28px 22px; padding:0 28px; overflow-x:auto;}
-  .tab{font-family:'Inter'; font-size:14px; font-weight:600; color:var(--ink-45); background:none; border:none; padding:12px 14px; cursor:pointer; border-bottom:2.5px solid transparent; white-space:nowrap; display:flex; align-items:center; gap:7px;}
-  .tab.active{color:var(--ink); border-bottom-color:var(--accent);}
-  .tab .dot{width:7px; height:7px; border-radius:50%; background:var(--line);}
-  .tab .dot.done{background:var(--band-deep);}
-  .doc-bar{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:18px;}
-  .doc-actions{display:flex; gap:8px; flex-wrap:wrap;}
-  .usage{font-size:12.5px; color:var(--ink-45);}
-  .usage b{color:var(--ink-70);}
-  .ai-note{font-size:12px; color:var(--ink-45); margin-top:14px;}
-  .ai-note a{color:var(--accent); font-weight:600; text-decoration:none;}
+  /* ── band shell — reused per tier section ── */
+  section.band { padding: 72px 0 88px; }
+  .band-messaging { background: var(--band-messaging); }
+  .band-recruit { background: var(--band-recruit); }
+  .band-prospect { background: var(--band-prospect); }
+  .band-prospect .eyebrow { color: var(--band-prospect-deep); }
+  .band-recruit .eyebrow { color: var(--band-recruit-deep); }
 
-  .empty-doc{border:1.5px dashed var(--line); border-radius:12px; padding:30px 24px; text-align:center; background:var(--wash);}
-  .empty-doc h3{font-size:16px; margin:0 0 6px;}
-  .empty-doc p{font-size:13.5px; color:var(--ink-70); margin:0 auto 18px; max-width:52ch;}
+  .eyebrow {
+    font-size: 12.5px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .band-messaging .eyebrow { color: var(--band-messaging-deep); }
 
-  .working{display:flex; align-items:center; justify-content:center; gap:12px; padding:34px 20px; color:var(--ink-70); font-size:14px;}
-  .spinner{width:20px; height:20px; border:2.5px solid var(--accent-20); border-top-color:var(--accent); border-radius:50%; animation:spin .8s linear infinite; flex:none;}
-  @keyframes spin{to{transform:rotate(360deg);}}
+  .eyebrow-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .eyebrow-row .eyebrow { margin-bottom: 0; }
+  .free-badge {
+    display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.1px;
+    text-transform: none; padding: 3px 11px; border-radius: 20px;
+    background: #fff; border: 1px solid var(--band-messaging-deep);
+    color: var(--band-messaging-deep);
+  }
 
-  /* rendered documents */
-  .doc{border:1px solid var(--line); border-radius:12px; padding:24px 26px; background:#fff;}
-  .doc-title{font-family:'Comfortaa'; font-weight:700; font-size:20px; color:var(--ink); margin:0 0 4px;}
-  .doc-kind{font-size:11.5px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--band-deep); margin-bottom:14px;}
-  .doc h4{font-size:14px; font-weight:700; margin:20px 0 6px; color:var(--ink);}
-  .doc p{font-size:14px; color:#2b2b2b; margin:0 0 10px;}
-  .doc ul{margin:0 0 6px; padding-left:20px;}
-  .doc li{font-size:14px; color:#2b2b2b; margin-bottom:5px;}
-  .ad + .ad{border-top:1px solid var(--line); margin-top:22px; padding-top:22px;}
-  .board-row{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:16px;}
-  .board-label{font-size:12.5px; font-weight:600; color:var(--ink-70);}
-  .segmented button .has{display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--band-deep); margin-left:6px; vertical-align:middle;}
-  .segmented button.active .has{background:#fff;}
-  .board-tag{display:inline-block; font-size:11px; font-weight:700; color:var(--accent); background:var(--accent-10); padding:3px 9px; border-radius:20px; margin-bottom:8px;}
-  .ad-headline{font-family:'Comfortaa'; font-weight:700; font-size:17px; margin:0 0 10px;}
-  .q-section{margin-top:18px;}
-  .q-section:first-of-type{margin-top:4px;}
-  .q-section h4{margin:0 0 2px;}
-  .q-tagline{font-size:12.5px!important; color:var(--ink-45)!important; margin:0 0 8px!important;}
-  .q-item{padding:9px 0; border-top:1px solid var(--line-soft);}
-  .q-text{font-size:14px; font-weight:500;}
-  .q-sub{font-size:12.5px; color:var(--ink-45); margin-top:2px;}
-  .q-open{display:inline-block; margin-left:8px; font-size:10.5px; font-weight:700; color:var(--accent); background:var(--accent-10); padding:2px 7px; border-radius:10px; vertical-align:middle;}
+  h1 {
+    font-family: var(--display); font-weight: 700; font-size: clamp(30px, 4vw, 42px);
+    line-height: 1.2; color: var(--ink); margin: 0 0 18px; letter-spacing: -0.2px;
+    max-width: 14ch;
+  }
+  .lede { font-size: 17px; color: #445; max-width: 42ch; margin: 0 0 28px; }
 
-  /* candidate link + responses */
-  .share{margin-top:22px; padding:18px 20px; border-radius:12px; background:var(--wash); border:1px solid var(--line);}
-  .share h3{font-size:15px; margin:0 0 4px;}
-  .share p{font-size:13px; color:var(--ink-70); margin:0 0 12px;}
-  .link-row{display:flex; gap:8px;}
-  .link-row input{flex:1; min-width:0; font-size:13px; background:#fff;}
-  .responses{margin-top:22px;}
-  .responses h3{font-size:15px; margin:0 0 8px;}
-  .empty-state{font-size:13px; color:var(--ink-45);}
-  .resp-table{width:100%; border-collapse:collapse; font-size:13.5px;}
-  .resp-table th{text-align:left; color:var(--ink-45); font-weight:500; font-size:11.5px; padding:7px 6px; border-bottom:1px solid var(--line);}
-  .resp-table td{padding:9px 6px; border-bottom:1px solid var(--line-soft);}
-  .resp-row{cursor:pointer;}
-  .resp-row:hover td{background:var(--wash);}
-  .resp-chev{width:16px; color:var(--ink-45);}
-  .ans{padding:8px 0; border-top:1px solid var(--line-soft);}
-  .ans-q{font-size:12.5px; color:var(--ink-45);}
-  .ans-a{font-size:14px; white-space:pre-wrap;}
+  .hero-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center;
+  }
+  @media (max-width: 860px) {
+    .hero-grid { grid-template-columns: 1fr; }
+  }
 
-  /* start (no link) */
-  .start{max-width:560px;}
-  .sent{text-align:center; padding:20px 10px;}
-  .sent h2{font-size:20px!important;}
+  /* ══════════════════════════════════════════════════════════════════
+     THE MOCKUP — a recreated (not filmed) miniature of the real
+     product: an abstracted LinkedIn-style backdrop card, with the
+     actual knowhash panel chrome floating on top, running a looping,
+     silent demonstration of a template resolving into a candidate
+     message. Every colour and shape here is drawn from the real
+     panel.css values, not invented for this page.
+     ══════════════════════════════════════════════════════════════════ */
+  .stage {
+    position: relative;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 12px 40px rgba(20,40,70,0.14);
+    padding: 28px 24px 24px;
+    min-height: 380px;
+  }
 
-  /* notices, modal, upsell */
-  .notice{font-size:13px; padding:10px 14px; border-radius:9px; margin-top:12px; display:none;}
-  .notice.show{display:block;}
-  .notice.err{background:#FBEFEF; color:var(--err);}
-  .notice.warn{background:var(--warn-bg); color:var(--warn);}
-  .modal-back{position:fixed; inset:0; background:rgba(34,53,92,.35); display:none; align-items:center; justify-content:center; z-index:50; padding:20px;}
-  .modal-back.show{display:flex;}
-  .modal{background:#fff; border-radius:14px; padding:26px 28px; max-width:460px; width:100%; box-shadow:0 20px 60px rgba(34,53,92,.25);}
-  .modal h3{font-size:18px; margin:0 0 10px;}
-  .modal p{font-size:14px; color:var(--ink-70); margin:0 0 10px;}
-  .modal .big-title{font-family:'Comfortaa'; font-weight:700; font-size:18px; color:var(--ink); background:var(--wash); border-radius:9px; padding:10px 14px; margin:6px 0 14px;}
-  .modal-actions{display:flex; gap:8px; justify-content:flex-end; margin-top:18px; flex-wrap:wrap;}
-  .upsell{border-radius:14px; background:var(--band); border:1px solid var(--band-line); padding:22px 26px; display:flex; align-items:center; justify-content:space-between; gap:18px; flex-wrap:wrap;}
-  .upsell h3{font-size:16px; margin:0 0 4px;}
-  .upsell p{font-size:13.5px; color:var(--ink-70); margin:0; max-width:56ch;}
-  .upsell .btn{background:var(--band-deep); color:#fff;}
+  /* the abstracted "LinkedIn" backdrop — generic profile-card shapes,
+     never a literal reproduction of LinkedIn's own UI or marks */
+  .backdrop { opacity: 0.55; filter: saturate(0.7); }
+  .bd-cover { height: 54px; border-radius: 8px 8px 0 0; background: #cbd6e2; }
+  .bd-card { background: #f4f6f9; border-radius: 0 0 8px 8px; padding: 34px 18px 18px; position: relative; }
+  .bd-avatar {
+    width: 56px; height: 56px; border-radius: 50%; background: #b9c4d1;
+    border: 3px solid #f4f6f9; position: absolute; top: -28px; left: 18px;
+  }
+  .bd-name { width: 128px; height: 13px; border-radius: 3px; background: #b9c4d1; margin-bottom: 8px; }
+  .bd-line { height: 9px; border-radius: 3px; background: #ccd5e0; margin-bottom: 6px; }
+  .bd-line.w1 { width: 82%; } .bd-line.w2 { width: 60%; } .bd-line.w3 { width: 70%; margin-bottom: 0; }
 
-  footer.site{border-top:1px solid var(--line); padding:28px; font-size:12.5px; color:#9aa3b0; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; max-width:1080px; margin:0 auto;}
-  footer.site .foot-links a{color:#9aa3b0; text-decoration:none; margin-left:16px;}
-  footer.site .foot-links a:hover{color:var(--ink);}
-  [hidden]{display:none!important;}
+  /* the recreated knowhash panel */
+  .kh-mock {
+    position: absolute; right: -10px; bottom: 6px; width: 258px;
+    background: #fff; border-radius: 10px; overflow: hidden;
+    box-shadow: 0 10px 30px rgba(20,40,70,0.22);
+    font-family: var(--sans);
+  }
+  .kh-mock .kh-head {
+    background: var(--ink); color: #fff; padding: 9px 12px;
+    display: flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 700;
+  }
+  .kh-mock .kh-head svg { width: 13px; height: 13px; flex: none; }
+  .kh-mock .kh-tabs { display: flex; border-bottom: 1px solid #eee; }
+  .kh-mock .kh-tab { flex: 1; text-align: center; font-size: 10.5px; font-weight: 700; color: #9aa3b0; padding: 7px 0; }
+  .kh-mock .kh-tab.active { color: var(--ink); box-shadow: inset 0 -2px 0 var(--ink); }
+  .kh-mock .kh-body { padding: 10px 12px 12px; }
+  .kh-mock .kh-tpl {
+    display: block; width: 100%; text-align: left; font-size: 11px; font-weight: 700;
+    border: 1px solid var(--ink); color: var(--ink); border-radius: 8px;
+    padding: 5px 9px; margin-bottom: 6px; background: #fff;
+  }
+  .kh-mock .kh-tpl.selected { animation: tplPulse 8s infinite; }
+  @keyframes tplPulse {
+    0%, 6% { background: #fff; }
+    8%, 22% { background: var(--band-messaging); }
+    26%, 100% { background: #fff; }
+  }
+  .kh-mock .kh-msg {
+    border: 1px solid #e2e6ee; border-radius: 8px; padding: 9px 10px;
+    font-size: 11px; color: #333; min-height: 58px; line-height: 1.5;
+  }
+  .kh-mock .chip {
+    display: inline-block; background: var(--band-messaging); color: var(--band-messaging-deep);
+    border-radius: 5px; padding: 0 5px; font-weight: 700; font-size: 10.5px;
+  }
+  /* Deterministic collapse/expand, not overlap-based crossfade — each
+     span's own animated max-width defines exactly how much space it
+     takes at any instant, so there's no ambiguity about whether the two
+     line up (the bug in the first two passes: first position:absolute
+     with no offsets, then grid auto-sizing, both left the actual overlap
+     up to the browser's guess rather than something explicitly defined). */
+  /* Plain inline flow, deliberately NOT flex — flexbox has its own
+     sizing algorithm (hypothetical main size, flex-basis:auto, etc.)
+     that doesn't reliably let an animated max-width collapse a flex
+     item all the way to zero; that mismatch is what left the residual
+     gap between "Hi" and the resolved name. Two inline-block spans in
+     normal text flow don't have that problem — width is exactly what
+     max-width says it is, nothing else negotiating on top of it. */
+  /* width, not max-width — max-width on an overflow:hidden,
+     white-space:nowrap inline-block doesn't reliably override the
+     content's own preferred-minimum-width in every engine; that's what
+     left the residual gap even with the box nominally "collapsed" to
+     max-width:0. Explicit width is a direct instruction, not a cap the
+     engine can reinterpret against the content's own wishes. */
+  .kh-mock .chipwrap { display: inline; white-space: nowrap; }
+  .kh-mock .placeholder {
+    display: inline-block; overflow: hidden; white-space: nowrap; vertical-align: bottom;
+    background: var(--band-messaging); color: var(--band-messaging-deep);
+    border-radius: 5px; font-weight: 700; font-size: 10.5px;
+    animation: collapseOut 8s infinite;
+  }
+  .kh-mock .resolved {
+    display: inline-block; overflow: hidden; white-space: nowrap; vertical-align: bottom;
+    width: 0; opacity: 0;
+    animation: expandIn 8s infinite;
+  }
+  @keyframes collapseOut {
+    0%, 24% { width: 68px; padding: 0 5px; opacity: 1; }
+    30%, 100% { width: 0; padding: 0; opacity: 0; }
+  }
+  @keyframes expandIn {
+    0%, 26% { width: 0; opacity: 0; }
+    32% { width: 34px; opacity: 1; }
+    /* snap to auto right after the visual "grow" — auto always fits the
+       actual text exactly, so there's no fixed number to get slightly
+       wrong and leave a sliver of space before the comma */
+    32.5%, 100% { width: auto; opacity: 1; }
+  }
+
+  .kh-mock .word { opacity: 0; }
+  .kh-mock .word.w2 { animation: fadeWord2 8s infinite; }
+  .kh-mock .word.w3 { animation: fadeWord3 8s infinite; }
+  @keyframes fadeWord2 { 0%, 36% { opacity: 0; } 44%, 100% { opacity: 1; } }
+  @keyframes fadeWord3 { 0%, 42% { opacity: 0; } 50%, 100% { opacity: 1; } }
+  .kh-mock .inserted {
+    display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 700;
+    color: var(--green); opacity: 0; margin-top: 8px; animation: fadeInserted 8s infinite;
+  }
+  @keyframes fadeInserted { 0%, 62% { opacity: 0; } 70%, 92% { opacity: 1; } 100% { opacity: 0; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .kh-mock .kh-tpl.selected,
+    .kh-mock .word, .kh-mock .resolved, .kh-mock .placeholder, .kh-mock .inserted {
+      animation: none !important; opacity: 1 !important;
+    }
+    .kh-mock .placeholder { display: none; }
+  }
+
+  .caption { margin-top: 18px; font-size: 12.5px; color: #7a8494; text-align: center; }
+
+  /* ── Section 2 mockup: Add Candidate → tracked, with the header's
+     action slot crossfading between the two real states. Both crossfade
+     layers get EXPLICIT top/right offsets this time — Section 1's first
+     attempt at an overlap used bare position:absolute with no offsets,
+     which doesn't reliably overlay; providing exact offsets removes that
+     ambiguity entirely rather than relying on "static position" luck. ── */
+  .kh-mock2 {
+    position: absolute; right: -10px; bottom: 6px; width: 258px;
+    background: #fff; border-radius: 10px; overflow: hidden;
+    box-shadow: 0 10px 30px rgba(20,40,70,0.22);
+    font-family: var(--sans);
+  }
+  .kh-mock2 .kh-head2 {
+    background: var(--ink); color: #fff; padding: 9px 12px;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  }
+  .kh-mock2 .brand2 { display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700; flex: none; }
+  .kh-mock2 .brand2 svg { width: 13px; height: 13px; flex: none; }
+  .kh-mock2 .action-slot { position: relative; height: 16px; min-width: 92px; }
+  .kh-mock2 .add-btn {
+    position: absolute; top: 0; right: 0; margin: 0;
+    background: #fff; color: var(--ink); border: none; border-radius: 10px;
+    padding: 2px 9px; font-size: 10px; font-weight: 700; white-space: nowrap;
+    animation: btnFade 8s infinite;
+  }
+  .kh-mock2 .status-result {
+    position: absolute; top: 0; right: 0;
+    display: flex; align-items: center; gap: 5px; opacity: 0; white-space: nowrap;
+    animation: statusFade 8s infinite;
+  }
+  .kh-mock2 .status-pill-mock {
+    background: #9b9b9b; color: #fff; font-size: 9px; font-weight: 700;
+    letter-spacing: 0.3px; border-radius: 8px; padding: 2px 7px;
+  }
+  .kh-mock2 .stars-mock { color: #d9a300; font-size: 10px; letter-spacing: 0.5px; }
+  @keyframes btnFade {
+    0%, 20% { opacity: 1; transform: scale(1); box-shadow: none; }
+    24% { transform: scale(1.08); box-shadow: 0 0 0 3px var(--band-recruit-line); }
+    28% { opacity: 1; transform: scale(1); box-shadow: none; }
+    34%, 100% { opacity: 0; transform: scale(1); box-shadow: none; }
+  }
+  @keyframes statusFade { 0%, 30% { opacity: 0; } 36%, 100% { opacity: 1; } }
+
+  .kh-mock2 .kh-body2 { padding: 12px 12px 14px; }
+  .kh-mock2 .state-badge {
+    display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.3px;
+    background: var(--band-messaging); color: var(--band-messaging-deep);
+    border-radius: 10px; padding: 3px 9px; margin-bottom: 10px;
+  }
+  .kh-mock2 .row2 { display: flex; font-size: 11.5px; margin-bottom: 5px; color: #333; }
+  .kh-mock2 .row2 .label2 { color: #9aa3b0; width: 78px; flex: none; }
+  .kh-mock2 .toast {
+    font-size: 10.5px; font-weight: 700; color: var(--band-recruit-deep);
+    opacity: 0; margin-top: 10px; animation: toastFade 8s infinite;
+  }
+  @keyframes toastFade { 0%, 36% { opacity: 0; } 42%, 64% { opacity: 1; } 72%, 100% { opacity: 0; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .kh-mock2 .add-btn, .kh-mock2 .status-result, .kh-mock2 .toast {
+      animation: none !important;
+    }
+    .kh-mock2 .add-btn { display: none; }
+    .kh-mock2 .status-result { opacity: 1 !important; }
+    .kh-mock2 .toast { opacity: 1 !important; }
+  }
+
+  /* ── Section 2, second beat: Candidates list → Share Shortlist →
+     the actual branded output. A different technique from the first
+     two beats — not an inline crossfade, a full-screen crossfade,
+     since the "before" and "after" are two entirely different views,
+     not two states of the same small element. Both screens get
+     explicit top/left/right offsets (0/0/0) within a fixed-height
+     relative wrapper, same lesson as beat one: never leave an overlap
+     to the browser's guess. ── */
+  .hero-grid.sub-row { margin-top: 56px; padding-top: 40px; border-top: 1px solid rgba(31,143,59,0.14); }
+  .sub-h {
+    font-family: var(--display); font-weight: 700; font-size: 24px;
+    color: var(--ink); margin: 0 0 14px; max-width: 16ch;
+  }
+  .stage2 { padding-bottom: 8px; min-height: 0; }
+  /* Both screens are deliberately padded to land at a similar natural
+     height (see screenB's extra body padding below) rather than trying
+     to dynamically resize the wrapper around two different-height
+     screens — that path (tried: CSS Grid stacking with align-self)
+     turned out to render inconsistently in at least one engine, and
+     wasn't worth the risk when "make the two things the same size on
+     purpose" sidesteps the whole problem. Same overlay technique as
+     beat one's chip swap: explicit top/left/right offsets, not bare
+     position:absolute. */
+  .mock3-wrap { position: relative; height: 210px; }
+  .mock3-screen {
+    position: absolute; top: 0; left: 0; right: 0;
+    background: #fff; border-radius: 10px; overflow: hidden;
+    box-shadow: 0 10px 30px rgba(20,40,70,0.16);
+  }
+  .screenA { animation: screenAFade 8s infinite; }
+  .screenB { opacity: 0; animation: screenBFade 8s infinite; }
+  @keyframes screenAFade { 0%, 55% { opacity: 1; } 62%, 100% { opacity: 0; } }
+  @keyframes screenBFade { 0%, 58% { opacity: 0; } 65%, 100% { opacity: 1; } }
+
+  .m3-head {
+    display: flex; align-items: center; gap: 7px; padding: 10px 14px;
+    font-size: 12.5px; font-weight: 700; color: #fff;
+  }
+  .m3-head svg { width: 13px; height: 13px; flex: none; }
+  .m3-head.navy { background: var(--ink); }
+  .m3-head.accent2 { background: var(--band-recruit-deep); font-family: var(--display); }
+  .m3-body { padding: 10px 14px 14px; }
+
+  .m3-row {
+    display: flex; align-items: center; gap: 8px; font-size: 11.5px;
+    padding: 7px 0; border-bottom: 1px solid #f1f2f4;
+  }
+  .m3-row b { flex: 1; font-weight: 700; color: #23292f; }
+  .chk {
+    display: inline-block; width: 13px; height: 13px; border-radius: 3px;
+    border: 1.5px solid #cbd2db; flex: none; position: relative;
+  }
+  .chk.checked { background: var(--band-recruit-deep); border-color: var(--band-recruit-deep); }
+  .chk.checked::after {
+    content: ""; position: absolute; left: 3px; top: 1px; width: 3px; height: 6px;
+    border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);
+  }
+  .tag {
+    font-size: 8.5px; font-weight: 700; letter-spacing: 0.2px;
+    padding: 2px 7px; border-radius: 8px; flex: none;
+  }
+  .tag.suitable { background: #e2f0d9; color: #22355C; }
+  .tag.interview { background: #548235; color: #fff; }
+  .tag.new { background: #9b9b9b; color: #fff; }
+
+  .m3-sharebtn {
+    display: block; width: 100%; margin-top: 10px; border: none; border-radius: 8px;
+    background: var(--band-recruit-deep); color: #fff; font-family: var(--sans);
+    font-size: 11.5px; font-weight: 700; padding: 8px 0; cursor: default;
+    animation: shareBtnPulse 8s infinite;
+  }
+  @keyframes shareBtnPulse {
+    0%, 48% { box-shadow: none; transform: scale(1); }
+    52% { transform: scale(1.03); box-shadow: 0 0 0 3px var(--band-recruit-line); }
+    56%, 100% { transform: scale(1); box-shadow: none; }
+  }
+
+  .m3-card {
+    display: flex; align-items: center; justify-content: space-between;
+    border: 1px solid #e5e8ee; border-radius: 8px; padding: 11px 12px;
+    margin-bottom: 10px; font-size: 11.5px; font-weight: 700; color: #23292f;
+  }
+  .screenB .m3-body { padding-bottom: 46px; }
+  .m3-foot { font-size: 10px; color: #b5bbc4; text-align: center; margin-top: 6px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .screenA, .screenB, .m3-sharebtn { animation: none !important; }
+    .screenA { opacity: 0 !important; }
+    .screenB { opacity: 1 !important; }
+  }
+
+  /* ── Section 3: Prospect — deliberately static, deliberately less
+     detailed than Sections 1 and 2. Those two are faithful recreations
+     of a real, tested product; this isn't shipped yet, so a detailed
+     fake UI here would quietly overclaim in exactly the way the rest
+     of this site has been careful not to. The backdrop card stays (same
+     "this happens on LinkedIn too" signal), but the panel is replaced
+     with a soft, translucent mark rather than invented controls, and
+     nothing here animates — stillness is the honest signal, not an
+     oversight. ── */
+  .stage3 { position: relative; }
+  .prospect-mark {
+    position: absolute; right: 32px; bottom: 32px; width: 84px; height: 84px;
+    color: var(--band-prospect-deep); opacity: 0.3;
+  }
+  .prospect-mark svg { width: 100%; height: 100%; }
+  .soon-stamp {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-9deg);
+    font-family: var(--display); font-weight: 700; font-size: 22px;
+    letter-spacing: 1.5px; text-transform: uppercase; white-space: nowrap;
+    color: var(--band-prospect-deep); background: rgba(255,255,255,0.85);
+    border: 3px solid var(--band-prospect-deep); border-radius: 8px;
+    padding: 10px 26px;
+  }
+  .band-prospect .caption a { color: var(--band-prospect-deep); font-weight: 600; }
+  .band-messaging .caption a { color: var(--band-messaging-deep); font-weight: 600; text-decoration: none; }
+  .band-messaging .caption a:hover { text-decoration: underline; }
+  .band-recruit .caption a { color: var(--band-recruit-deep); font-weight: 600; text-decoration: none; }
+  .band-recruit .caption a:hover { text-decoration: underline; }
+  footer.site {
+    border-top: 1px solid var(--line); padding: 28px 0; text-align: center;
+    font-size: 12.5px; color: #9aa3b0;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+  }
+  footer.site .foot-links a { color: #9aa3b0; text-decoration: none; margin-left: 16px; }
+  footer.site .foot-links a:hover { color: var(--ink); }
 </style>
 </head>
 <body>
 
 <header class="top">
   <div class="wrap">
-    <a class="brand" href="/index.html">
+    <a class="brand" href="index.html" style="text-decoration:none;">
       <svg class="mark" viewBox="-154.8 -180 309.6 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <line x1="-27.0" y1="-83.2" x2="-27.0" y2="83.2" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
         <line x1="27.0" y1="-83.2" x2="27.0" y2="83.2" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
@@ -209,12 +480,12 @@
       <span class="wordmark">knowhash</span>
     </a>
     <nav class="primary">
-      <a href="/demo.html">Demo</a>
-      <a href="/features.html">Features</a>
-      <a href="/pricing.html">Pricing</a>
-      <a href="/blog.html">Blog</a>
+      <a href="demo.html" class="current">Demo</a>
+      <a href="features.html">Features</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="blog.html">Blog</a>
     </nav>
-    <a class="nav-cta" href="/pricing.html">Get knowhash</a>
+    <a class="nav-cta" href="pricing.html">Get knowhash</a>
     <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false" onclick="var o=document.body.classList.toggle('menu-open'); this.setAttribute('aria-expanded', o);">
       <svg class="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
       <svg class="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
@@ -222,402 +493,208 @@
   </div>
 </header>
 
-
-<section class="band">
+<section class="band band-messaging">
   <div class="wrap">
-    <div class="eyebrow-row">
-      <div class="eyebrow">knowhash &middot; Role</div>
-      <span class="pill">Your first role is free</span>
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow-row">
+          <div class="eyebrow">knowhash &middot; Message</div>
+          <span class="free-badge">Free forever</span>
+        </div>
+        <h1>Never write the same message twice.</h1>
+        <p class="lede">
+          Pick a template, and knowhash fills in the contact's details for you —
+          right there in LinkedIn, in the time it takes to read this sentence.
+        </p>
+      </div>
+      <div>
+        <div class="stage">
+          <div class="backdrop">
+            <div class="bd-cover"></div>
+            <div class="bd-card">
+              <div class="bd-avatar"></div>
+              <div class="bd-name"></div>
+              <div class="bd-line w1"></div>
+              <div class="bd-line w2"></div>
+              <div class="bd-line w3"></div>
+            </div>
+          </div>
+          <div class="kh-mock">
+            <div class="kh-head">
+              <svg viewBox="-154.8 -180 309.6 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <ellipse cx="0" cy="0" rx="124.8" ry="160.0" fill="none" stroke="currentColor" stroke-width="40"/>
+                <line x1="-76.8" y1="126.1" x2="76.8" y2="-126.1" stroke="currentColor" stroke-width="36" stroke-linecap="round"/>
+              </svg>
+              knowhash
+            </div>
+            <div class="kh-tabs">
+              <div class="kh-tab">Candidates</div>
+              <div class="kh-tab active">Templates</div>
+            </div>
+            <div class="kh-body">
+              <button class="kh-tpl selected">Compliment-Led</button>
+              <button class="kh-tpl" style="opacity:0.5">Direct Pitch</button>
+              <div class="kh-msg">
+                Hi <span class="chipwrap"><span class="placeholder">First name</span><span class="resolved">Sarah</span></span>,<span class="word w2"> really enjoyed your recent post</span><span class="word w3"> — I'm working on a role you'd be great for.</span>
+              </div>
+              <div class="inserted">&#10003; Inserted — review and hit Send</div>
+            </div>
+          </div>
+        </div>
+        <div class="caption">Working in sync with LinkedIn — no new tab, no copy-paste, nothing to learn. And nothing hashed together. <a href="messaging.html">The full story &rarr;</a></div>
+      </div>
     </div>
-    <h1>Turn your notes into polished position documents, ready to share.</h1>
-    <p class="lede">Candidate questions, a position description and a job ad, drafted for you in a minute. Change anything, redo anything. AI drafts; you decide.</p>
   </div>
 </section>
 
-<main class="page">
-
-  <!-- ===== START (no link yet) ===== -->
-  <section id="startView" hidden>
-    <div class="card start">
-      <div id="startForm">
-        <div class="card-head"><div><h2>Start your free role</h2><p class="sub">We'll email you a private link to your role. Keep it: it's how you get back to your documents and your candidates' answers.</p></div></div>
-        <div class="field">
-          <label for="startTitle">What role are you hiring for?</label>
-          <input type="text" id="startTitle" placeholder="e.g. Technical Service Desk Lead" maxlength="190">
-        </div>
-        <div class="field">
-          <label for="startEmail">Your work email</label>
-          <input type="email" id="startEmail" placeholder="you@company.com" maxlength="100">
-        </div>
-        <button class="btn btn-primary" id="startBtn">Email me my link</button>
-        <div class="notice err" id="startErr"></div>
-      </div>
-      <div class="sent" id="startSent" hidden>
-        <h2>Check your inbox</h2>
-        <p class="sub" style="font-size:14px">We've sent your link to <b id="sentTo"></b>. Open it to set up your role. If it's not there in a minute or two, check your spam folder.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== ROLE (with link) ===== -->
-  <section id="roleView" hidden>
-
-    <div class="card">
-      <div class="card-head">
-        <div><h2>Your role</h2><p class="sub" id="roleSub">Set things up the way you want. Everything here saves as you go.</p></div>
-        <span class="save-state" id="saveState"></span>
-      </div>
-
-      <div class="field">
-        <label for="title">Role title</label>
-        <div class="title-wrap" id="titleWrap">
-          <input type="text" class="title-input" id="title" maxlength="190">
-          <span class="lock-badge"><svg viewBox="0 0 24 24" fill="none"><path d="M6 10V8a6 6 0 1112 0v2M5 10h14a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1v-9a1 1 0 011-1z" stroke="currentColor" stroke-width="2.2"/></svg>Your role</span>
-        </div>
-        <div class="hint" id="titleHint">This is your free role. You can change it until your first document is created; after that it stays set, and every document carries it.</div>
-      </div>
-
-      <div class="field">
-        <label for="positionText">About the role</label>
-        <textarea id="positionText" placeholder="Paste a job ad or position description, or jot down what the role involves: team, tools, must-haves. The more you give, the better the drafts. Leave it empty and we'll work from the title."></textarea>
-      </div>
-
-      <div class="field">
-        <label>Detail level</label>
-        <div class="segmented" id="detail">
-          <button data-v="brief">Brief</button><button data-v="standard">Standard</button><button data-v="detailed">Detailed</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="tabs" id="tabs">
-        <button class="tab" data-doc="qualifier"><span class="dot"></span>Candidate questions</button>
-        <button class="tab" data-doc="pd"><span class="dot"></span>Position description</button>
-        <button class="tab" data-doc="ad"><span class="dot"></span>Job ad</button>
-      </div>
-      <div class="board-row" id="boardRow" hidden>
-        <span class="board-label">Job board</span>
-        <div class="segmented" id="boardPick"></div>
-      </div>
-      <div class="doc-bar">
-        <span class="usage" id="usage"></span>
-        <div class="doc-actions" id="docActions"></div>
-      </div>
-      <div id="docBody"></div>
-      <div class="notice err" id="docErr"></div>
-      <div class="ai-note">AI drafts these documents; it never scores, ranks or rejects candidates. <a href="/ai">How we use AI</a></div>
-    </div>
-
-    <div class="upsell">
+<section class="band band-recruit">
+  <div class="wrap">
+    <div class="hero-grid">
       <div>
-        <h3>Hiring for more than one role?</h3>
-        <p>knowhash Recruit is where your roles, candidates and shortlists live, right inside LinkedIn. Every feature is free for your first month, no card needed.</p>
+        <div class="eyebrow">knowhash &middot; Recruit</div>
+        <h1>One click turns a contact into a candidate.</h1>
+        <p class="lede">
+          Status, rating, notes — everything lives right where you found them.
+          No separate database to keep in sync, nothing to re-enter later.
+        </p>
       </div>
-      <a class="btn" href="/pricing.html">See knowhash Recruit</a>
+      <div>
+        <div class="stage">
+          <div class="backdrop">
+            <div class="bd-cover"></div>
+            <div class="bd-card">
+              <div class="bd-avatar"></div>
+              <div class="bd-name"></div>
+              <div class="bd-line w1"></div>
+              <div class="bd-line w2"></div>
+              <div class="bd-line w3"></div>
+            </div>
+          </div>
+          <div class="kh-mock2">
+            <div class="kh-head2">
+              <div class="brand2">
+                <svg viewBox="-154.8 -180 309.6 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <ellipse cx="0" cy="0" rx="124.8" ry="160.0" fill="none" stroke="currentColor" stroke-width="40"/>
+                  <line x1="-76.8" y1="126.1" x2="76.8" y2="-126.1" stroke="currentColor" stroke-width="36" stroke-linecap="round"/>
+                </svg>
+                knowhash
+              </div>
+              <div class="action-slot">
+                <button class="add-btn">&#10003; Add Candidate</button>
+                <div class="status-result">
+                  <span class="status-pill-mock">NEW</span>
+                  <span class="stars-mock">&#9734;&#9734;&#9734;&#9734;&#9734;</span>
+                </div>
+              </div>
+            </div>
+            <div class="kh-body2">
+              <div class="state-badge">CONNECTED</div>
+              <div class="row2"><span class="label2">Name</span><span>Marcus Webb</span></div>
+              <div class="row2"><span class="label2">Opportunity</span><span>IT Support Analyst</span></div>
+              <div class="toast">&#10003; Added to your candidates</div>
+            </div>
+          </div>
+        </div>
+        <div class="caption">Tracked the moment you decide they're worth tracking — not an hour later, from memory. <a href="blog.html">The full story &rarr;</a></div>
+      </div>
     </div>
-  </section>
 
-  <section id="errorView" hidden>
-    <div class="card"><h2>That link didn't work</h2><p class="sub" id="errorMsg" style="font-size:14px">It may have been mistyped. You can start a new free role below.</p>
-    <p style="margin-top:16px"><a class="btn btn-primary" href="/position-qualifier/">Start a free role</a></p></div>
-  </section>
-</main>
-
-<!-- lock confirmation -->
-<div class="modal-back" id="lockModal">
-  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="lockH">
-    <h3 id="lockH">Set your free role?</h3>
-    <p>Your free role will be:</p>
-    <div class="big-title" id="lockTitle"></div>
-    <p>Once your first document is created, the title stays set and appears on every document. Everything else (the text, detail level, job boards, and regenerating any document) stays open to change.</p>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" id="lockCancel">Change the title first</button>
-      <button class="btn btn-primary" id="lockOk">Yes, set it and create</button>
+    <div class="hero-grid sub-row">
+      <div>
+        <h2 class="sub-h">Select and share.</h2>
+        <p class="lede">
+          Pick who you want to put forward, and knowhash builds a branded, click-through
+          shortlist — your logo, your colours, their documents, ready to send.
+        </p>
+      </div>
+      <div>
+        <div class="stage stage2">
+          <div class="mock3-wrap">
+            <div class="mock3-screen screenA">
+              <div class="m3-head navy">
+                <svg viewBox="-154.8 -180 309.6 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <ellipse cx="0" cy="0" rx="124.8" ry="160.0" fill="none" stroke="currentColor" stroke-width="40"/>
+                  <line x1="-76.8" y1="126.1" x2="76.8" y2="-126.1" stroke="currentColor" stroke-width="36" stroke-linecap="round"/>
+                </svg>
+                Candidates
+              </div>
+              <div class="m3-body">
+                <div class="m3-row"><span class="chk checked"></span><b>Marcus Webb</b><span class="tag suitable">SUITABLE</span></div>
+                <div class="m3-row"><span class="chk checked"></span><b>Priya Nair</b><span class="tag interview">INTERVIEW</span></div>
+                <div class="m3-row"><span class="chk"></span><b>Owen Clarke</b><span class="tag new">NEW</span></div>
+                <button class="m3-sharebtn">&#8599; Share Shortlist (2)</button>
+              </div>
+            </div>
+            <div class="mock3-screen screenB">
+              <div class="m3-head accent2">Candidate Shortlist</div>
+              <div class="m3-body">
+                <div class="m3-card"><b>Marcus Webb</b><span class="tag suitable">SUITABLE</span></div>
+                <div class="m3-card"><b>Priya Nair</b><span class="tag interview">INTERVIEW</span></div>
+                <div class="m3-foot">Made with knowhash</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="caption">One branded page, not a spreadsheet or a folder of CVs.</div>
+      </div>
     </div>
   </div>
-</div>
+</section>
+
+<section class="band band-prospect">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow">knowhash &middot; Prospect</div>
+        <h1>The same idea — turned toward your next customer.</h1>
+        <p class="lede">
+          We've been using this ourselves for over a year to find and track sales leads.
+          Built the same way as Recruit — no CRM, no server, nothing to configure.
+          We're just not ready to put it in your hands yet.
+        </p>
+      </div>
+      <div>
+        <div class="stage stage3">
+          <div class="backdrop">
+            <div class="bd-cover"></div>
+            <div class="bd-card">
+              <div class="bd-avatar"></div>
+              <div class="bd-name"></div>
+              <div class="bd-line w1"></div>
+              <div class="bd-line w2"></div>
+              <div class="bd-line w3"></div>
+            </div>
+          </div>
+          <div class="prospect-mark">
+            <svg viewBox="-154.8 -180 309.6 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <line x1="-27.0" y1="-83.2" x2="-27.0" y2="83.2" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+              <line x1="27.0" y1="-83.2" x2="27.0" y2="83.2" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+              <line x1="-74.9" y1="-36.6" x2="74.9" y2="-36.6" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+              <line x1="-74.9" y1="36.6" x2="74.9" y2="36.6" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-opacity="0.42"/>
+              <ellipse cx="0" cy="0" rx="124.8" ry="160.0" fill="none" stroke="currentColor" stroke-width="40"/>
+              <line x1="-76.8" y1="126.1" x2="76.8" y2="-126.1" stroke="currentColor" stroke-width="36" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="soon-stamp">Coming soon</div>
+        </div>
+        <div class="caption">The full story — and how to get early access — lives on <a href="pricing.html">Pricing</a>.</div>
+      </div>
+    </div>
+  </div>
+</section>
 
 <footer class="site">
-  <span>knowhash — nothing hashed together</span>
-  <span class="foot-links"><a href="/privacy.html">Privacy</a><a href="/security.html">Security</a><a href="/ai.html">How we use AI</a></span>
+  <div class="wrap">
+    <span>knowhash — nothing hashed together</span>
+    <span class="foot-links"><a href="privacy.html">Privacy</a><a href="security.html">Security</a><a href="ai.html">How we use AI</a></span>
+  </div>
 </footer>
 
+
 <script>
-(() => {
-  const API = '/.netlify/functions/qualifier-role';
-  const token = new URLSearchParams(location.search).get('token');
-  const BOARDS = ['General', 'LinkedIn', 'Indeed', 'Seek']; // Seek last: vital in Australia, small worldwide
-  const DOCS = {
-    qualifier: { name: 'Candidate questions', what: 'A short, friendly set of questions to send candidates before you interview: what they have and haven\u2019t done, in their own words. You read every answer.' },
-    pd: { name: 'Position description', what: 'A clear, professional position description: purpose, responsibilities, essential and desirable skills. Ready to send internally or attach to a requisition.' },
-    ad: { name: 'Job ad', what: 'Ad copy written to candidates and shaped for the job board you pick. Each board\u2019s ad is kept, so you can have one for every board you use.' },
-  };
-  const $ = (id) => document.getElementById(id);
-  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
-
-  let role = null;          // last server state
-  let activeDoc = 'qualifier';
-  let activeBoard = 'General'; // job ad: one board per draft
-  let busyDoc = null;       // doc currently generating
-  let saveTimer = null, savePromise = null, pendingSave = {};
-
-  // ─────────── no link: start a free role ───────────
-  function startMode() {
-    $('startView').hidden = false;
-    $('startBtn').addEventListener('click', async () => {
-      const title = $('startTitle').value.trim();
-      const email = $('startEmail').value.trim();
-      const err = $('startErr');
-      err.classList.remove('show');
-      if (!title) { err.textContent = 'Enter the role you\u2019re hiring for.'; err.classList.add('show'); return; }
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = 'Enter a valid email address.'; err.classList.add('show'); return; }
-      const btn = $('startBtn'); btn.disabled = true; btn.textContent = 'Sending\u2026';
-      try {
-        const res = await fetch('/.netlify/functions/role-start', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, email }) });
-        const body = await res.json();
-        if (!res.ok) throw new Error(body.error || 'Something went wrong');
-        $('sentTo').textContent = email;
-        $('startForm').hidden = true; $('startSent').hidden = false;
-      } catch (e) {
-        err.textContent = e.message; err.classList.add('show');
-        btn.disabled = false; btn.textContent = 'Email me my link';
-      }
-    });
-  }
-
-  // ─────────── with link: the role ───────────
-  async function api(method, body) {
-    const res = await fetch(`${API}?token=${encodeURIComponent(token)}`, {
-      method, headers: body ? { 'Content-Type': 'application/json' } : undefined,
-      body: body ? JSON.stringify(body) : undefined,
-    });
-    let data = {};
-    try { data = await res.json(); } catch (_) {}
-    return { status: res.status, data };
-  }
-
-  async function roleMode() {
-    const { status, data } = await api('GET');
-    if (status !== 200) { $('errorView').hidden = false; return; }
-    role = data;
-    $('roleView').hidden = false;
-    wireInputs();
-    renderAll();
-  }
-
-  function wireInputs() {
-    $('title').value = role.title;
-    $('positionText').value = role.positionText;
-    $('title').addEventListener('input', () => queueSave({ title: $('title').value }));
-    $('positionText').addEventListener('input', () => queueSave({ positionText: $('positionText').value }));
-    $('detail').querySelectorAll('button').forEach((b) => b.addEventListener('click', () => {
-      role.detailLevel = b.dataset.v; renderSettings(); queueSave({ detailLevel: b.dataset.v }, 0);
-    }));
-    if (BOARDS.includes(role.jobBoards?.[0])) activeBoard = role.jobBoards[0];
-    $('tabs').querySelectorAll('.tab').forEach((t) => t.addEventListener('click', () => { activeDoc = t.dataset.doc; renderDocs(); }));
-  }
-
-  // Autosave: typing is debounced; clicks save straight away. Generation
-  // always waits for any pending save, because the server generates from
-  // what it has stored, not from what's on screen.
-  function queueSave(fields, delay = 700) {
-    Object.assign(pendingSave, fields);
-    $('saveState').textContent = 'Saving\u2026';
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(flushSave, delay);
-  }
-  async function flushSave() {
-    clearTimeout(saveTimer);
-    if (!Object.keys(pendingSave).length) return savePromise;
-    const body = { action: 'save', ...pendingSave };
-    pendingSave = {};
-    savePromise = (async () => {
-      const { status, data } = await api('POST', body);
-      if (status === 200) {
-        role = { ...data, documents: data.documents };
-        $('saveState').textContent = 'Saved';
-        setTimeout(() => { if ($('saveState').textContent === 'Saved') $('saveState').textContent = ''; }, 1600);
-      } else if (data.error === 'title_required') {
-        $('saveState').textContent = 'A role title is needed';
-      } else {
-        $('saveState').textContent = 'Couldn\u2019t save \u2014 check your connection';
-      }
-    })();
-    return savePromise;
-  }
-
-  function renderAll() { renderSettings(); renderTitleLock(); renderDocs(); }
-
-  function renderSettings() {
-    $('detail').querySelectorAll('button').forEach((b) => b.classList.toggle('active', b.dataset.v === role.detailLevel));
-
-  }
-
-  function renderTitleLock() {
-    const locked = role.titleLocked;
-    $('titleWrap').classList.toggle('locked', locked);
-    $('title').readOnly = locked;
-    if (locked) $('title').value = role.title;
-    $('titleHint').textContent = locked
-      ? 'Your role is set. Every document carries this title. Everything else can still change as often as you like.'
-      : 'This is your free role. You can change it until your first document is created; after that it stays set, and every document carries it.';
-  }
-
-  function remaining() { return Math.max(0, role.generations.max - role.generations.used); }
-
-  function renderDocs() {
-    $('tabs').querySelectorAll('.tab').forEach((t) => {
-      t.classList.toggle('active', t.dataset.doc === activeDoc);
-      t.querySelector('.dot').classList.toggle('done', !!role.documents[t.dataset.doc]);
-    });
-    const left = remaining();
-    $('usage').innerHTML = `<b>${left}</b> of ${role.generations.max} free drafts left for this role`;
-
-    const info = DOCS[activeDoc];
-    let doc = role.documents[activeDoc];
-    const boardRow = $('boardRow');
-    boardRow.hidden = activeDoc !== 'ad';
-    if (activeDoc === 'ad') {
-      const have = new Set((doc?.ads || []).map((a) => a.board));
-      $('boardPick').innerHTML = BOARDS.map((b) => `<button data-b="${b}" class="${b === activeBoard ? 'active' : ''}">${b}${have.has(b) ? '<span class="has" title="Ad created"></span>' : ''}</button>`).join('');
-      $('boardPick').querySelectorAll('button').forEach((btn) => btn.addEventListener('click', () => { activeBoard = btn.dataset.b; renderDocs(); }));
-      const ad = (doc?.ads || []).find((a) => a.board === activeBoard);
-      doc = ad ? { ads: [ad] } : null;
-    }
-    const actions = $('docActions');
-    $('docErr').classList.remove('show');
-
-    if (busyDoc === activeDoc) {
-      actions.innerHTML = '';
-      $('docBody').innerHTML = `<div class="working"><span class="spinner"></span>Drafting your ${activeDoc === 'ad' ? `${activeBoard} ad` : info.name.toLowerCase()}\u2026 this usually takes 15 to 30 seconds.</div>`;
-      return;
-    }
-    if (!doc) {
-      actions.innerHTML = '';
-      $('docBody').innerHTML = `<div class="empty-doc"><h3>${activeDoc === 'ad' ? `Job ad for ${activeBoard}` : info.name}</h3><p>${info.what}</p>
-        <button class="btn btn-primary" id="genBtn" ${left === 0 || busyDoc ? 'disabled' : ''}>Create ${activeDoc === 'ad' ? `${activeBoard} ad` : info.name.toLowerCase()}</button></div>`;
-      $('genBtn')?.addEventListener('click', () => generate(activeDoc, false));
-      return;
-    }
-    actions.innerHTML = `<button class="btn btn-ghost btn-sm" id="copyBtn">Copy text</button>
-      <button class="btn btn-ghost btn-sm" id="regenBtn" ${left === 0 || busyDoc ? 'disabled' : ''}>Redo</button>`;
-    $('copyBtn').addEventListener('click', () => copyDoc(activeDoc, doc));
-    $('regenBtn').addEventListener('click', () => generate(activeDoc, false));
-    $('docBody').innerHTML = renderDoc(activeDoc, doc);
-    if (activeDoc === 'qualifier') wireShare();
-  }
-
-  // ─────────── generate ───────────
-  async function generate(docKey, confirmLock) {
-    await flushSave();
-    if (savePromise) await savePromise;
-    if (!role.title.trim()) { showDocErr('Add a role title first.'); return; }
-    busyDoc = docKey; renderDocs();
-    const { status, data } = await api('POST', { action: 'generate', doc: docKey, board: docKey === 'ad' ? activeBoard : undefined, confirmLock });
-    busyDoc = null;
-    if (status === 409 && data.needsConfirm) {
-      renderDocs();
-      askLock(data.title, () => generate(docKey, true));
-      return;
-    }
-    if (status === 200) { role = data; renderAll(); return; }
-    renderDocs();
-    if (status === 429) showDocErr('You\u2019ve used all the drafts for this role. knowhash Recruit gives you more roles, free for your first month.');
-    else showDocErr('That didn\u2019t work this time \u2014 please try again. (Nothing was used up.)');
-  }
-  function showDocErr(msg) { const e = $('docErr'); e.textContent = msg; e.classList.add('show'); }
-
-  function askLock(title, onOk) {
-    $('lockTitle').textContent = title;
-    $('lockModal').classList.add('show');
-    const close = () => { $('lockModal').classList.remove('show'); $('lockOk').onclick = null; $('lockCancel').onclick = null; };
-    $('lockOk').onclick = () => { close(); onOk(); };
-    $('lockCancel').onclick = () => { close(); $('title').focus(); $('title').select(); };
-  }
-
-  // ─────────── render documents ───────────
-  function kind(k) { return `<div class="doc-kind">${DOCS[k].name}</div>`; }
-  function list(items) { return items && items.length ? `<ul>${items.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>` : ''; }
-
-  function renderDoc(k, d) {
-    const title = `<div class="doc-title">${esc(role.title)}</div>`;
-    if (k === 'qualifier') {
-      return `<div class="doc">${title}${kind(k)}${(d.sections || []).map((s) => `
-        <div class="q-section"><h4>${esc(s.title)}</h4><p class="q-tagline">${esc(s.tagline)}</p>
-        ${(s.items || []).map((i) => `<div class="q-item"><div class="q-text">${esc(i.question)}${i.type === 'open' ? '<span class="q-open">Open answer</span>' : ''}</div><div class="q-sub">${esc(i.subtext || '')}</div></div>`).join('')}
-        </div>`).join('')}</div>` + shareBlock();
-    }
-    if (k === 'pd') {
-      return `<div class="doc">${title}${kind(k)}
-        ${d.purpose ? `<h4>Purpose of the role</h4><p>${esc(d.purpose)}</p>` : ''}
-        ${(d.sections || []).map((s) => `<h4>${esc(s.heading)}</h4>${list(s.items)}`).join('')}
-        ${d.reportingLine ? `<h4>Reporting line</h4><p>${esc(d.reportingLine)}</p>` : ''}</div>`;
-    }
-    return `<div class="doc">${title}<div class="doc-kind">Job ad \u00b7 ${esc((d.ads[0] || {}).board || '')}</div>${(d.ads || []).map((a) => `
-      <div class="ad">
-        <div class="ad-headline">${esc(a.headline)}</div>
-        ${a.sellingPoints && a.sellingPoints.length ? `<h4>Selling points</h4>${list(a.sellingPoints)}` : ''}
-        ${a.intro ? `<p>${esc(a.intro)}</p>` : ''}${list(a.bullets)}${a.closing ? `<p>${esc(a.closing)}</p>` : ''}
-      </div>`).join('')}</div>`;
-  }
-
-  function docAsText(k, d) {
-    const L = [role.title, DOCS[k].name, ''];
-    if (k === 'qualifier') (d.sections || []).forEach((s) => { L.push(s.title, s.tagline); (s.items || []).forEach((i) => L.push(`- ${i.question}${i.type === 'open' ? ' (open answer)' : ''}`, `  ${i.subtext || ''}`)); L.push(''); });
-    if (k === 'pd') { if (d.purpose) L.push('Purpose of the role', d.purpose, ''); (d.sections || []).forEach((s) => { L.push(s.heading, ...(s.items || []).map((i) => `- ${i}`), ''); }); if (d.reportingLine) L.push('Reporting line', d.reportingLine); }
-    if (k === 'ad') (d.ads || []).forEach((a) => { L.push(`[${a.board}]`, a.headline, ''); if (a.sellingPoints?.length) L.push(...a.sellingPoints.map((p) => `* ${p}`), ''); if (a.intro) L.push(a.intro, ''); L.push(...(a.bullets || []).map((b) => `- ${b}`)); if (a.closing) L.push('', a.closing); L.push('', ''); });
-    return L.join('\n').trim();
-  }
-  async function copyDoc(k, d) {
-    await navigator.clipboard.writeText(docAsText(k, d));
-    const b = $('copyBtn'); const t = b.textContent; b.textContent = 'Copied'; setTimeout(() => (b.textContent = t), 1500);
-  }
-
-  // ─────────── candidate link + responses ───────────
-  function candidateUrl() { return `${location.origin}/position-qualifier/apply/?token=${role.candidateLinkToken}`; }
-  function shareBlock() {
-    const responses = role.isWebsiteLead
-      ? `<p class="empty-state">We'll email you each candidate's answers as they come in.</p>`
-      : renderResponses(role.responses || []);
-    return `<div class="share"><h3>Send these questions to candidates</h3>
-      <p>Anyone with this link can answer the questions for ${esc(role.title)}. You read every answer.</p>
-      <div class="link-row"><input type="text" readonly id="candLink" value="${esc(candidateUrl())}"><button class="btn btn-primary btn-sm" id="copyLink">Copy link</button></div></div>
-      <div class="responses">${responses}</div>`;
-  }
-  function renderResponses(rs) {
-    if (!rs.length) return `<h3>Answers</h3><p class="empty-state">No answers yet. Send the link above to a candidate to get started.</p>`;
-    return `<h3>Answers (${rs.length})</h3><table class="resp-table"><tr><th></th><th>Candidate</th><th>Email</th><th>Received</th></tr>
-      ${rs.map((r, i) => `<tr class="resp-row" data-i="${i}"><td class="resp-chev" id="chev${i}">\u203a</td><td>${esc(r.cre5b_candidate_name || 'Not given')}</td><td>${esc(r.cre5b_candidate_email || '\u2014')}</td><td>${new Date(r.createdon).toLocaleDateString()}</td></tr>
-      <tr id="det${i}" hidden><td colspan="4">${renderAnswers(r.cre5b_answers)}<button class="btn btn-ghost btn-sm" data-dl="${i}" style="margin-top:8px">Download</button></td></tr>`).join('')}</table>`;
-  }
-  function renderAnswers(j) {
-    let a; try { a = JSON.parse(j); } catch (_) { return '<p class="empty-state">Couldn\u2019t read this response.</p>'; }
-    return a.map((x) => `<div class="ans"><div class="ans-q">${esc(x.question)}</div><div class="ans-a">${esc(x.answer || '(skipped)')}</div></div>`).join('');
-  }
-  function wireShare() {
-    $('copyLink')?.addEventListener('click', async () => {
-      await navigator.clipboard.writeText(candidateUrl());
-      const b = $('copyLink'); b.textContent = 'Copied'; setTimeout(() => (b.textContent = 'Copy link'), 1500);
-    });
-    document.querySelectorAll('.resp-row').forEach((row) => row.addEventListener('click', () => {
-      const i = row.dataset.i, det = $('det' + i);
-      det.hidden = !det.hidden; $('chev' + i).textContent = det.hidden ? '\u203a' : '\u2304';
-    }));
-    document.querySelectorAll('[data-dl]').forEach((b) => b.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const r = role.responses[b.dataset.dl];
-      let a = []; try { a = JSON.parse(r.cre5b_answers); } catch (_) {}
-      const text = [`${role.title} \u2014 candidate answers`, `Candidate: ${r.cre5b_candidate_name || 'Not given'}`, `Email: ${r.cre5b_candidate_email || '\u2014'}`, `Received: ${new Date(r.createdon).toLocaleString()}`, '', ...a.flatMap((x) => [x.question, x.answer || '(skipped)', ''])].join('\n');
-      const url = URL.createObjectURL(new Blob([text], { type: 'text/plain' }));
-      const link = document.createElement('a'); link.href = url;
-      link.download = `${(r.cre5b_candidate_name || 'candidate').replace(/\s+/g, '-')}-answers.txt`;
-      link.click(); URL.revokeObjectURL(url);
-    }));
-  }
-
-  if (token) roleMode(); else startMode();
-})();
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') document.body.classList.remove('menu-open');
+});
 </script>
 </body>
 </html>

@@ -71,8 +71,63 @@ function isLocked(q) {
 // Same priority as qualifier-generate-or-fetch.js: captured job posting
 // title > the role typed into Prospect's panel > nothing. Never the
 // contact's own headline (cre5b_title).
+// LinkedIn job cards read as "Title (Verified job) Title Company Location
+// View job Benefits…", or sometimes "Title Title Company Location…".
+// splitJobCard() separates the clean TITLE from the rest of the card's
+// DETAIL (company, location, benefits) — the title is stamped on every
+// document so it must be clean, but the detail is usually key to the role,
+// so it's kept and moved into the role's text instead of being dropped.
+// (1 Oct 2026)
+function splitJobCard(raw) {
+  const lines = String(raw || "").split(/\r?\n/).map((x) => x.trim()).filter(Boolean);
+  let t = lines.join(" ");
+  const verified = /\(?\s*verified job\s*\)?/i;
+  let title, rest;
+  if (verified.test(t)) {
+    const parts = t.split(verified);
+    title = parts[0];
+    rest = parts.slice(1).join(" ");
+  } else if (lines.length > 1) {
+    title = lines[0];
+    rest = lines.slice(1).join(" ");
+  } else {
+    title = t;
+    rest = "";
+  }
+  const tidy = (x) => x.replace(/\(\s+/g, "(").replace(/\s+\)/g, ")").replace(/\s+/g, " ").trim();
+  title = tidy(title);
+  rest = tidy(rest);
+  // Repeated title: the shortest leading run of words immediately repeated is
+  // the title, everything after the repeat is detail.
+  const w = title.split(" ");
+  for (let k = 1; k * 2 <= w.length; k++) {
+    if (w.slice(0, k).join(" ").toLowerCase() === w.slice(k, 2 * k).join(" ").toLowerCase()) {
+      rest = tidy(w.slice(2 * k).join(" ") + " " + rest);
+      title = w.slice(0, k).join(" ");
+      break;
+    }
+  }
+  // The detail often starts with the title again — drop that repeat.
+  if (rest.toLowerCase().startsWith(title.toLowerCase())) rest = tidy(rest.slice(title.length));
+  rest = tidy(rest.replace(/\bview job\b/gi, " ").replace(/\bverified job\b/gi, " "));
+  return { title: title.slice(0, 197), detail: rest.slice(0, 400) };
+}
+function cleanJobTitle(raw) { return splitJobCard(raw).title; }
+// LinkedIn truncates long posts with "… more" — drop it from captured text.
+function cleanAdText(raw) {
+  return String(raw || "").replace(/\s*(?:…|\.\.\.)\s*(?:see\s+)?more\s*$/i, "").trim();
+}
+// Text for a role: the job card's detail as a first line (unless already
+// there), then the post itself.
+function roleTextWithDetail(rawTitle, adText) {
+  const { detail } = splitJobCard(rawTitle);
+  const text = cleanAdText(adText);
+  if (!detail || text.includes("From the job post:") || text.includes(detail)) return text;
+  return `From the job post: ${detail}${text ? "\n\n" + text : ""}`;
+}
+
 function proposedTitle(lead) {
-  return cleanTitle(lead.cre5b_jobpostingtitle || lead.cre5b_search_role || "");
+  return cleanTitle(cleanJobTitle(lead.cre5b_jobpostingtitle || lead.cre5b_search_role || ""));
 }
 
 function parseMaybe(s) {
@@ -289,7 +344,7 @@ exports.handler = async (event) => {
       // First visit: create an UNLOCKED draft — no AI call yet.
       q = await dataverseRequest("POST", `cre5b_knowhashpositionqualifiers?$select=${QUALIFIER_FIELDS}`, {
         cre5b_role_title: proposedTitle(lead),
-        cre5b_position_text: lead.cre5b_ad_text || null,
+        cre5b_position_text: roleTextWithDetail(lead.cre5b_jobpostingtitle || "", lead.cre5b_ad_text) || null,
         cre5b_detail_level: DETAIL.standard,
         cre5b_job_boards: "General",
         cre5b_generation_count: 0,

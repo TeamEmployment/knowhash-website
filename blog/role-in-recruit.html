@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Your last message, ready to reuse — knowhash Blog</title>
-<meta name="description" content="knowhash now remembers your last invite and last message. Press \ in an empty compose box to reuse it, or turn it into a template in one click.">
+<title>knowhash Role, now inside Recruit — knowhash Blog</title>
+<meta name="description" content="Give each role its own page in knowhash Recruit: a position description, job ads and candidate questions drafted for you, with links that drop straight into your LinkedIn messages.">
 <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon16.png">
 <link rel="icon" type="image/png" sizes="48x48" href="/icons/icon48.png">
 <link rel="apple-touch-icon" sizes="128x128" href="/icons/icon128.png">
@@ -190,6 +190,11 @@
     background: var(--bg); border: 1px solid var(--line); border-bottom-width: 2px;
     border-radius: 6px; padding: 1px 7px; white-space: nowrap;
   }
+  .post .cta-row { text-align: center; margin: 8px 0 30px; }
+  .post .cta-row a {
+    display: inline-block; background: var(--pink); color: #fff; font-family: var(--display);
+    font-weight: 700; font-size: 14px; padding: 13px 26px; border-radius: 8px; text-decoration: none;
+  }
 </style>
 </head>
 <body>
@@ -234,7 +239,7 @@
         <span class="post-toc-sub">How it all started</span>
       </a>
       <hr class="post-toc-divider">
-      <a href="/blog/role-in-recruit.html">
+      <a href="/blog/role-in-recruit.html" class="current">
         knowhash Role, now inside Recruit
         <span class="post-toc-sub">Oct 2026</span>
       </a>
@@ -246,7 +251,7 @@
         Screen candidates before you pick up the phone
         <span class="post-toc-sub">Sep 2026</span>
       </a>
-      <a href="/blog/last-message-reuse.html" class="current">
+      <a href="/blog/last-message-reuse.html">
         Your last message, ready to reuse
         <span class="post-toc-sub">Sep 2026</span>
       </a>
@@ -261,60 +266,33 @@
     <button class="toc-toggle" id="tocToggle">&#9776; All posts</button>
 
     <article class="post">
-      <div class="kicker">Feature update</div>
-      <h2>Your last message, ready to reuse</h2>
+      <div class="kicker">New in Recruit</div>
+      <h2>knowhash Role, now inside Recruit</h2>
       <p class="byline">By Mike Reed, founder of knowhash</p>
 
-      <p>knowhash exists so you never have to write the same LinkedIn message twice. Templates get you most of the way there. But some of your best messages aren't templates at all — you tweak one to suit the person, or write something fresh that lands well, and then it's gone.</p>
+      <p>Earlier this week we launched <a href="/role" style="color:var(--pink); font-weight:600;">knowhash Role</a>: describe a role in your own words, and it drafts a position description, a job ad and a short set of candidate questions. Today it moves into knowhash Recruit, right next to your candidates.</p>
 
-      <p>Not any more. knowhash now remembers the last invite note and the last message you sent, and puts them one keystroke away.</p>
+      <h3>Every role gets its own page</h3>
 
-      <h3>One keystroke</h3>
+      <p>In Recruit, what used to be called Opportunities are now simply <strong>Roles</strong>, and each one can have a role page. Create a role, tick "Also create its role page", and it opens ready for your notes. From there you draft the position description, an ad for each job board you use (LinkedIn, Indeed, Seek or general), and the questions you'd like candidates to answer before interview.</p>
 
-      <p>Click into an empty compose box and press <kbd>\</kbd>. Your last message drops in, ready to read and send.</p>
+      <p>Recruit gives you up to <strong>5 active role pages</strong>, plenty of drafts on each, and when you finish with a role, deleting it frees the space for the next one.</p>
 
-      <video class="shot medium" autoplay loop muted playsinline preload="metadata" poster="img-last-message-reuse-poster.jpg" aria-label="A LinkedIn message box. The knowhash shortcut fills in the last message, then Send is clicked and the message appears in the conversation.">
-        <source src="vid-last-message-reuse.webm" type="video/webm">
-        <source src="vid-last-message-reuse.mp4" type="video/mp4">
-      </video>
-      <p class="shot-caption">Press \ in an empty box and your last message is there. You read it, then you press Send.</p>
+      <h3>The right link, in every message</h3>
 
-      <p>It works for connection notes and for message threads, and each keeps its own: the last invite you sent and the last message you sent are remembered separately, so writing to a new connection never overwrites the message you use with people you already know. <kbd>/</kbd> still opens your templates, and if you haven't sent anything yet, <kbd>\</kbd> simply opens them for you.</p>
+      <p>This is the part I use most. Pick the role you're <strong>working on</strong> in the panel, and your templates fill in its links by themselves: the candidate questions, the position description, the job ad. One "Skills Test Link" template now works for every role you'll ever run. Switch roles, and the same template produces the new role's links.</p>
 
-      <h3>Prefer a button? It's on the panel</h3>
+      <p>And it's not just for candidates. I've built a template that sends a client the position description, the ad and the questions in one message, for a role I'd taken the brief for that same morning.</p>
 
-      <p>The knowhash panel shows what it's remembered: <strong>Last invite</strong> when you're writing a connection note, <strong>Last message</strong> when you're in a conversation. Click <strong>Fill</strong> and it goes into the compose box.</p>
+      <h3>Still you deciding</h3>
 
-      <p>What you see depends on what you sent.</p>
+      <p>As ever, AI drafts and you decide. It never scores, ranks or rejects anyone: candidates' answers come to you, and you read them. The full detail of how we use AI is at <a href="/ai" style="color:var(--pink); font-weight:600;">knowhash.com/ai</a>.</p>
 
-      <div class="shot-pair">
-        <figure>
-          <img src="img-last-box-template.png" alt="The knowhash panel's Last message box showing a template with First name and Company pills, and Fill and Edit buttons.">
-          <figcaption>Sent a template as it was? It comes back as that template.</figcaption>
-        </figure>
-        <figure>
-          <img src="img-last-box-edited.png" alt="The knowhash panel's Last message box showing an edited message as plain text, with Fill and Create Template buttons.">
-          <figcaption>Changed it? It comes back exactly as you wrote it.</figcaption>
-        </figure>
+      <div class="cta-row">
+        <a href="/pricing.html">Try knowhash Recruit free for a month</a>
       </div>
 
-      <p>A template comes back with the name and company as pills, so it fills in for whoever you're looking at now, not the person you sent it to last time. An edited message comes back as you wrote it, and when you fill it for someone new, knowhash swaps the previous person's name and company for the one on screen. “Hi Sarah” never goes to Tom.</p>
-
-      <h3>Turn it into a template in one click</h3>
-
-      <p>Wrote something that worked? <strong>Create Template</strong> saves it straight away. The recipient's name, company and headline become pills, and so do your own name and company, so the next person gets a message that already knows who they are. It's added to your templates, and <strong>Edit</strong> lets you rename it or tidy it up.</p>
-
-      <img class="shot narrow" src="img-create-template.png" alt="The knowhash panel after Create Template: the Last message box now shows the saved template with a First name pill, a new 'My message' template has appeared in the list, and a note confirms it was saved.">
-      <p class="shot-caption">Create Template saves it in one click. The box shows it as a template, and it's already in your list.</p>
-
-      <p>You never have to open the Templates manager. Your templates build themselves from the messages you actually send.</p>
-
-      <h3>You're still the one who presses Send</h3>
-
-      <p>knowhash fills the box; you read it and press Send. It only remembers a message once you've pressed Send and the compose box has cleared, so drafts you abandon are never saved. And it all stays in your own browser alongside your templates: no account, no server, nothing hashed together somewhere else.</p>
-
-      <hr class="post-divider">
-      <p style="color:#9aa3b0; font-size:14px;">The last-message box is in both knowhash (free) and knowhash Recruit. Chrome updates extensions automatically, so look for version 0.7.1 of knowhash or 0.10.0 of knowhash Recruit. New here? <a href="/pricing.html" style="color:var(--pink); font-weight:600;">Get knowhash</a>.</p>
+      <p>No card needed. Not ready for Recruit? <a href="/role" style="color:var(--pink); font-weight:600;">Your first knowhash Role is free</a> on the website.</p>
     </article>
 
     <section class="subscribe">

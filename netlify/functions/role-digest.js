@@ -29,7 +29,7 @@ exports.handler = async () => {
       : `knowhash Role — ${t.newRoles} new role${t.newRoles === 1 ? "" : "s"}, ${t.answers} answer${t.answers === 1 ? "" : "s"}`;
 
     const statRow = [
-      ["New roles", `${t.newRoles}`, `${t.newWebsite} website · ${t.newProspect} prospect`],
+      ["New roles", `${t.newRoles}`, `${t.newWebsite} website · ${t.newProspect} prospect · ${t.newRecruit} Recruit`],
       ["Roles set (first document)", `${t.lockedInWindow}`, "the real sign of engagement"],
       ["Roles with activity", `${t.activeRoles}`, `${t.withEmail} have given an email`],
       ["Candidate answers", `${t.answers}`, ""],

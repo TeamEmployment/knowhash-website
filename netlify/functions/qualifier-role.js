@@ -42,7 +42,7 @@ const QUALIFIER_FIELDS = [
   "cre5b_knowhashpositionqualifierid", "cre5b_role_title", "cre5b_position_text",
   "cre5b_detail_level", "cre5b_job_boards", "cre5b_generated_questions",
   "cre5b_generated_pd", "cre5b_generated_ad_copy", "cre5b_title_locked_at",
-  "cre5b_generation_count", "cre5b_candidate_link_token", "cre5b_notify_email", "createdon",
+  "cre5b_generation_count", "cre5b_candidate_link_token", "cre5b_notify_email", "cre5b_owner_recruiter_id", "cre5b_archived", "createdon",
 ].join(",");
 
 const json = (statusCode, body) => ({
@@ -99,6 +99,9 @@ function rolePayload(lead, q, responses) {
     notifyEmail: q.cre5b_notify_email || (lead.cre5b_lead_source === 342840001 ? lead.cre5b_email || "" : ""),
     brand: { colour: lead.cre5b_brand_colour || null, logoUrl: lead.cre5b_brand_logo_url || null },
     isWebsiteLead: lead.cre5b_lead_source === 342840001,
+    // Recruit-owned roles aren't "free" — the page drops the free-role
+    // wording and the Recruit upsell for these.
+    isRecruit: !!q.cre5b_owner_recruiter_id,
     responses: responses || [],
   };
 }
@@ -256,15 +259,27 @@ exports.handler = async (event) => {
       "GET",
       `cre5b_knowhashleadses?$filter=cre5b_landing_page_token eq '${token}'&$select=cre5b_knowhashleadsid,cre5b_jobpostingtitle,cre5b_search_role,cre5b_brand_colour,cre5b_brand_logo_url,cre5b_ad_text,cre5b_lead_source,cre5b_email`
     );
-    const lead = leadResult.value?.[0];
-    if (!lead) return json(404, { error: "Link not recognised" });
+    let lead = leadResult.value?.[0];
+    let q = null;
 
-    // The lead's one free role (step 3 adds Recruit/web owners with more).
-    const existing = await dataverseRequest(
-      "GET",
-      `cre5b_knowhashpositionqualifiers?$filter=_cre5b_owner_lead_value eq ${lead.cre5b_knowhashleadsid}&$select=${QUALIFIER_FIELDS}&$orderby=createdon asc&$top=1`
-    );
-    let q = existing.value?.[0];
+    if (lead) {
+      // A prospect or website lead: their one free role.
+      const existing = await dataverseRequest(
+        "GET",
+        `cre5b_knowhashpositionqualifiers?$filter=_cre5b_owner_lead_value eq ${lead.cre5b_knowhashleadsid}&$select=${QUALIFIER_FIELDS}&$orderby=createdon asc&$top=1`
+      );
+      q = existing.value?.[0];
+    } else {
+      // knowhash Recruit (1 Oct 2026): the token is the role's own private
+      // role-page token. No lead — the role belongs to a Recruit install.
+      const byRole = await dataverseRequest(
+        "GET",
+        `cre5b_knowhashpositionqualifiers?$filter=cre5b_role_token eq '${token}'&$select=${QUALIFIER_FIELDS}&$top=1`
+      );
+      q = byRole.value?.[0];
+      if (!q || q.cre5b_archived) return json(404, { error: "Link not recognised" });
+      lead = {}; // stands in for "no lead" everywhere below
+    }
 
     if (!q) {
       // First visit: create an UNLOCKED draft — no AI call yet.
@@ -323,7 +338,7 @@ exports.handler = async (event) => {
           // the field can't be used to spam an address repeatedly.
           if (!q.cre5b_notify_email) sendLinkAfterSave = e;
           // Populate the lead record if we don't have an address for them yet.
-          if (!lead.cre5b_email) {
+          if (lead.cre5b_knowhashleadsid && !lead.cre5b_email) {
             await dataverseRequest("PATCH", `cre5b_knowhashleadses(${lead.cre5b_knowhashleadsid})`, { cre5b_email: e });
             lead.cre5b_email = e;
           }

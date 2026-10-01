@@ -43,7 +43,7 @@ async function roleActivity(sinceIso) {
   const filter = [`modifiedon ge ${sinceIso}`, ...answeredIds.map((id) => `cre5b_knowhashpositionqualifierid eq ${id}`)].join(" or ");
   const roles = await getAll(
     `cre5b_knowhashpositionqualifiers?$filter=${filter}` +
-    `&$select=cre5b_knowhashpositionqualifierid,cre5b_role_title,cre5b_generation_count,cre5b_title_locked_at,cre5b_generated_questions,cre5b_generated_pd,cre5b_generated_ad_copy,cre5b_notify_email,createdon,modifiedon` +
+    `&$select=cre5b_knowhashpositionqualifierid,cre5b_role_title,cre5b_generation_count,cre5b_title_locked_at,cre5b_generated_questions,cre5b_generated_pd,cre5b_generated_ad_copy,cre5b_notify_email,cre5b_owner_recruiter_id,cre5b_role_token,createdon,modifiedon` +
     `&$expand=cre5b_owner_lead($select=cre5b_name,cre5b_email,cre5b_lead_source,cre5b_landing_page_token,cre5b_company)` +
     `&$orderby=modifiedon desc`
   );
@@ -56,8 +56,8 @@ async function roleActivity(sinceIso) {
       return {
         id: q.cre5b_knowhashpositionqualifierid,
         title: q.cre5b_role_title || "(no title yet)",
-        source: lead.cre5b_lead_source === WEBSITE ? "Website" : "Prospect",
-        who: lead.cre5b_lead_source === WEBSITE ? null : (lead.cre5b_name || null),
+        source: q.cre5b_owner_recruiter_id ? "Recruit" : lead.cre5b_lead_source === WEBSITE ? "Website" : "Prospect",
+        who: q.cre5b_owner_recruiter_id || lead.cre5b_lead_source === WEBSITE ? null : (lead.cre5b_name || null),
         company: lead.cre5b_company || null,
         isNew: q.createdon >= sinceIso,
         lockedInWindow: !!q.cre5b_title_locked_at && q.cre5b_title_locked_at >= sinceIso,
@@ -71,7 +71,8 @@ async function roleActivity(sinceIso) {
         email: !!(q.cre5b_notify_email || (lead.cre5b_lead_source === WEBSITE && lead.cre5b_email)),
         answers: answersByRole[q.cre5b_knowhashpositionqualifierid] || 0,
         // Private link — only ever included in Mike's own digest email.
-        privateLink: lead.cre5b_landing_page_token ? `${SITE}/position-qualifier/?token=${lead.cre5b_landing_page_token}` : null,
+        privateLink: q.cre5b_role_token ? `${SITE}/position-qualifier/?token=${q.cre5b_role_token}`
+          : lead.cre5b_landing_page_token ? `${SITE}/position-qualifier/?token=${lead.cre5b_landing_page_token}` : null,
       };
     });
 
@@ -79,6 +80,7 @@ async function roleActivity(sinceIso) {
     newRoles: list.filter((r) => r.isNew).length,
     newWebsite: list.filter((r) => r.isNew && r.source === "Website").length,
     newProspect: list.filter((r) => r.isNew && r.source === "Prospect").length,
+    newRecruit: list.filter((r) => r.isNew && r.source === "Recruit").length,
     lockedInWindow: list.filter((r) => r.lockedInWindow).length,
     activeRoles: list.length,
     withEmail: list.filter((r) => r.email).length,

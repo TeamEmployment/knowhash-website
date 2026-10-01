@@ -409,7 +409,7 @@
         const res = await fetch('/.netlify/functions/role-start', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, recaptchaToken: await recaptchaToken('role_start') }) });
         const body = await res.json();
         if (!res.ok || !body.token) throw new Error(body.error || 'Something went wrong');
-        location.href = `/position-qualifier/?token=${encodeURIComponent(body.token)}`;
+        location.href = `/role?token=${encodeURIComponent(body.token)}`;
       } catch (e) {
         err.textContent = e.message; err.classList.add('show');
         btn.disabled = false; btn.textContent = 'Start my free role';

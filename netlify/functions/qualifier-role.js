@@ -353,7 +353,7 @@ exports.handler = async (event) => {
         q = { ...q, ...patch };
       }
       if (sendLinkAfterSave) {
-        const link = `https://knowhash.com/position-qualifier/?token=${encodeURIComponent(token)}`;
+        const link = `https://knowhash.com/role?token=${encodeURIComponent(token)}`;
         const t = q.cre5b_role_title || "your role";
         try {
           await sendEmail({

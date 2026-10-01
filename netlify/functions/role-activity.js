@@ -71,8 +71,8 @@ async function roleActivity(sinceIso) {
         email: !!(q.cre5b_notify_email || (lead.cre5b_lead_source === WEBSITE && lead.cre5b_email)),
         answers: answersByRole[q.cre5b_knowhashpositionqualifierid] || 0,
         // Private link — only ever included in Mike's own digest email.
-        privateLink: q.cre5b_role_token ? `${SITE}/position-qualifier/?token=${q.cre5b_role_token}`
-          : lead.cre5b_landing_page_token ? `${SITE}/position-qualifier/?token=${lead.cre5b_landing_page_token}` : null,
+        privateLink: q.cre5b_role_token ? `${SITE}/role?token=${q.cre5b_role_token}`
+          : lead.cre5b_landing_page_token ? `${SITE}/role?token=${lead.cre5b_landing_page_token}` : null,
       };
     });
 

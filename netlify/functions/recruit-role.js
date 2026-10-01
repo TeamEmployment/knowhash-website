@@ -56,6 +56,7 @@ function view(q) {
     title: q.cre5b_role_title || "",
     locked: !!q.cre5b_title_locked_at,
     drafts: q.cre5b_generation_count || 0,
+    draftCap: Number(process.env.QUALIFIER_MAX_GENERATIONS_RECRUIT || 30),
     links: {
       rolePage: `${SITE}/position-qualifier/?token=${q.cre5b_role_token}`, // private — the recruiter's own
       questions: q.cre5b_generated_questions ? `${SITE}/position-qualifier/apply/?token=${t}` : null,

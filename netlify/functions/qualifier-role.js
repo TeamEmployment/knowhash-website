@@ -30,6 +30,10 @@ const { shareUrl, docToText, docToHtml, sendEmail, cleanEmail, NAMES } = require
 
 const CLAUDE_MODEL = "claude-sonnet-4-6";
 const MAX_GENERATIONS_PER_ROLE = Number(process.env.QUALIFIER_MAX_GENERATIONS || 10);
+// Recruit roles (paying, or in their free month) get room to experiment —
+// the cap only stops runaway use. 1 Oct 2026.
+const MAX_GENERATIONS_RECRUIT = Number(process.env.QUALIFIER_MAX_GENERATIONS_RECRUIT || 30);
+const capFor = (q) => (q.cre5b_owner_recruiter_id ? MAX_GENERATIONS_RECRUIT : MAX_GENERATIONS_PER_ROLE);
 const OWNER_LEAD_BIND = "cre5b_owner_lead@odata.bind";
 
 const DETAIL = { brief: 342840000, standard: 342840001, detailed: 342840002 };
@@ -90,7 +94,7 @@ function rolePayload(lead, q, responses) {
       pd: parseMaybe(q.cre5b_generated_pd),
       ad: parseMaybe(q.cre5b_generated_ad_copy),
     },
-    generations: { used, max: MAX_GENERATIONS_PER_ROLE },
+    generations: { used, max: capFor(q) },
     candidateLinkToken: q.cre5b_candidate_link_token,
     // Only ever an address this person gave us: their notify email, or the
     // email a website visitor signed up with. Never an enriched Prospect
@@ -379,8 +383,8 @@ exports.handler = async (event) => {
         return json(409, { needsConfirm: true, title: q.cre5b_role_title });
       }
       const used = q.cre5b_generation_count || (q.cre5b_generated_questions ? 1 : 0);
-      if (used >= MAX_GENERATIONS_PER_ROLE) {
-        return json(429, { error: "generation_limit", used, max: MAX_GENERATIONS_PER_ROLE });
+      if (used >= capFor(q)) {
+        return json(429, { error: "generation_limit", used, max: capFor(q) });
       }
 
       const generated = await generateDoc(doc, q, { board: body.board });

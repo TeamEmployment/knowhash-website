@@ -541,7 +541,10 @@
       t.querySelector('.dot').classList.toggle('done', !!role.documents[t.dataset.doc]);
     });
     const left = remaining();
-    $('usage').innerHTML = `<b>${left}</b> of ${role.generations.max} ${role.isRecruit ? '' : 'free '}drafts left for this role`;
+    // Recruit roles: no counter until it matters (5 or fewer left).
+    $('usage').innerHTML = role.isRecruit
+      ? (left <= 5 ? `<b>${left}</b> draft${left === 1 ? '' : 's'} left for this role` : '')
+      : `<b>${left}</b> of ${role.generations.max} free drafts left for this role`;
 
     const info = DOCS[activeDoc];
     let doc = role.documents[activeDoc];
